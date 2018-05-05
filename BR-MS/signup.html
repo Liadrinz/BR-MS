@@ -9,6 +9,10 @@
             background: url(res/bg-air.jpg) center top;
             background-size: 100%;
         }
+
+        .full-fill {
+            width: 100%;
+        }
     </style>
 </head>
 <body>
@@ -63,15 +67,15 @@
                                 </el-select>
                             </el-form-item>
                             <transition name="el-zoom-in-top">
-                                <div v-show="form1.usertype==='admin'">
-                                    <el-form-item label="仓库编号" prop="repoId" required>
-                                        <el-input v-model="form1.mobile"></el-input>
+                                <div v-if="form1.usertype==='admin'">
+                                    <el-form-item label="仓库编号" prop="repoId" required="false">
+                                        <el-input v-model="form1.repoId"></el-input>
                                     </el-form-item>
-                                    <el-form-item label="仓库地址" prop="repoAddr" required>
-                                        <el-input v-model="form1.tel"></el-input>
+                                    <el-form-item label="仓库地址" prop="repoAddr" required="false">
+                                        <el-input v-model="form1.repoAddr"></el-input>
                                     </el-form-item>
                                     <el-form-item label="仓库经纬度" prop="repoCoord">
-                                        <el-input v-model="form1.email"></el-input>
+                                        <el-input v-model="form1.repoCoord"></el-input>
                                     </el-form-item>
                                 </div>
                             </transition>
@@ -84,6 +88,15 @@
                                 </el-row>
                             </el-form-item>
                         </el-form>
+                    </div>
+                </transition>
+                <transition name="el-fade-in">
+                    <div v-show="state===1">
+                        <h2>用户信息</h2>
+                        <el-table :data="inputDoubleCheck" class="">
+                            <el-table-column prop="key"></el-table-column>
+                            <el-table-column prop="value"></el-table-column>
+                        </el-table>
                     </div>
                 </transition>
             </el-card>
@@ -115,11 +128,9 @@
                     email: '',
                     addr: '',
                     usertype: '',
-                    repo: {
-                        id: '',
-                        addr: '',
-                        coord: ''
-                    }
+                    repoId: '',
+                    repoAddr: '',
+                    repoCoord: ''
                 },
                 rules1: {
                     documentType: [
@@ -143,7 +154,7 @@
                     ],
                     tel: [
                         {required: true, message: '请输入固定电话'},
-                        {pattern: /^\d+$/, message: '请输入正确的固定电话'}
+                        {pattern: /^[\d()-]+$/, message: '请输入正确的固定电话'}
                     ],
                     email: [
                         {required: true, message: '请输入电子邮箱'},
@@ -157,7 +168,13 @@
                     ],
                     usertype: [
                         {required: true, message: '请选择用户类型'}
-                    ]
+                    ],
+                    repoId: [
+                        {required: true, message: '请输入仓库编号'}
+                    ],
+                    repoAddr: [
+                        {required: true, message: '请输入仓库地址'}
+                    ],
                 }
             }
         },
@@ -179,6 +196,39 @@
                 window.location.href = './login.html';
             },
             register: function () {
+            }
+        },
+        computed: {
+            inputDoubleCheck: function () {
+                var renderData = {
+                    '证件类型': {
+                        '': '',
+                        '1': '公民身份证',
+                        '2': '军官证',
+                        '3': '护照'
+                    }[this.form1.documentType],
+                    '用户姓名':this.form1.name,
+                    '单位名称':this.form1.company,
+                    '职务':this.form1.position,
+                    '员工ID':this.form1.staffId,
+                    '手机号码':this.form1.mobile,
+                    '固定电话':this.form1.tel,
+                    '电子邮箱':this.form1.email,
+                    '联系地址':this.form1.addr,
+                    '用户类型':{
+                        'common':'普通用户',
+                        'admin':'仓库管理员'
+                    }[this.form1.usertype],
+                    '仓库编号':this.form1.repoId,
+                    '仓库地址':this.form1.repoAddr,
+                    '仓库经纬度':this.form1.repoCoord
+                };
+
+                var result = [];
+                for(var i in renderData) {
+                    result.push({key: i, value: renderData[i]});
+                }
+                return result;
             }
         }
     });
