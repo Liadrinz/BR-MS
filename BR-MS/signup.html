@@ -27,9 +27,11 @@
                                     <el-option label="护照" value="3"></el-option>
                                 </el-select>
                             </el-form-item>
-                            <el-form-item label="证件号码" prop="documentId" required>
-                                <el-input v-model="form1.documentId"></el-input>
-                            </el-form-item>
+                            <transition name="el-zoom-in-top">
+                                <el-form-item v-show="form1.documentType != ''" label="证件号码" prop="documentId" required>
+                                    <el-input v-model="form1.documentId"></el-input>
+                                </el-form-item>
+                            </transition>
                             <el-form-item label="用户姓名" prop="name" required>
                                 <el-input v-model="form1.name"></el-input>
                             </el-form-item>
