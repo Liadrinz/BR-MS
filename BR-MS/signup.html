@@ -108,6 +108,14 @@
 <script src="lib/eleme-index.js"></script>
 <script src="res/dependencies.js"></script>
 <script>
+    var idc = function(rule, value, callback) {
+        var idChecker = require('verify-identity-card');
+
+        if(app.form1.documentType === '1' && !idChecker(value)) {
+            callback(new Error("请输入正确的身份证号"));
+        }
+    };
+
     var app = new Vue({
         el: '#app',
         data: function () {
@@ -134,15 +142,8 @@
                         {required: true, message: '请选择证件类型'}
                     ],
                     documentId: [
-                        {required: true, message: '请输入证件号码'},
                         {
-                            validator: function(rule, value, callback) {
-                                var idChecker = require('verify-identity-card');
-
-                                if(app.form1.documentType === '1' && !idChecker(value)) {
-                                    callback(new Error("请输入正确的身份证号"));
-                                }
-                            },
+                            validator: idc,
                             trigger: 'blur'
                         }
                     ],
@@ -197,7 +198,6 @@
                         return false;
                     }
                 })
-
             },
             cancel: function () {
                 window.location.href = './login.html';
