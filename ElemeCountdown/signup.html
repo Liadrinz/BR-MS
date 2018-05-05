@@ -22,32 +22,42 @@
 <script>
     var app = new Vue({
         el: '#app',
-        data: function(){
+        data: function () {
             return {
-                form:{
-                    documentType:'',
-                    documentId:'',
-                    name:'',
-                    company:'',
-                    position:'',
-                    staffId:'',
-                    mobile:'',
-                    tel:'',
-                    email:'',
-                    addr:'',
-                    usertype:'',
-                    repo:{
-                        id:'',
-                        addr:'',
-                        coord:''
+                state: 0,
+                form: {
+                    documentType: '',
+                    documentId: '',
+                    name: '',
+                    company: '',
+                    position: '',
+                    staffId: '',
+                    mobile: '',
+                    tel: '',
+                    email: '',
+                    addr: '',
+                    usertype: '',
+                    repo: {
+                        id: '',
+                        addr: '',
+                        coord: ''
                     }
                 }
             }
         },
         methods: {
-           nextStep:function(){
+            previousStep: function () {
 
-           }
+            },
+            nextStep: function () {
+
+            },
+            cancel:function(){
+                window.location.href='./login.html';
+            },
+            register:function(){
+
+            }
         }
     });
 </script>
