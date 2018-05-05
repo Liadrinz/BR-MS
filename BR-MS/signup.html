@@ -18,7 +18,7 @@
 <body>
 <div id="app">
     <el-row>
-        <el-col span="14" offset="5">
+        <el-col :span="14" :offset="5">
             <el-card>
                 <transition name="el-fade-in">
                     <div v-show="state===0">
@@ -80,12 +80,8 @@
                                 </div>
                             </transition>
                             <el-form-item>
-                                <el-row>
-                                    <el-col offset="18">
-                                        <el-button type="primary" @click="nextStep('form1')">下一步</el-button>
-                                        <el-button>取消</el-button>
-                                    </el-col>
-                                </el-row>
+                                <el-button type="primary" @click="nextStep('form1')">下一步</el-button>
+                                <el-button>取消</el-button>
                             </el-form-item>
                         </el-form>
                     </div>
@@ -110,6 +106,7 @@
 </body>
 <script src="lib/vue.js"></script>
 <script src="lib/eleme-index.js"></script>
+<script src="res/dependencies.js"></script>
 <script>
     var app = new Vue({
         el: '#app',
@@ -137,7 +134,17 @@
                         {required: true, message: '请选择证件类型'}
                     ],
                     documentId: [
-                        {required: true, message: '请输入证件号码'}
+                        {required: true, message: '请输入证件号码'},
+                        {
+                            validator: function(rule, value, callback) {
+                                var idChecker = require('verify-identity-card');
+
+                                if(app.form1.documentType === '1' && !idChecker(value)) {
+                                    callback(new Error("请输入正确的身份证号"));
+                                }
+                            },
+                            trigger: 'blur'
+                        }
                     ],
                     name: [
                         {required: true, message: '请输入用户姓名'}
