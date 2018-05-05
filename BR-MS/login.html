@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>页面的标题</title>
+    <link rel="stylesheet" href="lib/eleme-index.css">
+    <style>
+        body {
+            background: url(res/bg-air.jpg) center top;
+            background-size: 100%;
+        }
+
+        .full-fill {
+            width: 100%;
+        }
+
+        .samewidth-cols {
+            display: flex;
+        }
+
+        .samewidth-cols > div {
+            flex: 1;
+        }
+
+        .samewidth-cols > div.spliter {
+            flex: 0 0 20px;
+        }
+
+        .samewidth-cols > div.spliter-large {
+            flex: 0 0 40px;
+        }
+
+        div#login-form {
+            padding: 50px 0 50px;
+        }
+
+        div#login-form > header {
+            margin-bottom: 30px;
+            padding-left: 20px;
+            margin-right: -20px;
+            font-size: 25px;
+            text-align: center;
+        }
+
+        div#login-bg {
+            background: url(res/bg-ac.jpg) center top;
+        }
+
+        p#login-title {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <el-container>
+        <el-header></el-header>
+        <el-main>
+            <el-row>
+                <el-col span="14" offset="5">
+                    <el-card>
+                        <el-row>
+                            <div class="samewidth-cols">
+                                <div id="login-bg"></div>
+                                <div class="spliter"></div>
+                                <div id="login-form">
+                                    <header>后勤物资<br>多维调度系统</header>
+                                    <el-form label-position="right" label-width="80px">
+                                        <el-form-item label="用户名">
+                                            <el-input v-model="loginForm.user"></el-input>
+                                        </el-form-item>
+                                        <el-form-item label="密码">
+                                            <el-input v-model="loginForm.pwd"></el-input>
+                                        </el-form-item>
+                                        <el-form-item>
+                                            <el-button type="primary" class="full-fill">登录</el-button>
+                                        </el-form-item>
+                                        <el-form-item>
+                                            <el-row gutter="20">
+                                                <el-col span="12">
+                                                    <el-button class="full-fill">立即注册</el-button>
+                                                </el-col>
+                                                <el-col span="12">
+                                                    <el-button class="full-fill">找回密码</el-button>
+                                                </el-col>
+                                            </el-row>
+                                        </el-form-item>
+                                    </el-form>
+                                </div>
+                                <div class="spliter-large"></div>
+                            </div>
+                        </el-row>
+                    </el-card>
+                </el-col>
+            </el-row>
+        </el-main>
+    </el-container>
+</div>
+</body>
+<script src="lib/vue.js"></script>
+<script src="lib/eleme-index.js"></script>
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            loginForm: {
+                user: '',
+                pwd: ''
+            }
+        },
+        methods: {}
+    });
+</script>
+</html>
