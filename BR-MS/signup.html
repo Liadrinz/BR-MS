@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>注册</title>
+    <link rel="stylesheet" href="lib/eleme-index.css">
+    <style>
+        body {
+            background: url(res/bg-air.jpg) center top;
+            background-size: 100%;
+        }
+
+        .full-fill {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <el-row>
+        <el-col :span="14" :offset="5">
+            <el-card>
+                <transition name="el-fade-in">
+                    <div v-show="state===0">
+                        <h2>用户注册</h2>
+                        <el-form ref="form1" :rules="rules1" :model="form1" label-position="right" label-width="100px">
+                            <el-form-item label="证件类型" prop="documentType" required>
+                                <el-select v-model="form1.documentType" placeholder="请选择">
+                                    <el-option label="公民身份证" value="1"></el-option>
+                                    <el-option label="军官证" value="2"></el-option>
+                                    <el-option label="护照" value="3"></el-option>
+                                </el-select>
+                            </el-form-item>
+                            <transition name="el-zoom-in-top">
+                                <el-form-item v-show="form1.documentType != ''" label="证件号码" prop="documentId" required>
+                                    <el-input v-model="form1.documentId"></el-input>
+                                </el-form-item>
+                            </transition>
+                            <el-form-item label="用户姓名" prop="name" required>
+                                <el-input v-model="form1.name"></el-input>
+                            </el-form-item>
+                            <el-form-item label="单位名称" prop="company" required>
+                                <el-input v-model="form1.company"></el-input>
+                            </el-form-item>
+                            <el-form-item label="职务" prop="position" required>
+                                <el-input v-model="form1.position"></el-input>
+                            </el-form-item>
+                            <el-form-item label="员工ID" prop="staffId" required>
+                                <el-input v-model="form1.staffId"></el-input>
+                            </el-form-item>
+                            <el-form-item label="手机号码">
+                                <el-input v-model="form1.mobile"></el-input>
+                            </el-form-item>
+                            <el-form-item label="固定电话" prop="tel" required>
+                                <el-input v-model="form1.tel"></el-input>
+                            </el-form-item>
+                            <el-form-item label="电子邮箱" prop="email" required>
+                                <el-input v-model="form1.email"></el-input>
+                            </el-form-item>
+                            <el-form-item label="联系地址" prop="addr" required>
+                                <el-input v-model="form1.addr"></el-input>
+                            </el-form-item>
+                            <el-form-item label="用户类型" prop="usertype" required>
+                                <el-select v-model="form1.usertype">
+                                    <el-option label="普通用户" value="common"></el-option>
+                                    <el-option label="仓库管理员" value="admin"></el-option>
+                                </el-select>
+                            </el-form-item>
+                            <transition name="el-zoom-in-top">
+                                <div v-if="form1.usertype==='admin'">
+                                    <el-form-item label="仓库编号" prop="repoId" required="false">
+                                        <el-input v-model="form1.repoId"></el-input>
+                                    </el-form-item>
+                                    <el-form-item label="仓库地址" prop="repoAddr" required="false">
+                                        <el-input v-model="form1.repoAddr"></el-input>
+                                    </el-form-item>
+                                    <el-form-item label="仓库经纬度" prop="repoCoord">
+                                        <el-input v-model="form1.repoCoord"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </transition>
+                            <el-form-item>
+                                <el-button type="primary" @click="nextStep('form1')">下一步</el-button>
+                                <el-button>取消</el-button>
+                            </el-form-item>
+                        </el-form>
+                    </div>
+                </transition>
+                <transition name="el-fade-in">
+                    <div v-show="state===1">
+                        <h2>用户信息</h2>
+                        <el-table :data="inputDoubleCheck" class="">
+                            <el-table-column prop="key"></el-table-column>
+                            <el-table-column prop="value"></el-table-column>
+                        </el-table>
+                    </div>
+                </transition>
+            </el-card>
+        </el-col>
+    </el-row>
+    <div id="step-2">
+    </div>
+    <div id="step-3">
+    </div>
+</div>
+</body>
+<script src="lib/vue.js"></script>
+<script src="lib/eleme-index.js"></script>
+<script src="res/dependencies.js"></script>
+<script>
+    var idc = function(rule, value, callback) {
+        var idChecker = require('verify-identity-card');
+
+        if(app.form1.documentType === '1' && !idChecker(value)) {
+            callback(new Error("请输入正确的身份证号"));
+        }
+    };
+
+    var app = new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                state: 0,
+                form1: {
+                    documentType: '',
+                    documentId: '',
+                    name: '',
+                    company: '',
+                    position: '',
+                    staffId: '',
+                    mobile: '',
+                    tel: '',
+                    email: '',
+                    addr: '',
+                    usertype: '',
+                    repoId: '',
+                    repoAddr: '',
+                    repoCoord: ''
+                },
+                rules1: {
+                    documentType: [
+                        {required: true, message: '请选择证件类型'}
+                    ],
+                    documentId: [
+                        {
+                            validator: idc,
+                            trigger: 'blur'
+                        }
+                    ],
+                    name: [
+                        {required: true, message: '请输入用户姓名'}
+                    ],
+                    company: [
+                        {required: true, message: '请输入单位名称'}
+                    ],
+                    position: [
+                        {required: true, message: '请输入职务'}
+                    ],
+                    staffId: [
+                        {required: true, message: '请输入员工ID'},
+                        {pattern: /^\d+$/, message: '请输入正确的员工ID'}
+                    ],
+                    tel: [
+                        {required: true, message: '请输入固定电话'},
+                        {pattern: /^[\d()-]+$/, message: '请输入正确的固定电话'}
+                    ],
+                    email: [
+                        {required: true, message: '请输入电子邮箱'},
+                        {
+                            pattern: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+                            message: '请输入正确的电子邮箱'
+                        }
+                    ],
+                    addr: [
+                        {required: true, message: '请输入联系地址'}
+                    ],
+                    usertype: [
+                        {required: true, message: '请选择用户类型'}
+                    ],
+                    repoId: [
+                        {required: true, message: '请输入仓库编号'}
+                    ],
+                    repoAddr: [
+                        {required: true, message: '请输入仓库地址'}
+                    ],
+                }
+            }
+        },
+        methods: {
+            previousStep: function () {
+            },
+            nextStep: function (formName) {
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        this.state = 1;
+                    } else {
+                        this.$alert("信息错误，请重新填写。");
+                        return false;
+                    }
+                })
+            },
+            cancel: function () {
+                window.location.href = './login.html';
+            },
+            register: function () {
+            }
+        },
+        computed: {
+            inputDoubleCheck: function () {
+                var renderData = {
+                    '证件类型': {
+                        '': '',
+                        '1': '公民身份证',
+                        '2': '军官证',
+                        '3': '护照'
+                    }[this.form1.documentType],
+                    '用户姓名':this.form1.name,
+                    '单位名称':this.form1.company,
+                    '职务':this.form1.position,
+                    '员工ID':this.form1.staffId,
+                    '手机号码':this.form1.mobile,
+                    '固定电话':this.form1.tel,
+                    '电子邮箱':this.form1.email,
+                    '联系地址':this.form1.addr,
+                    '用户类型':{
+                        'common':'普通用户',
+                        'admin':'仓库管理员'
+                    }[this.form1.usertype],
+                    '仓库编号':this.form1.repoId,
+                    '仓库地址':this.form1.repoAddr,
+                    '仓库经纬度':this.form1.repoCoord
+                };
+
+                var result = [];
+                for(var i in renderData) {
+                    result.push({key: i, value: renderData[i]});
+                }
+                return result;
+            }
+        }
+    });
+</script>
+</html>
