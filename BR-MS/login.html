@@ -46,9 +46,17 @@
             background: url(res/bg-ac.jpg) center top;
         }
 
-        p#login-title {
-            text-align: center;
+        #login-card-container{
+            width:850px;
+            position:absolute;
+            right:50%;
         }
+
+        #login-card-container>#login-card{
+            position:relative;
+            right:-50%;
+        }
+
     </style>
 </head>
 <body>
@@ -56,43 +64,43 @@
     <el-container>
         <el-header></el-header>
         <el-main>
-            <el-row>
-                <el-col span="14" offset="5">
-                    <el-card>
-                        <el-row>
-                            <div class="samewidth-cols">
-                                <div id="login-bg"></div>
-                                <div class="spliter"></div>
-                                <div id="login-form">
-                                    <header>后勤物资<br>多维调度系统</header>
-                                    <el-form label-position="right" label-width="80px">
-                                        <el-form-item label="用户名">
-                                            <el-input v-model="loginForm.user"></el-input>
-                                        </el-form-item>
-                                        <el-form-item label="密码">
-                                            <el-input v-model="loginForm.pwd"></el-input>
-                                        </el-form-item>
-                                        <el-form-item>
-                                            <el-button type="primary" class="full-fill">登录</el-button>
-                                        </el-form-item>
-                                        <el-form-item>
-                                            <el-row gutter="20">
-                                                <el-col span="12">
-                                                    <a href="signup.html"><el-button class="full-fill">立即注册</el-button></a>
-                                                </el-col>
-                                                <el-col span="12">
-                                                    <el-button class="full-fill">找回密码</el-button>
-                                                </el-col>
-                                            </el-row>
-                                        </el-form-item>
-                                    </el-form>
-                                </div>
-                                <div class="spliter-large"></div>
+            <div id="login-card-container">
+                <el-card id="login-card">
+                    <el-row>
+                        <div class="samewidth-cols">
+                            <div id="login-bg"></div>
+                            <div class="spliter"></div>
+                            <div id="login-form">
+                                <header>后勤物资<br>多维调度系统</header>
+                                <el-form label-position="right" label-width="80px">
+                                    <el-form-item label="用户名">
+                                        <el-input v-model="loginForm.user"></el-input>
+                                    </el-form-item>
+                                    <el-form-item label="密码">
+                                        <el-input v-model="loginForm.pwd"></el-input>
+                                    </el-form-item>
+                                    <el-form-item>
+                                        <el-button type="primary" class="full-fill">登录</el-button>
+                                    </el-form-item>
+                                    <el-form-item>
+                                        <el-row gutter="20">
+                                            <el-col span="12">
+                                                <a href="signup.html">
+                                                    <el-button class="full-fill">立即注册</el-button>
+                                                </a>
+                                            </el-col>
+                                            <el-col span="12">
+                                                <el-button class="full-fill">找回密码</el-button>
+                                            </el-col>
+                                        </el-row>
+                                    </el-form-item>
+                                </el-form>
                             </div>
-                        </el-row>
-                    </el-card>
-                </el-col>
-            </el-row>
+                            <div class="spliter-large"></div>
+                        </div>
+                    </el-row>
+                </el-card>
+            </div>
         </el-main>
     </el-container>
 </div>
