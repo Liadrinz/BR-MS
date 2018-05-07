@@ -2,8 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>ElementUI + Vue 模板</title>
-    <!--随时参考 element文档 http://element-cn.eleme.io/#/zh-CN/component/installation-->
+    <title>向API发起请求的模板模板</title>
     <link rel="stylesheet" href="lib/eleme-index.css">
     <style>
 
@@ -12,15 +11,13 @@
 <body>
 
 <div id="app">
-
+    <el-button @click="getNews">点击我，观察console</el-button>
 </div>
 </body>
-<!-- 这是 JS 代码，一定要放在 <body> 后面 -->
 <script src="lib/vue.js"></script>
 <script src="lib/eleme-index.js"></script>
 <script src="lib/axios.min.js"></script>
 <script>
-    // 可以随时参考 Vue.js文档 https://cn.vuejs.org/v2/api
     var app = new Vue({
         el: '#app',
         data: function () {
@@ -29,14 +26,13 @@
             }
         },
         methods: {
-
-        },
-        mounted:function(){
-            axios.get("https://api.nytimes.com/svc/topstories/v2/home.json?api-key=7ef0580ea59345daa1720c87d12588ec")
-                .then(response=>{
-                    this.result=response.data.results;
+            getNews:function(){
+                //向纽约时报的API发起GET请求
+                axios.get('https://api.nytimes.com/svc/topstories/v2/home.json?api-key=7ef0580ea59345daa1720c87d12588ec').then(function(response){
+                    this.results=response.data.results;
                     console.log(this.results);
-                });
+                })
+            }
         }
     });
 </script>
