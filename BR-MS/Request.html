@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ElementUI + Vue 模板</title>
+    <!--随时参考 element文档 http://element-cn.eleme.io/#/zh-CN/component/installation-->
+    <link rel="stylesheet" href="lib/eleme-index.css">
+    <style>
+
+    </style>
+</head>
+<body>
+
+<div id="app">
+
+</div>
+</body>
+<!-- 这是 JS 代码，一定要放在 <body> 后面 -->
+<script src="lib/vue.js"></script>
+<script src="lib/eleme-index.js"></script>
+<script src="lib/axios.min.js"></script>
+<script>
+    // 可以随时参考 Vue.js文档 https://cn.vuejs.org/v2/api
+    var app = new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                results:[]
+            }
+        },
+        methods: {
+
+        },
+        mounted:function(){
+            axios.get("https://api.nytimes.com/svc/topstories/v2/home.json?api-key=7ef0580ea59345daa1720c87d12588ec")
+                .then(response=>{
+                    this.result=response.data.results;
+                    console.log(this.results);
+                });
+        }
+    });
+</script>
+</html>
