@@ -11,29 +11,32 @@
 <body>
 
 <div id="app">
-    <el-button @click="getNews">点击我，观察console</el-button>
+    <el-button @click="test">测试Ajax</el-button>
 </div>
 </body>
 <script src="lib/vue.js"></script>
 <script src="lib/eleme-index.js"></script>
-<script src="lib/axios.min.js"></script>
+<script src="lib/jquery.min.js"></script>
 <script>
     var app = new Vue({
         el: '#app',
         data: function () {
             return {
-                results:[]
+                results:[],
+                userInfo:[]
             }
         },
         methods: {
-            getNews:function(){
-                //向纽约时报的API发起GET请求
-                axios.get('https://api.nytimes.com/svc/topstories/v2/home.json?api-key=7ef0580ea59345daa1720c87d12588ec').then(function(response){
-                    this.results=response.data.results;
-                    console.log(this.results);
+            test:function(){
+                $.ajax({
+                    type:'get',
+                    url:'http://10.103.251.150:8080/dispatch/',
+                    success:function(data){
+                        document.write(data);
+                    }
                 })
             }
-        }
+        },
     });
 </script>
 </html>
