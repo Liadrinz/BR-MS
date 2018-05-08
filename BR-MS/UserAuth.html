@@ -24,6 +24,24 @@
 <body>
 
 <div id="userAuth">
+    <el-form :inline="true" ref="queryParams" label-position="right" label-with="80px" :model="queryParams">
+        <el-form-item label="用户名" v-model="queryParams.username">
+            <el-input></el-input>
+        </el-form-item>
+        <el-form-item label="姓名" v-model="queryParams.realName">
+            <el-input></el-input>
+        </el-form-item>
+        <el-form-item label="证件号码" v-model="queryParams.IDNumber">
+            <el-input></el-input>
+        </el-form-item>
+        <el-form-item label="手机号码" v-model="queryParams.phoneNumber">
+            <el-input></el-input>
+        </el-form-item>
+        <el-form-item>
+            <el-button type="primary">查找</el-button>
+            <el-button>返回</el-button>
+        </el-form-item>
+    </el-form>
     <el-table :data="results">
         <el-table-column type="expand">
             <template slot-scope="props">
@@ -101,7 +119,14 @@
 
 
             return {
-                results: [item1, item2]
+                results: [item1, item2],
+                queryParams: {
+                    usertype: '',
+                    username: '',
+                    realName: '',
+                    IDNumber: '',
+                    company: ''
+                }
             }
         },
         methods: {
