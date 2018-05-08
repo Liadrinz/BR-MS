@@ -82,14 +82,14 @@
     var app = new Vue({
         el: '#app',
         data: function () {
+
+            //具体item从后端获取
             const item1 = {
-                'isEditing': 0,
                 'repoId': '1234',
                 'repoAddr': '北京邮电大学',
                 'repoAdmin': '张三'
             };
             const item2 = {
-                'isEditing': 0,
                 'repoId': '1235',
                 'repoAddr': '北京师范大学',
                 'repoAdmin': '李四'
@@ -105,7 +105,14 @@
         mounted: function () {
 
         },
-        methods: {}
+        methods: {
+            alertEdit:function(){
+                this.$message({
+                    title:'修改仓库信息',
+
+                })
+            }
+        }
     });
 </script>
 </html>
