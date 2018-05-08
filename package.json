@@ -1,0 +1,29 @@
+{
+  "name": "br-ms",
+  "version": "1.0.0",
+  "description": "Backside Resource Management System",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "python build-depend.py"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Liadrinz/BR-MS.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Liadrinz/BR-MS/issues"
+  },
+  "homepage": "https://github.com/Liadrinz/BR-MS#readme",
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-preset-env": "^1.6.1",
+    "babelify": "^8.0.0",
+    "browserify": "^16.2.0",
+    "uglify-js": "^3.3.24",
+    "verify-identity-card": "0.0.2"
+  },
+  "dependencies": {}
+}

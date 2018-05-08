@@ -36,13 +36,22 @@
                                     <el-input v-model="form1.documentId"></el-input>
                                 </el-form-item>
                             </transition>
+                            <el-form-item label="登录用户名" prop="userId" required>
+                                <el-input v-model="form1.userId"></el-input>
+                            </el-form-item>
+                            <el-form-item label="登录密码" prop="initPassword" required>
+                                <el-input type="password" v-model="form1.initPassword" auto-complete="off"></el-input>
+                            </el-form-item>
+                            <el-form-item label="确认密码" prop="confirmedPassword" required>
+                                <el-input type="password" v-model="form1.confirmedPassword" auto-complete="off"></el-input>
+                            </el-form-item>
                             <el-form-item label="用户姓名" prop="name" required>
                                 <el-input v-model="form1.name"></el-input>
                             </el-form-item>
                             <el-form-item label="单位名称" prop="company" required>
                                 <el-input v-model="form1.company"></el-input>
                             </el-form-item>
-                            <el-form-item label="职务" prop="position" required>
+                            <el-form-item label="职务" prop="position">
                                 <el-input v-model="form1.position"></el-input>
                             </el-form-item>
                             <el-form-item label="员工ID" prop="staffId" required>
@@ -80,8 +89,12 @@
                                 </div>
                             </transition>
                             <el-form-item>
-                                <el-button type="primary" @click="nextStep('form1')">下一步</el-button>
-                                <el-button>取消</el-button>
+                                <p style="text-align: right">
+                                    <el-button type="primary" @click="nextStep('form1')">下一步</el-button>
+                                    <a href="login.html">
+                                        <el-button>取消</el-button>
+                                    </a>
+                                </p>
                             </el-form-item>
                         </el-form>
                     </div>
@@ -93,6 +106,10 @@
                             <el-table-column prop="key"></el-table-column>
                             <el-table-column prop="value"></el-table-column>
                         </el-table>
+                        <p style="text-align: right">
+                            <el-button type="primary" @click="register">注册</el-button>
+                            <el-button @click="state=0">取消</el-button>
+                        </p>
                     </div>
                 </transition>
             </el-card>
@@ -106,16 +123,9 @@
 </body>
 <script src="lib/vue.js"></script>
 <script src="lib/eleme-index.js"></script>
+<script src="lib/jquery.min.js"></script>
 <script src="res/dependencies.js"></script>
 <script>
-    var idc = function(rule, value, callback) {
-        var idChecker = require('verify-identity-card');
-
-        if(app.form1.documentType === '1' && !idChecker(value)) {
-            callback(new Error("请输入正确的身份证号"));
-        }
-    };
-
     var app = new Vue({
         el: '#app',
         data: function () {
@@ -124,6 +134,9 @@
                 form1: {
                     documentType: '',
                     documentId: '',
+                    userId: '',
+                    initPassword: '',
+                    confirmedPassword:'',
                     name: '',
                     company: '',
                     position: '',
@@ -142,9 +155,47 @@
                         {required: true, message: '请选择证件类型'}
                     ],
                     documentId: [
+                        {required: true, message: '请输入证件号码'},
                         {
-                            validator: idc,
+                            validator:(rule, value, callback)=>{
+                                var idChecker = require('verify-identity-card');
+
+                                if (this.form1.documentType === '1' && !idChecker(value)) {
+                                    callback(new Error("请输入正确的身份证号"));
+                                } else {
+                                    callback();
+                                }
+                            },
                             trigger: 'blur'
+                        }
+                    ],
+                    userId: [
+                        {required: true, message: '请输入用户名'}
+                    ],
+                    initPassword:[
+                        {required:true,message:'请输入密码'},
+                        {
+                            validator:(rule,value,callback)=>{
+                                if(String(value).length<6){
+                                    callback(new Error('密码长度不能少于6位'));
+                                }else{
+                                    callback();
+                                }
+                            },
+                            trigger:'blur'
+                        }
+                    ],
+                    confirmedPassword:[
+                        {required:true,message:'请再次输入密码'},
+                        {
+                            validator:(rule,value,callback)=>{
+                                if(value!==this.form1.initPassword){
+                                    callback('两次密码不一致');
+                                }else{
+                                    callback();
+                                }
+                            },
+                            trigger:'blur'
                         }
                     ],
                     name: [
@@ -153,9 +204,9 @@
                     company: [
                         {required: true, message: '请输入单位名称'}
                     ],
-                    position: [
-                        {required: true, message: '请输入职务'}
-                    ],
+                    //position: [
+                    //    {required: true, message: '请输入职务'}
+                    //],
                     staffId: [
                         {required: true, message: '请输入员工ID'},
                         {pattern: /^\d+$/, message: '请输入正确的员工ID'}
@@ -199,10 +250,55 @@
                     }
                 })
             },
-            cancel: function () {
-                window.location.href = './login.html';
-            },
             register: function () {
+                $.ajax({
+                    type:'post',
+                    url:'/user/register',
+                    data:{
+                        userId: this.form1.userId,
+                        password: this.form1.password,
+                        role: this.form1.usertype,
+                        IDType:this.form1.documentType,
+                        IDNumber:this.form1.documentId,
+                        companyName:this.form1.company,
+                        title:this.form1.position,
+                        phoneNumber:this.form1.mobile,
+                        tel:this.form1.tel,
+                        email:this.form1.email,
+                        address:this.form1.addr,
+                        warehouseId:this.form1.repoId,
+                        employeeId:this.form1.staffId
+                    },
+                    beforeSend:function(){
+                        console.log('Prepared');
+                    },
+                    success:(data,result,resultDesp)=>{
+                        if(result===1000){
+                            this.$alert('请耐心等待管理员审核，若审核通过系统将自动为您发送提示邮件！', {
+                                confirmButtonText: '返回首页',
+                                callback: action => {
+                                    this.$message({
+                                        type: 'info',
+                                        message: `action:${action}`
+                                    });
+                                    window.location.href = "./login.html";
+                                }
+                            });
+                        }else{
+                            console.log(resultDesp);
+                            this.$alert('网络错误，请稍后重试');
+                        }
+                    },
+                    complete:function(){
+                        console.log('Done');
+                    },
+                    error:()=>{
+                        console.log('Error');
+                        this.$alert('网络错误，请稍后重试');
+                    }
+                })
+
+
             }
         },
         computed: {
@@ -214,26 +310,30 @@
                         '2': '军官证',
                         '3': '护照'
                     }[this.form1.documentType],
-                    '用户姓名':this.form1.name,
-                    '单位名称':this.form1.company,
-                    '职务':this.form1.position,
-                    '员工ID':this.form1.staffId,
-                    '手机号码':this.form1.mobile,
-                    '固定电话':this.form1.tel,
-                    '电子邮箱':this.form1.email,
-                    '联系地址':this.form1.addr,
-                    '用户类型':{
-                        'common':'普通用户',
-                        'admin':'仓库管理员'
-                    }[this.form1.usertype],
-                    '仓库编号':this.form1.repoId,
-                    '仓库地址':this.form1.repoAddr,
-                    '仓库经纬度':this.form1.repoCoord
+                    '用户姓名': this.form1.name,
+                    '单位名称': this.form1.company,
+                    '职务': this.form1.position,
+                    '员工ID': this.form1.staffId,
+                    '手机号码': this.form1.mobile,
+                    '固定电话': this.form1.tel,
+                    '电子邮箱': this.form1.email,
+                    '联系地址': this.form1.addr,
+                    '仓库编号': this.form1.repoId,
+                    '仓库地址': this.form1.repoAddr,
+                    '仓库经纬度': this.form1.repoCoord
                 };
 
                 var result = [];
-                for(var i in renderData) {
-                    result.push({key: i, value: renderData[i]});
+                if (this.form1.usertype == 'common') {
+                    for (var i in renderData) {
+                        if (!i.includes('仓库')) {
+                            result.push({key: i, value: renderData[i]});
+                        }
+                    }
+                } else {
+                    for (var i in renderData) {
+                        result.push({key: i, value: renderData[i]});
+                    }
                 }
                 return result;
             }

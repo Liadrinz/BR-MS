@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>向API发起请求的模板模板</title>
+    <link rel="stylesheet" href="lib/eleme-index.css">
+    <style>
+
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <el-button @click="test">测试Ajax</el-button>
+</div>
+</body>
+<script src="lib/vue.js"></script>
+<script src="lib/eleme-index.js"></script>
+<script src="lib/jquery.min.js"></script>
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                results:[],
+                userInfo:[]
+            }
+        },
+        methods: {
+            test:function(){
+                $.ajax({
+                    type:'get',
+                    url:'http://10.103.251.150:8080/dispatch/',
+                    success:function(data){
+                        document.write(data);
+                    }
+                })
+            }
+        },
+    });
+</script>
+</html>
