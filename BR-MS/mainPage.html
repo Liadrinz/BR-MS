@@ -2,78 +2,29 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>用户页面</title>
+    <title>物联网多维度物资管理系统{{ ' - ' + userName }}</title>
     <link rel="stylesheet" href="lib/eleme-index.css">
     <style>
+        .containers {
+            box-sizing: border-box;
+        }
+
+        div#app {
+            overflow: hidden;
+        }
+
+        div#header {
+
+        }
     </style>
 </head>
 <body>
 
-<div id="app">
-    <div>
-        <el-container style="height:600px">
-            <el-header>Header</el-header>
-            <el-container style="height:500px">
-                <el-aside width="200px" style="background-color: #eef1f6">
-                    <el-menu>
-                        <el-menu-item index="1">仓库维护</el-menu-item>
-                        <el-menu-item index="2">用户管理</el-menu-item>
-                        <el-menu-item index="3">系统消息</el-menu-item>
-                    </el-menu>
-                </el-aside>
-                <el-main>
-                    <div v-show="menuSelect===1">
-                        <el-table :data="repoData.repoInfo">
-                            <el-table-column prop="repoId" label="仓库编号" width="120">
-                            </el-table-column>
-                            <el-table-column prop="repoAddr" label="仓库位置" width="200">
-                            </el-table-column>
-                            <el-table-column prop="repoAdmin" label="仓库管理员" width="120">
-                            </el-table-column>
-                            <el-table-column label="操作" width="240">
-                                <template slot-scope="scope">
-                                    <el-button type="warning" size="mini">修改信息</el-button>
-                                    <el-button type="danger" size="mini">删除仓库</el-button>
-                                </template>
-                            </el-table-column>
-                        </el-table>
-                    </div>
-                    <div v-show="menuSelect===2">
-                        <el-table :data="repoData.repoInfo">
-                            <el-table-column prop="repoId" label="" width="120">
-                            </el-table-column>
-                            <el-table-column prop="repoAddr" label="仓库位置" width="200">
-                            </el-table-column>
-                            <el-table-column prop="repoAdmin" label="仓库管理员" width="120">
-                            </el-table-column>
-                            <el-table-column label="操作" width="240">
-                                <template slot-scope="scope">
-                                    <el-button type="warning" size="mini">修改信息</el-button>
-                                    <el-button type="danger" size="mini">删除仓库</el-button>
-                                </template>
-                            </el-table-column>
-                        </el-table>
-                    </div>
-                    <div v-show="menuSelect===3">
-                        <el-table :data="repoData.repoInfo">
-                            <el-table-column prop="repoId" label="仓库编号" width="120">
-                            </el-table-column>
-                            <el-table-column prop="repoAddr" label="仓库位置" width="200">
-                            </el-table-column>
-                            <el-table-column prop="repoAdmin" label="仓库管理员" width="120">
-                            </el-table-column>
-                            <el-table-column label="操作" width="240">
-                                <template slot-scope="scope">
-                                    <el-button type="warning" size="mini">修改信息</el-button>
-                                    <el-button type="danger" size="mini">删除仓库</el-button>
-                                </template>
-                            </el-table-column>
-                        </el-table>
-                    </div>
-                </el-main>
-            </el-container>
-        </el-container>
+<div id="app" class="">
+    <div id="header">
+
     </div>
+    <div id="aside"></div>
 </div>
 </body>
 <script src="lib/vue.js"></script>
@@ -82,30 +33,11 @@
     var app = new Vue({
         el: '#app',
         data: function () {
-            const item1 = {
-                'isEditing': 0,
-                'repoId': '1234',
-                'repoAddr': '北京邮电大学',
-                'repoAdmin': '张三'
-            };
-            const item2 = {
-                'isEditing': 0,
-                'repoId': '1235',
-                'repoAddr': '北京师范大学',
-                'repoAdmin': '李四'
-            }
-
-            return {
-                menuSelect: 1,
-                repoData: {
-                    repoInfo: [item1, item2]
-                }
-            }
-        },
-        mounted: function () {
 
         },
-        methods: {}
+        methods: {
+
+        }
     });
 </script>
 </html>
