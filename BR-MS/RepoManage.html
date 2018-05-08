@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ElementUI + Vue 模板</title>
+    <!--随时参考 element文档 http://element-cn.eleme.io/#/zh-CN/component/installation-->
+    <link rel="stylesheet" href="lib/eleme-index.css">
+    <style>
+        /* 你的布局代码（一般来说用不到？） */
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <el-form :inline="true" ref="queryParams" label-position="right" label-with="80px" :model="queryParams">
+        <el-form-item label="仓库地址" v-model="queryParams.repoAddr">
+            <el-input></el-input>
+        </el-form-item>
+        <el-form-item label="仓库编号" v-model="queryParams.repoId">
+            <el-input></el-input>
+        </el-form-item>
+        <el-form-item label="仓库经纬度" v-model="queryParams.repoCoord">
+            <el-input></el-input>
+        </el-form-item>
+        <el-form-item>
+            <el-button type="primary">查找</el-button>
+            <el-button>返回</el-button>
+        </el-form-item>
+    </el-form>
+    <el-table :data="repoData.repoInfo">
+        <el-table-column prop="repoId" label="仓库编号" width="150">
+        </el-table-column>
+        <el-table-column prop="repoAddr" label="仓库位置" width="250">
+        </el-table-column>
+        <el-table-column prop="repoAdmin" label="仓库管理员" width="175">
+        </el-table-column>
+        <el-table-column prop="repoCoord" label="仓库经纬度" width="250">
+        </el-table-column>
+        <el-table-column label="操作" width="240">
+            <template slot-scope="scope">
+                <el-button type="warning" size="mini">修改信息</el-button>
+                <el-button type="danger" size="mini">删除仓库</el-button>
+            </template>
+        </el-table-column>
+    </el-table>
+</div>
+</body>
+<!-- 这是 JS 代码，一定要放在 <body> 后面 -->
+<script src="lib/vue.js"></script>
+<script src="lib/eleme-index.js"></script>
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: function () {
+
+            //具体item从后端获取
+            const item1 = {
+                'repoId': '1234',
+                'repoAddr': '北京邮电大学',
+                'repoAdmin': '张三',
+                'repoCoord':null
+            };
+            const item2 = {
+                'repoId': '1235',
+                'repoAddr': '北京师范大学',
+                'repoAdmin': '李四',
+                'repoCoord':null
+            }
+
+            return {
+                menuSelect: 1,
+                repoData: {
+                    repoInfo: [item1, item2]
+                },
+                queryParams:{
+                    repoAddr:'',
+                    repoId:'',
+                    repoCoord:''
+                }
+            }
+        },
+        mounted: function () {
+
+        },
+        methods: {
+            alertEdit:function(){
+                this.$message({
+                    title:'修改仓库信息',
+
+                })
+            }
+        }
+    });
+</script>
+</html>
