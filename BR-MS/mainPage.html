@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>后勤物资多维度调配系统</title>
+    <script src="res/dependencies.js"></script>
     <link rel="stylesheet" href="lib/eleme-index.css">
     <style>
         @font-face {
@@ -34,7 +35,7 @@
             flex: 0 0 110px;
             overflow: hidden;
             /*border-bottom: 1px solid #eee;*/
-            box-shadow: 1px 1px 4px 0 rgba(0,0,0,0.15);
+            box-shadow: 1px 1px 4px 0 rgba(0, 0, 0, 0.15);
             z-index: 2;
         }
 
@@ -125,7 +126,7 @@
             <img src="res/user-avatar.png">
             <div>
                 <span class="user-name">{{user.name}}</span>
-                <el-tag>{{userRoleText}}</el-tag>
+                <el-tag>{{roleText}}</el-tag>
             </div>
         </div>
     </header>
@@ -135,9 +136,23 @@
                 class="no-border"
                 background-color="#fbfbfb"
                 text-color="#615c6c"
-                active-text-color="#4a88ec">
-                <el-menu-item index="xxx">草泥马</el-menu-item>
-                <el-menu-item index="yyy">你妈逼</el-menu-item>
+                active-text-color="#4a88ec"
+                @select="handleSelect">
+                <template v-for="(menu,index) in menus">
+                    <el-submenu
+                        v-if="isMenuGroup(menu)"
+                        :index="nonUrlBegin+index">
+                        <template slot="title">
+                            {{ menu.name }}
+                        </template>
+                        <el-menu-item v-for="subMenu in menu.menus" :index="subMenu.url">
+                            {{ subMenu.name }}
+                        </el-menu-item>
+                    </el-submenu>
+                    <el-menu-item v-else :index="menu.url">
+                        {{ menu.name }}
+                    </el-menu-item>
+                </template>
             </el-menu>
         </div>
         <main class="container">
@@ -149,27 +164,35 @@
 <script src="lib/vue.js"></script>
 <script src="lib/eleme-index.js"></script>
 <script>
+    var roles = require('/mods/roles');
 
     var app = new Vue({
         el: '#app',
         data: {
             user: {
                 name: '付泓霖',
-                role: '导员'
+                role: 'admin'
             },
-            subPages: [
-                {name: ''}
-            ]
+            menus: [],
+            nonUrlBegin: '^' // 用 url 中不可能出现的字符 ^ 表示非 url。用于非 url 的菜单 index
         },
         computed: {
-            userRoleText: function() {
-                return this.user.role;
+            roleText: function() {
+                return roles.roleText[this.user.role];
             }
         },
-        mounted: function() {
-
+        mounted: function () {
+            // TEST: ADMIN
+            this.menus = roles.menus[this.user.role];
         },
-        methods: {}
+        methods: {
+            isMenuGroup: function (menu) {
+                return ('menus' in menu);
+            },
+            handleSelect: function (url) {
+                console.log(url);
+            }
+        }
     });
 </script>
 </html>
