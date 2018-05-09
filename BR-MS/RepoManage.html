@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>ElementUI + Vue 模板</title>
+    <title>仓库管理</title>
     <!--随时参考 element文档 http://element-cn.eleme.io/#/zh-CN/component/installation-->
     <link rel="stylesheet" href="lib/eleme-index.css">
     <style>
@@ -37,17 +37,36 @@
         <el-table-column prop="repoCoord" label="仓库经纬度" width="250">
         </el-table-column>
         <el-table-column label="操作" width="240">
-            <template slot-scope="scope">
-                <el-button type="warning" size="mini">修改信息</el-button>
+            <template slot-scope="props">
+                <el-button type="warning" size="mini" @click="()=>{props.row.dialogVisible=true}">修改信息</el-button>
                 <el-button type="danger" size="mini">删除仓库</el-button>
+                <el-dialog :visible.sync="props.row.dialogVisible">
+                    <el-form label-position="right" label-width="100px" :rules="editRule" :model="editedForm">
+                        <el-form-item label="仓库位置" prop="editedRepoAddr">
+                            <el-input :model="editedForm.repoAddr" :value="props.row.repoAddr" required></el-input>
+                        </el-form-item>
+                        <el-form-item label="仓库经纬度">
+                            <el-input :model="editedForm.repoCoord" :value="props.row.repoCoord"></el-input>
+                        </el-form-item>
+                        <el-form-item>
+                            <p style="text-align: right">
+                                <el-button type="primary" @click="confirmEdition">修改</el-button>
+                                <el-button @click="props.row.dialogVisible=false">取消</el-button>
+                            </p>
+                        </el-form-item>
+                    </el-form>
+                </el-dialog>
             </template>
         </el-table-column>
     </el-table>
+
+
 </div>
 </body>
 <!-- 这是 JS 代码，一定要放在 <body> 后面 -->
 <script src="lib/vue.js"></script>
 <script src="lib/eleme-index.js"></script>
+<script src="lib/jquery.min.js"></script>
 <script>
     var app = new Vue({
         el: '#app',
@@ -58,24 +77,34 @@
                 'repoId': '1234',
                 'repoAddr': '北京邮电大学',
                 'repoAdmin': '张三',
-                'repoCoord':null
+                'repoCoord': '30 28 59 N 120 10 22 E'
             };
             const item2 = {
                 'repoId': '1235',
                 'repoAddr': '北京师范大学',
                 'repoAdmin': '李四',
-                'repoCoord':null
+                'repoCoord': '30 28 59 N 120 10 23 E'
             }
 
+            item1['dialogVisible'] = false;
+            item2['dialogVisible'] = false;
+
             return {
-                menuSelect: 1,
+                dialogVisible: false,
                 repoData: {
                     repoInfo: [item1, item2]
                 },
-                queryParams:{
-                    repoAddr:'',
-                    repoId:'',
-                    repoCoord:''
+                queryParams: {
+                    repoAddr: '',
+                    repoId: '',
+                    repoCoord: ''
+                },
+                editedForm: {
+                    repoAddr: '',
+                    repoCoord: ''
+                },
+                editRule: {
+                    editedRepoAddr: {required: true, message: '请输入仓库位置'}
                 }
             }
         },
@@ -83,10 +112,29 @@
 
         },
         methods: {
-            alertEdit:function(){
-                this.$message({
-                    title:'修改仓库信息',
-
+            confirmEdition: function(){
+                $.ajax({
+                    type: 'post',
+                    url: 'http://10.103.251.150:8080/dispatch/warehouse/1/change',
+                    data: {
+                        warehouseAddress: this.editedForm.repoAddr,
+                        warehouseCoordination: this.editedForm.repoCoord
+                    },
+                    success: (data, result, resultDesp) => {
+                        if (result === 1000 || result === 'success') {
+                            console.log(data);
+                            console.log(result);
+                            console.log(resultDesp);
+                            this.$alert('修改成功');
+                        } else {
+                            this.$alert('修改失败');
+                        }
+                    },
+                    error: (result, resultDesp) => {
+                        console.log(result);
+                        console.log(resultDesp);
+                        this.$alert('修改失败');
+                    }
                 })
             }
         }
