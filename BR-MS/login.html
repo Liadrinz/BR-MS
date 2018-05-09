@@ -133,7 +133,7 @@
             loginPost: function(){
                 $.ajax({
                     type: 'post',
-                    url: '/login',
+                    url: 'http://10.103.251.150:8080/dispatch/login',
                     data: {
                         name: this.loginForm.user,
                         password: this.loginForm.pwd
@@ -141,9 +141,15 @@
                     beforeSend: function () {
                         console.log('Prepared');
                     },
-                    success: (data, result, resultDesp) => {
-                        if (result === 1000) {
+                    success: (data, result, resultDesp,header) => {
+                        if (result === 1000||result==='success') {
+                            header.token;//TODO: deal with token
+                            data;//TODO: deal with userInfo
                             window.location.href = 'mainPage.html';
+                        }else if(result===4001){
+                            this.$alert('账号或密码错误');
+                        }else if(result===4002){
+                            this.$alert('登录失败');
                         } else {
                             console.log(resultDesp);
                             this.$alert('网络错误，请稍后重试');
