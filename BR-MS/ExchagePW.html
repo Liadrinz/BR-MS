@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>普通用户1.1修改密码表单</title>
+    <link rel="stylesheet" href="lib/eleme-index.css">
+    <style>
+    </style>
+</head>
+<body>
+<div id="app">
+    <!--普通用户界面 -> aside导航栏 修改密码 ->表单 -->
+    <el-form :model="ruleForm2" status-icon :rules="rules2" ref="ruleForm2" label-width="100px" class="demo-ruleForm">
+        <el-form-item label="旧密码" prop="oldPass">
+            <el-input type="password" v-model="ruleForm2.oldPass" auto-complete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="密码" prop="pass">
+            <el-input type="password" v-model="ruleForm2.pass" auto-complete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="确认密码" prop="checkPass">
+            <el-input type="password" v-model="ruleForm2.checkPass" auto-complete="off"></el-input>
+        </el-form-item>
+        <el-form-item>
+            <el-button type="primary" @click="submitForm('ruleForm2')">提交</el-button>
+            <el-button @click="resetForm('ruleForm2')">重置</el-button>
+        </el-form-item>
+    </el-form>
+</div>
+</body>
+<script src="lib/vue.js"></script>
+<script src="lib/eleme-index.js"></script>
+
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: function () {
+            var validatePass1 = (rule, value, callback) => {
+                if(value === ''){
+                    callback(new Error('请输入原密码'));
+                }else{
+                    if(this.ruleForm2.oldPass !==''){
+                        this.$refs.ruleForm2.validateField('oldPass');
+                    }
+                    callback();
+                }
+            }
+            var validatePass2 = (rule, value, callback) => { <!--validatePass 验证密码-->
+                if (value === '') {
+                    callback(new Error('请输入新密码'));
+                } else {
+                    if (this.ruleForm2.checkPass !== '') {
+                        this.$refs.ruleForm2.validateField('checkPass');
+                    }
+                    callback();
+                }
+            };
+            var validatePass3 = (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('请再次输入密码'));
+                } else if (value !== this.ruleForm2.pass) {
+                    callback(new Error('两次输入密码不一致!'));
+                } else {
+                    callback();
+                }
+            };
+            return{
+                ruleForm2: {
+                    oldPass:'',
+                    pass: '',
+                    checkPass: ''
+                },
+                rules2: {
+                    oldPass:[
+                        { validator:validatePass1,trigger:'blur' }
+                    ],
+                    pass: [
+                        { validator: validatePass2, trigger: 'blur' }
+                    ],
+                    checkPass: [
+                        { validator: validatePass3, trigger: 'blur' }
+                    ]
+                }
+            };
+        },
+        methods: {
+            submitForm(formName) {
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        alert('submit!');
+                    } else {
+                        console.log('error submit!!');
+                        return false;
+                    }
+                });
+            },
+            resetForm(formName) {
+                this.$refs[formName].resetFields();
+            }
+        }
+    });
+</script>
+
+</html>
