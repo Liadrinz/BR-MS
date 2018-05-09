@@ -8,6 +8,7 @@
         body {
             background: url(res/bg-air.jpg) center top;
             background-size: 100%;
+            margin:0;
         }
 
         .full-fill {
@@ -17,7 +18,7 @@
 </head>
 <body>
 <div id="app">
-    <el-row>
+    <el-row v-loading.fullscreen.lock="loading" element-loading-text="正在提交" element-loading-background="rgba(0,0,0,0.7)">
         <el-col :span="14" :offset="5">
             <el-card>
                 <transition name="el-fade-in">
@@ -77,10 +78,10 @@
                             </el-form-item>
                             <transition name="el-zoom-in-top">
                                 <div v-if="form1.usertype==='manager'">
-                                    <el-form-item label="仓库编号" prop="repoId" required="false">
+                                    <el-form-item label="仓库编号" prop="repoId" required>
                                         <el-input v-model="form1.repoId"></el-input>
                                     </el-form-item>
-                                    <el-form-item label="仓库地址" prop="repoAddr" required="false">
+                                    <el-form-item label="仓库地址" prop="repoAddr" required>
                                         <el-input v-model="form1.repoAddr"></el-input>
                                     </el-form-item>
                                     <el-form-item label="仓库经纬度" prop="repoCoord">
@@ -131,6 +132,7 @@
         data: function () {
             return {
                 state: 0,
+                loading:false,
                 form1: {
                     documentType: '',
                     documentId: '',
@@ -251,9 +253,10 @@
                 })
             },
             register: function () {
+                this.loading=true;
                 $.ajax({
                     type:'post',
-                    url:'/user/register',
+                    url:'http://10.103.251.150:8080/dispatch/user/register',
                     data:{
                         userId: this.form1.userId,
                         realName:this.form1.name,
@@ -274,7 +277,11 @@
                         console.log('Prepared');
                     },
                     success:(data,result,resultDesp)=>{
-                        if(result===1000){
+                        this.loading=false;
+                        console.log(data);
+                        console.log(result);
+                        console.log(resultDesp);
+                        if(result===1000||result==='success'){
                             this.$alert('请耐心等待管理员审核，若审核通过系统将自动为您发送提示邮件！', {
                                 confirmButtonText: '返回首页',
                                 callback: action => {
@@ -291,15 +298,15 @@
                         }
                     },
                     complete:function(){
+                        this.loading=false;
                         console.log('Done');
                     },
                     error:()=>{
+                        this.loading=false;
                         console.log('Error');
                         this.$alert('网络错误，请稍后重试');
                     }
-                })
-
-
+                });
             }
         },
         computed: {
@@ -311,6 +318,8 @@
                         '2': '军官证',
                         '3': '护照'
                     }[this.form1.documentType],
+                    '证件号码':this.form1.documentId,
+                    '登录用户名':this.form1.userId,
                     '用户姓名': this.form1.name,
                     '单位名称': this.form1.company,
                     '职务': this.form1.position,

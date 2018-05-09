@@ -29,10 +29,33 @@
         methods: {
             test:function(){
                 $.ajax({
-                    type:'get',
-                    url:'http://10.103.251.150:8080/dispatch/',
-                    success:function(data){
-                        document.write(data);
+                    type:'post',
+                    url:'http://10.103.251.150:8080/dispatch/user/register',
+                    data:{
+                        userId:'1234',
+                        realName:'tomcat',
+                        password: '123456',
+                        role:'user',
+                        IDType:'1',
+                        IDNumber:'123456',
+                        companyName:'555',
+                        title:null,
+                        phoneNumber:'12333333333',
+                        tel:null,
+                        email:'435438602@qq.com',
+                        address:'bupt',
+                        warehouseId:null,
+                        employeeId:'123456'
+                    },
+                    beforeSend:function(){
+                    },
+                    success:function(data,result,resultDesp){
+                        console.log(data);
+                        console.log(result);
+                        console.log(resultDesp);
+                    },
+                    error:function(){
+                        console.log('Error');
                     }
                 })
             }

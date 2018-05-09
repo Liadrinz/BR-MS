@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>ElementUI + Vue 模板</title>
+    <title>仓库管理</title>
     <!--随时参考 element文档 http://element-cn.eleme.io/#/zh-CN/component/installation-->
     <link rel="stylesheet" href="lib/eleme-index.css">
     <style>
@@ -12,7 +12,7 @@
 <body>
 
 <div id="app">
-    <el-form :inline="true" ref="queryParams" label-position="right" label-with="80px" :model="queryParams">
+    <el-form :inline="true" ref="queryParams" label-position="right" label-with="80px" :model="queryParams" v-loading.fullscreen="initializing" element-loading-text="正在获取数据" element-loading-background="rgba(0,0,0,0.7)">
         <el-form-item label="仓库地址" v-model="queryParams.repoAddr">
             <el-input></el-input>
         </el-form-item>
@@ -37,17 +37,44 @@
         <el-table-column prop="repoCoord" label="仓库经纬度" width="250">
         </el-table-column>
         <el-table-column label="操作" width="240">
-            <template slot-scope="scope">
-                <el-button type="warning" size="mini">修改信息</el-button>
+            <template slot-scope="props">
+                <el-button type="warning" size="mini" @click="()=>{
+                    props.row.dialogVisible=true;
+                    editedForm.repoId=props.row.repoId;
+                    editedForm.repoAddr=props.row.repoAddr;
+                    editedForm.repoCoord=props.row.repoCoord
+                }">修改信息</el-button>
                 <el-button type="danger" size="mini">删除仓库</el-button>
+                <el-dialog :visible.sync="props.row.dialogVisible" v-loading.fullscreen="loading" element-loading-text="正在提交" element-loading-background="rgba(0,0,0,0.7)">
+                    <el-form ref="editedForm" label-position="right" label-width="100px" :rules="editRule" :model="editedForm">
+                        <el-form-item label="仓库编号" prop="repoId">
+                            <el-input v-model="editedForm.repoId" :disabled="true"></el-input>
+                        </el-form-item>
+                        <el-form-item label="仓库位置" prop="repoAddr">
+                            <el-input v-model="editedForm.repoAddr" required clearable></el-input>
+                        </el-form-item>
+                        <el-form-item label="仓库经纬度">
+                            <el-input v-model="editedForm.repoCoord" clearable></el-input>
+                        </el-form-item>
+                        <el-form-item>
+                            <p style="text-align: right">
+                                <el-button type="primary" @click="confirmEdition('editedForm')">修改</el-button>
+                                <el-button @click="props.row.dialogVisible=false">取消</el-button>
+                            </p>
+                        </el-form-item>
+                    </el-form>
+                </el-dialog>
             </template>
         </el-table-column>
     </el-table>
+
+
 </div>
 </body>
 <!-- 这是 JS 代码，一定要放在 <body> 后面 -->
 <script src="lib/vue.js"></script>
 <script src="lib/eleme-index.js"></script>
+<script src="lib/jquery.min.js"></script>
 <script>
     var app = new Vue({
         el: '#app',
@@ -58,36 +85,103 @@
                 'repoId': '1234',
                 'repoAddr': '北京邮电大学',
                 'repoAdmin': '张三',
-                'repoCoord':null
+                'repoCoord': '30 28 59 N 120 10 22 E'
             };
             const item2 = {
                 'repoId': '1235',
                 'repoAddr': '北京师范大学',
                 'repoAdmin': '李四',
-                'repoCoord':null
+                'repoCoord': '30 28 59 N 120 10 23 E'
             }
 
+            item1['dialogVisible'] = false;
+            item2['dialogVisible'] = false;
+
             return {
-                menuSelect: 1,
+                loading:false,
+                initializing:true,
+                dialogVisible: false,
                 repoData: {
                     repoInfo: [item1, item2]
                 },
-                queryParams:{
-                    repoAddr:'',
-                    repoId:'',
-                    repoCoord:''
+                queryParams: {
+                    repoAddr: '',
+                    repoId: '',
+                    repoCoord: ''
+                },
+                editedForm: {
+                    repoAddr: '',
+                    repoCoord: ''
+                },
+                editRule: {
+                    repoAddr: [
+                        {required: true, message: '请输入仓库位置',trigger:'blur'}
+                    ]
                 }
             }
         },
-        mounted: function () {
-
+        mounted: function(){
+            //从后端拉取数据
+            $.ajax({
+                type:'get',
+                url:'http://10.103.251.150:8080/dispatch/warehouse',
+                success:(data,result,resultDesp)=>{
+                    if (result === 1000 || result === 'success') {
+                        console.log(data);
+                        console.log(result);
+                        console.log(resultDesp);
+                        this.initializing=false;
+                    } else {
+                        this.$alert('数据拉取失败');
+                    }
+                    this.initializing=false;
+                },
+                error:(result,resultDesp)=>{
+                    console.log(result);
+                    console.log(resultDesp);
+                    this.$alert('数据拉取失败');
+                    this.initializing=false;
+                }
+            });
         },
         methods: {
-            alertEdit:function(){
-                this.$message({
-                    title:'修改仓库信息',
-
+            confirmEdition: function(formName){
+                this.$refs[formName].validate((valid)=>{
+                    if(valid){
+                        this.loading=true;
+                        $.ajax({
+                            type: 'post',
+                            url: 'http://10.103.251.150:8080/dispatch/warehouse/1/change',//TODO: set correct URL
+                            data: {
+                                warehouseAddress: this.editedForm.repoAddr,
+                                warehouseCoordination: this.editedForm.repoCoord
+                            },
+                            success: (data, result, resultDesp) => {
+                                if (result === 1000 || result === 'success') {
+                                    console.log(data);
+                                    console.log(result);
+                                    console.log(resultDesp);
+                                    this.$alert('修改成功');
+                                    this.dialogVisible=false;
+                                } else {
+                                    this.$alert('修改失败');
+                                }
+                                this.loading=false;
+                            },
+                            error: (result, resultDesp) => {
+                                console.log(result);
+                                console.log(resultDesp);
+                                this.$alert('修改失败');
+                                this.loading=false;
+                                return true;
+                            }
+                        })
+                    }else{
+                        this.$alert('信息错误，请重新填写');
+                        return false;
+                    }
                 })
+
             }
         }
     });
