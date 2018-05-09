@@ -2,42 +2,174 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>物联网多维度物资管理系统{{ ' - ' + userName }}</title>
+    <title>后勤物资多维度调配系统</title>
     <link rel="stylesheet" href="lib/eleme-index.css">
     <style>
-        .containers {
+        @font-face {
+            font-family: "FZQuSong";
+            src: url("res/fonts/FZQuSong.ttf") format("truetype");
+        }
+
+        .container {
             box-sizing: border-box;
         }
 
-        div#app {
+        .full-page {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
             overflow: hidden;
         }
 
-        div#header {
+        .flex-column {
+            display: flex;
+            flex-direction: column;
+        }
 
+        header {
+            display: flex;
+            justify-content: space-between;
+            flex: 0 0 110px;
+            overflow: hidden;
+            /*border-bottom: 1px solid #eee;*/
+            box-shadow: 1px 1px 4px 0 rgba(0,0,0,0.15);
+            z-index: 2;
+        }
+
+        header > #logo-text {
+            flex: 0 0 460px;
+            display: flex;
+            position: relative;
+        }
+
+        #logo-text > img {
+            position: absolute;
+            top: 32px;
+            left: 56px;
+        }
+
+        #logo-text > span {
+            position: absolute;
+            top: 45px;
+            left: 134px;
+            font-size: 28px;
+            font-family: 'FZQuSong', 'Microsoft YaHei UI', sans-serif;
+            color: #508eca;
+        }
+
+        header > #user-info {
+            flex: 0 0 285px;
+            padding: 20px 0;
+            border-left: 1px solid #eee;
+            position: relative;
+        }
+
+        #user-info > img {
+            position: absolute;
+            left: 43px;
+            top: 14px;
+        }
+
+        #user-info > div {
+            position: absolute;
+            left: 135px;
+            top: 24px;
+            width: 104px;
+            height: 68px;
+            text-align: center;
+        }
+
+        #user-info span.user-name {
+            display: inline-block;
+            font-size: 18px;
+            line-height: 32px;
+            color: #2d93e6;
+            font-weight: bold;
+        }
+
+        section.container {
+            flex: 1 0 0;
+            display: flex;
+        }
+
+        div.sidenav {
+            flex: 0 0 300px;
+            overflow: auto;
+            border-right: 1px solid #eee;
+            font-weight: bold;
+            z-index: 1;
+        }
+
+        main {
+            z-index: 0;
+            flex: 1 0 0;
+            overflow: auto;
+        }
+
+        .no-border {
+            border: none;
         }
     </style>
 </head>
 <body>
 
-<div id="app" class="">
-    <div id="header">
-
-    </div>
-    <div id="aside"></div>
+<div id="app" class="full-page flex-column">
+    <header class="container">
+        <div id="logo-text">
+            <img src="res/icon-box.png">
+            <span>后勤物资多维度调配系统</span>
+        </div>
+        <div id="user-info">
+            <img src="res/user-avatar.png">
+            <div>
+                <span class="user-name">{{user.name}}</span>
+                <el-tag>{{userRoleText}}</el-tag>
+            </div>
+        </div>
+    </header>
+    <section class="container">
+        <div class="sidenav container">
+            <el-menu
+                class="no-border"
+                background-color="#fbfbfb"
+                text-color="#615c6c"
+                active-text-color="#4a88ec">
+                <el-menu-item index="xxx">草泥马</el-menu-item>
+                <el-menu-item index="yyy">你妈逼</el-menu-item>
+            </el-menu>
+        </div>
+        <main class="container">
+            -- main-area --
+        </main>
+    </section>
 </div>
 </body>
 <script src="lib/vue.js"></script>
 <script src="lib/eleme-index.js"></script>
 <script>
+
     var app = new Vue({
         el: '#app',
-        data: function () {
+        data: {
+            user: {
+                name: '付泓霖',
+                role: '导员'
+            },
+            subPages: [
+                {name: ''}
+            ]
+        },
+        computed: {
+            userRoleText: function() {
+                return this.user.role;
+            }
+        },
+        mounted: function() {
 
         },
-        methods: {
-
-        }
+        methods: {}
     });
 </script>
 </html>
