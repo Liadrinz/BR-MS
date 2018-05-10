@@ -2,7 +2,9 @@
 # -- MODIFY HERE --
 # modules on npm
 npm_modules = [
-    "verify-identity-card"
+    "verify-identity-card",
+    "axios",
+    "es6-promise"
 ]
 
 # modules written in mods directory.
