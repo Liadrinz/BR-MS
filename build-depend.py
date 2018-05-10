@@ -3,6 +3,7 @@
 # modules on npm
 npm_modules = [
     "verify-identity-card",
+    "jquery",
     "axios",
     "es6-promise"
 ]

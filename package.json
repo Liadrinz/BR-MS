@@ -24,6 +24,7 @@
     "babel-preset-env": "^1.6.1",
     "babelify": "^8.0.0",
     "browserify": "^16.2.0",
+    "jquery": "^3.3.1",
     "es6-promise": "^4.2.4",
     "uglify-js": "^3.3.24",
     "verify-identity-card": "0.0.2"
