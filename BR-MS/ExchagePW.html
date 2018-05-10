@@ -22,7 +22,7 @@
         </el-form-item>
         <el-form-item>
             <el-button type="primary" @click="submitForm('ruleForm2')">提交</el-button>
-            <el-button @click="resetForm('ruleForm2')">重置</el-button>
+            <el-button @click="resetForm('ruleForm2')">清空</el-button>
         </el-form-item>
     </el-form>
 </div>
@@ -34,6 +34,7 @@
     var app = new Vue({
         el: '#app',
         data: function () {
+            <!--输入原密码-->
             var validatePass1 = (rule, value, callback) => {
                 if(value === ''){
                     callback(new Error('请输入原密码'));
@@ -44,6 +45,7 @@
                     callback();
                 }
             }
+            <!--输入新密码-->
             var validatePass2 = (rule, value, callback) => { <!--validatePass 验证密码-->
                 if (value === '') {
                     callback(new Error('请输入新密码'));
@@ -54,6 +56,7 @@
                     callback();
                 }
             };
+            <!--新密码再次输入 前端验证-->
             var validatePass3 = (rule, value, callback) => {
                 if (value === '') {
                     callback(new Error('请再次输入密码'));
@@ -83,6 +86,7 @@
             };
         },
         methods: {
+            <!--提交-->
             submitForm(formName) {
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
@@ -93,6 +97,7 @@
                     }
                 });
             },
+            <!--清空-->
             resetForm(formName) {
                 this.$refs[formName].resetFields();
             }
