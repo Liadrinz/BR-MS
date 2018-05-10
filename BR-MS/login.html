@@ -74,15 +74,15 @@
                                 <header>后勤物资<br>多维调度系统</header>
                                 <el-form :model="loginForm" ref="loginForm" :rules="rules" label-position="right"
                                          label-width="80px">
-                                    <el-form-item prop="user" label="用户名" required>
-                                        <el-input v-model="loginForm.user"></el-input>
+                                    <el-form-item prop="username" label="用户名" required>
+                                        <el-input v-model="loginForm.username"></el-input>
                                     </el-form-item>
-                                    <el-form-item prop="pwd" label="密码" required>
-                                        <el-input type="password" v-model="loginForm.pwd"
+                                    <el-form-item prop="password" label="密码" required>
+                                        <el-input type="password" v-model="loginForm.password"
                                                   auto-complete="off"></el-input>
                                     </el-form-item>
                                     <el-form-item>
-                                        <el-button type="primary" class="full-fill" @click="loginPost">登录</el-button>
+                                        <el-button type="primary" class="full-fill" @click="()=>{isLogging=true;loginPost()}" :loading="isLogging">{{isLogging?'登录中...':'登录'}}</el-button>
                                     </el-form-item>
                                     <el-form-item>
                                         <el-row :gutter="20">
@@ -115,15 +115,16 @@
         el: '#app',
         data: function () {
             return {
+                isLogging:false,
                 loginForm: {
-                    user: '',
-                    pwd: ''
+                    username: '',
+                    password: ''
                 },
                 rules: {
-                    user: [
+                    username: [
                         {required: true, message: '请输入用户名'}
                     ],
-                    pwd: [
+                    password: [
                         {required: true, message: '请输入密码'}
                     ]
                 }
@@ -133,10 +134,10 @@
             loginPost: function(){
                 $.ajax({
                     type: 'post',
-                    url: 'http://10.103.251.150:8080/dispatch/login',
+                    url: 'http://10.112.128.63:8080/dispatch/login',
                     data: {
-                        name: this.loginForm.user,
-                        password: this.loginForm.pwd
+                        username: this.loginForm.username,
+                        password: this.loginForm.password
                     },
                     beforeSend: function () {
                         console.log('Prepared');
@@ -148,11 +149,14 @@
                             window.location.href = 'mainPage.html';
                         }else if(result===4001){
                             this.$alert('账号或密码错误');
+                            this.isLogging=false;
                         }else if(result===4002){
                             this.$alert('登录失败');
+                            this.isLogging=false;
                         } else {
                             console.log(resultDesp);
                             this.$alert('网络错误，请稍后重试');
+                            this.isLogging=false;
                         }
                     },
                     complete: function () {
@@ -161,9 +165,10 @@
                     error: () => {
                         console.log();
                         this.$alert('网络错误，请稍后重试');
+                        this.isLogging=false;
                     }
 
-                })
+                });
             }
         }
     });
