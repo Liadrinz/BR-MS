@@ -114,13 +114,15 @@
     </div>
     <div id="step-3">
     </div>
+    <el-button @click="testForm">自动填充</el-button>
 </div>
 </body>
 <script src="lib/vue.js"></script>
 <script src="lib/eleme-index.js"></script>
-<script src="lib/jquery.min.js"></script>
 <script src="res/dependencies.js"></script>
 <script>
+    var $ = require('jquery');
+
     var app = new Vue({
         el: '#app',
         data: function () {
@@ -271,7 +273,7 @@
                         console.log(result);
                         console.log(resultDesp);
                         if(result===1000||result==='success'){
-                            this.$alert('请耐心等待管理员审核，若审核通过系统将自动为您发送提示邮件！', {
+                            this.$alert('请耐心等待管理员审核，若审核通过系统将自动为您发送提示邮件', {
                                 confirmButtonText: '返回首页',
                                 callback: action => {
                                     this.$message({
@@ -296,6 +298,24 @@
                         this.$alert('网络错误，请稍后重试');
                     }
                 });
+            },
+            testForm:function(){
+                with(this.form1){
+                    username="liadrin";
+                    initPassword="123456";
+                    confirmedPassword="123456";
+                    role="user";
+                    realName="蔡宇昂";
+                    IDType="2";
+                    IDNumber="123456";
+                    companyName='bupt';
+                    title='student';
+                    phoneNumber="13120171889";
+                    tel="66666666";
+                    email="435438602@qq.com";
+                    address="bupt";
+                    employeeId="2333";
+                }
             }
         },
         computed: {

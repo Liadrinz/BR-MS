@@ -2,7 +2,8 @@
 # -- MODIFY HERE --
 # modules on npm
 npm_modules = [
-    "verify-identity-card"
+    "verify-identity-card",
+    "jquery"
 ]
 
 # modules written in mods directory.

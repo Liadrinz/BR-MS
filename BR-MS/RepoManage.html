@@ -100,7 +100,7 @@
                     editedForm.county=props.row.county
                     editedForm.detail_location=props.row.detail_location
                 }">修改信息</el-button>
-                <el-button type="danger" size="mini">删除仓库</el-button>
+                <el-button type="danger" size="mini" @click="confirmDelete">删除仓库</el-button>
                 <el-dialog :visible.sync="props.row.dialogVisible" v-loading.fullscreen="loading" element-loading-text="正在提交" element-loading-background="rgba(0,0,0,0.8)">
                     <el-form ref="editedForm" label-position="right" label-width="100px" :rules="editRule" :model="editedForm">
                         <el-form-item label="仓库id" prop="warehouse_id">
@@ -294,7 +294,7 @@
             $.ajax({
                 type:'get',
                 url:'http://10.103.251.150:8080/dispatch/warehouse',
-                success:(data,result,resultDesp)=>{
+                complete:(data,result,resultDesp)=>{
                     if (result === 1000 || result === 'success') {
                         console.log(data);
                         console.log(result);
@@ -320,7 +320,7 @@
                         this.loading=true;
                         $.ajax({
                             type: 'post',
-                            url: way==='add'?'http://10.103.251.150:8080/dispatch/warehouse/1/add':'http://10.103.251.150:8080/dispatch/warehouse/1/change',//TODO: set correct URL
+                            url: way==='add'?'http://10.103.251.150:8080/dispatch/admin/add_warehouse':'http://10.103.251.150:8080/dispatch/admin/update_warehouse',//TODO: set correct URL
                             data: {
                                 warehouse_id:this.editedForm.warehouse_id,
                                 warehouse_name:this.editedForm.warehouse_name,
@@ -335,7 +335,7 @@
                                 county:this.editedForm.county,
                                 detail_location:this.editedForm.detail_location,
                             },
-                            success: (data, result, resultDesp) => {
+                            complete: (data, result, resultDesp) => {
                                 if (result === 1000 || result === 'success') {
                                     console.log(data);
                                     console.log(result);
@@ -359,6 +359,22 @@
                         this.$alert('信息错误，请重新填写');
                         return false;
                     }
+                })
+
+            },
+            confirmDelete:function(){
+                $.ajax({
+                    type:'delete',
+                    url:'http://10.112.128.63:8080/admin/del_warehouse',
+                    data:{
+                        warehouse_id:this.editedForm.warehouse_id
+                    },
+                    complete:function(data,result,resultDesp){
+                        console.log(data);
+                        console.log(result);
+                        console.log(resultDesp);
+                    }
+
                 })
 
             }
