@@ -51,10 +51,10 @@ export default {
             {"用户信息管理": [
                 "用户审核",
                 "用户列表"
-            ]}
+            ]},
+            "仓库管理"
         ]),
         manager: getMenus([
-            "仓库管理"
         ]),
         normal: []
     }
