@@ -40,7 +40,15 @@ export default {
 
     // roleId: Translate role name to backend-supported name.
     //         Currently useless.
-    roleId: {
+    backToMine: {
+        admin: "admin",
+        manager: "manager",
+        normal: "user"
+    },
+
+    // roleId: Translate role name to backend-supported name.
+    //         Currently useless.
+    mineToOther: {
         admin: "admin",
         manager: "manager",
         normal: "user"
@@ -51,10 +59,10 @@ export default {
             {"用户信息管理": [
                 "用户审核",
                 "用户列表"
-            ]}
+            ]},
+            "仓库管理"
         ]),
         manager: getMenus([
-            "仓库管理"
         ]),
         normal: []
     }

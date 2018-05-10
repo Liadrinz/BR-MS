@@ -2,13 +2,17 @@
 # -- MODIFY HERE --
 # modules on npm
 npm_modules = [
-    "verify-identity-card"
+    "verify-identity-card",
+    "jquery",
+    "axios",
+    "es6-promise"
 ]
 
 # modules written in mods directory.
 # Remember to require with prefix '/mods/'
 local_modules = [    
-    "roles"
+    "roles",
+    'backend'
 ]
 
 # Build scripts, DO NOT MODIFY

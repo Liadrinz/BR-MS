@@ -133,7 +133,7 @@
             <img src="res/user-avatar.png">
             <div>
                 <span class="user-name">{{user.name}}</span>
-                <el-tag>{{roleText}}</el-tag>
+                <el-tag type="primary">{{roleText}}</el-tag>
             </div>
         </div>
     </header>
@@ -177,10 +177,11 @@
         el: '#app',
         data: {
             user: {
-                name: '付泓霖',
+                name: 'Test',
                 role: 'admin'
             },
             menus: [],
+            token: '',
             nonUrlBegin: '^', // 用 url 中不可能出现的字符 ^ 表示非 url。用于非 url 的菜单 index
             router: ''
         },
@@ -189,8 +190,10 @@
                 return roles.roleText[this.user.role];
             }
         },
-        mounted: function () {
-            // TEST: ADMIN
+        created: function() {
+            this.user.name = localStorage.getItem('realName');
+            this.user.role = roles.backToMine[localStorage.getItem('role')];
+            this.token = localStorage.getItem('token');
             this.menus = roles.menus[this.user.role];
         },
         methods: {
