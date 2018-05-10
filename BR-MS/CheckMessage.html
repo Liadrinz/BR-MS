@@ -19,7 +19,8 @@
         <!--dialog对话框：在保留当前页面状态的情况下，告知用户并承载相关操作-->
         <el-button type="text" @click="dialogVisible=true">发送消息</el-button>
         <el-dialog title="发送消息" :visible.sync="dialogVisible" width="30%" :before-close="handleClose">
-            <el-form :model="formInput1"><!--弹出对话框的发送信息功能：收件人 标题 正文-->
+            <!--弹出对话框的发送信息功能：收件人 标题 正文-->
+            <el-form :model="formInput1">
                 <el-form-item label="收件人" :label-width="formLabelWidth">
                     <el-input placeholder="请输入收件人" v-model="formInput1.name" clearable auto-complete="off"></el-input>
                 </el-form-item>
@@ -39,14 +40,17 @@
     <!--表格 时间 发件人 标题 操作：查看详情(dialog) 标为已读 标为未读 删除一条消息-->
     <template>
         <el-table :data="tableData" stripe style="width:100%" :default-sort="{prop:'date',order:'descending'}">
+            <!--fixed 固定了除日期外所有column-->
             <el-table-column fixed prop="recDate" sortable label="日期" width="130"></el-table-column>
             <el-table-column fixed prop="senderId" sortable label="发件人" width="100"></el-table-column>
             <el-table-column prop="title" label="标题" width="400"></el-table-column>
-            <el-table-column fixed="right" label="操作" width="400"><!--固定操作一栏-->
+            <el-table-column fixed="right" label="操作" width="400">
                 <template slot-scope="scope">
-                    <el-button size="mini" @click="dialog2Visible=true" type="text">查看</el-button><!--查看button 嵌套dialog-->
+                    <!--查看button 嵌套dialog-->
+                    <el-button size="mini" @click="dialog2Visible=true" type="text">查看</el-button>
                     <el-dialog title="消息详情" :visible.sync="dialog2Visible" width="30%" :before-close="handleClose">
-                        <el-form :model="checkMessage"><!--弹出对话框的发送信息功能：收件人 标题 正文-->
+                        <!--发送信息弹窗：收件人 标题 正文-->
+                        <el-form :model="checkMessage">
                             <el-form-item label="发件人" :label-width="formLabelWidth">
                                 <el-input v-model="checkMessage.senderId" clearable auto-complete="off"></el-input>
                             </el-form-item>
@@ -57,7 +61,7 @@
                                 <el-input type="textarea" :row="10" v-model="checkMessage.content" auto-complete="off"></el-input>
                             </el-form-item>
                         </el-form>
-                        <span slot="footer" class="dialog-footer"><!--弹出对话框的底部-->
+                        <span slot="footer" class="dialog-footer"><!--弹出对话框的底部 返回-->
                             <el-button @click="dialog2Visible=false">返回</el-button>
                         </span>
                     </el-dialog>
@@ -79,17 +83,20 @@
         data: function () {
             const statusOptions = ['未读', '已读']
             return {
+                <!--全部 未读 已读checkbox多选框 -->
                 checkAll: false,
                 checkedStatuses: [],
                 statuses: statusOptions,
                 isIndeterminate: true,
                 dialogVisible:false,
+                <!--发送消息 弹窗-->
                 formInput1:{
                     name:'',
                     title:'',
                     content:''
                 },
                 formLabelWidth:'120px',
+                <!--页面中table中 假数据-->
                 tableData:[{
                     recDate:'2018-5-10',
                     senderId:'匿名',
@@ -99,6 +106,7 @@
                     senderId:'匿名',
                     title:'你打开看看呀！'
                 }],
+                <!--查看button 及 假数据-->
                 dialog2Visible:false,
                 checkMessage:{
                     senderId:'匿名',
@@ -108,6 +116,7 @@
             }
         },
         methods: {
+            <!--全部 已读 未读 状态切换-->
             handleCheckAllChange(val) {
                 this.checkedStatuses = val ? statusOptions : [];
                 this.isIndeterminate = false;
@@ -117,6 +126,7 @@
                 this.checkAll = checkedCount === this.statuses.length;
                 this.isIndeterminate = checkedCount > 0 && checkedCount < this.statuses.length;
             },
+            <!--所有弹窗右上角关闭时确认关闭-->
             handleClose(done){
                 this.$confirm('确认关闭？')
                     .then(_=>{
@@ -124,6 +134,7 @@
                     })
                     .catch(_=>{});
             },
+            <!--操作：删除button-->
             handleDeleteMessage(index,rows){
                 rows.splice(index,1);
             }
