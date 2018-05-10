@@ -38,6 +38,14 @@ export default {
         normal: "普通用户"
     },
 
+    // roleId: Translate role name to backend-supported name.
+    //         Currently useless.
+    roleId: {
+        admin: "admin",
+        manager: 'manager',
+        normal: 'normal'
+    },
+
     menus: {
         admin: getMenus([
             {'用户信息管理': [

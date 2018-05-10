@@ -15,6 +15,10 @@
             box-sizing: border-box;
         }
 
+        .no-border {
+            border: none;
+        }
+
         .full-page {
             position: absolute;
             top: 0;
@@ -109,8 +113,10 @@
             overflow: auto;
         }
 
-        .no-border {
+        main > iframe {
             border: none;
+            width: 100%;
+            height: 100%;
         }
     </style>
 </head>
@@ -156,7 +162,7 @@
             </el-menu>
         </div>
         <main class="container">
-            -- main-area --
+            <iframe :src="router"></iframe>
         </main>
     </section>
 </div>
@@ -174,7 +180,8 @@
                 role: 'admin'
             },
             menus: [],
-            nonUrlBegin: '^' // 用 url 中不可能出现的字符 ^ 表示非 url。用于非 url 的菜单 index
+            nonUrlBegin: '^', // 用 url 中不可能出现的字符 ^ 表示非 url。用于非 url 的菜单 index
+            router: ''
         },
         computed: {
             roleText: function() {
@@ -190,7 +197,7 @@
                 return ('menus' in menu);
             },
             handleSelect: function (url) {
-                console.log(url);
+                this.router = url;
             }
         }
     });
