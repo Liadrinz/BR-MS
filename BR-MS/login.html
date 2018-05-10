@@ -143,7 +143,7 @@
                     beforeSend: function () {
                         console.log('Prepared');
                     },
-                    success: (data, result, XMLResponse) => {
+                    success: (data, result,XMLResponse) => {
                         console.log(result);
                         console.log(data);
                         if (result === 1000||result==='success') {
@@ -157,7 +157,6 @@
                             this.$alert('登录失败');
                             this.isLogging=false;
                         } else {
-                            console.log(resultDesp);
                             this.$alert('网络错误，请稍后重试');
                             this.isLogging=false;
                         }
