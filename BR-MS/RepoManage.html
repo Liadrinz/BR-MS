@@ -20,12 +20,15 @@
             margin-bottom: 0;
             width: 50%;
         }
+        #search .el-input{
+            width:180px;
+        }
     </style>
 </head>
 <body>
 
 <div id="app">
-    <el-form :inline="true" ref="queryParams" label-position="right" label-with="80px" :model="queryParams" v-loading.fullscreen="initializing" element-loading-text="正在获取数据" element-loading-background="rgba(0,0,0,0.8)">
+    <el-form id="search" :inline="true" ref="queryParams" label-position="right" label-with="80px" :model="queryParams" v-loading.fullscreen="initializing" element-loading-text="正在获取数据" element-loading-background="rgba(0,0,0,0.8)">
         <el-form-item label="仓库地址" v-model="queryParams.warehouse_location">
             <el-input></el-input>
         </el-form-item>
