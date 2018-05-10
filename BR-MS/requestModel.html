@@ -30,33 +30,26 @@
             test:function(){
                 $.ajax({
                     type:'post',
-                    url:'http://10.112.128.63:8080/dispatch/common/register',
-                    headers:{Accept:'application/json'},
-                    data:{
-                        username:'1234',
-                        password: '123456',
-                        role:'manager',
-                        realName:'tomcat',
-                        IDType:'1',
-                        IDNumber:'123456',
-                        companyName:'555',
-                        title:'教师',
-                        phoneNumber:'12333333333',
-                        tel:'66656666',
-                        email:'435438602@qq.com',
-                        address:'bupt',
-                        warehouseId:'2603',
-                        employeeId:'123456'
+                    url:'http://10.112.128.63:8080/dispatch/common/get_demo',
+                    headers:{
+                        "Accept":'application/json',
+                        "Content-Type":'application/json',
+                        "token":"eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIxIiwiaWF0IjoxNTI1OTU5MDgxLCJzdWIiOiJ7XCJyb2xlXCI6XCJhZG1pblwiLFwiaWRcIjoxfSIsImV4cCI6MTUyNTk5NTA4MX0.mG0K8u_NDRR04vKtLNKLMNRKUa4jtbf2PnSVXhRCbVI"
                     },
+                    data:JSON.stringify(
+                        {
+                            "id":2
+                        }
+                    ),
                     beforeSend:function(){
                     },
-                    success:function(data,result,resultDesp){
+                    success:function(data,result,XMLResponse){
                         console.log('data:')
                         console.log(data);
                         console.log('result:');
                         console.log(result);
                         console.log('resultDesp:');
-                        console.log(resultDesp);
+                        console.log(XMLResponse.getResponseHeader('authorized'));
                     },
                     error:function(){
                         console.log('Error');
