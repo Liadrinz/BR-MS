@@ -135,7 +135,7 @@
             //从后端拉取数据
             $.ajax({
                 type:'get',
-                url:'http://10.103.251.150:8080/dispatch/user/toauth',
+                url:'http://10.112.128.63:8080/dispatch/user/toauth',
                 success:(data,result,resultDesp)=>{
                     if (result === 1000 || result === 'success') {
                         console.log(data);
