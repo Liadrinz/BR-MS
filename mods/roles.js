@@ -1,19 +1,19 @@
 var pages = {
-    '仓库管理': 'RepoManage.html',
-    '用户审核': 'UserAuth.html',
-    '用户列表': 'UserQuery.html'
+    "仓库管理": "RepoManage.html",
+    "用户审核": "UserAuth.html",
+    "用户列表": "UserQuery.html"
 };
 
 // Get menus like [{name: ..., url: ...}, ...] from menulist.
 // For example:
 /*
     getMenus([
-        '仓库管理', // A 1st-level function, also a menu item
-        {'用户信息管理': [  // A menugroup (a.k.a. 2nd-level function)
-            '用户审核', // Sub menu item of menugroup
-            '用户列表'
+        "仓库管理", // A 1st-level function, also a menu item
+        {"用户信息管理": [  // A menugroup (a.k.a. 2nd-level function)
+            "用户审核", // Sub menu item of menugroup
+            "用户列表"
         ]},
-        '系统消息'
+        "系统消息"
     ])
 */
 var getMenus = function (menuName) {
@@ -42,19 +42,19 @@ export default {
     //         Currently useless.
     roleId: {
         admin: "admin",
-        manager: 'manager',
-        normal: 'normal'
+        manager: "manager",
+        normal: "user"
     },
 
     menus: {
         admin: getMenus([
-            {'用户信息管理': [
-                '用户审核',
-                '用户列表'
+            {"用户信息管理": [
+                "用户审核",
+                "用户列表"
             ]}
         ]),
         manager: getMenus([
-            '仓库管理'
+            "仓库管理"
         ]),
         normal: []
     }
