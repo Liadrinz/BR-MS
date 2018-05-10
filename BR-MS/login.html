@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>登录</title>
+    <link rel="stylesheet" href="lib/eleme-index.css">
+    <style>
+        body {
+            background: url(res/bg-air.jpg) center top;
+            background-size: 100%;
+        }
+
+        .full-fill {
+            width: 100%;
+        }
+
+        .samewidth-cols {
+            display: flex;
+        }
+
+        .samewidth-cols > div {
+            flex: 1;
+        }
+
+        .samewidth-cols > div.spliter {
+            flex: 0 0 20px;
+        }
+
+        .samewidth-cols > div.spliter-large {
+            flex: 0 0 40px;
+        }
+
+        div#login-form {
+            padding: 50px 0 50px;
+        }
+
+        div#login-form > header {
+            margin-bottom: 30px;
+            padding-left: 20px;
+            margin-right: -20px;
+            font-size: 25px;
+            text-align: center;
+        }
+
+        div#login-bg {
+            background: url(res/bg-ac.jpg) center top;
+        }
+
+        #login-card-container {
+            width: 850px;
+            position: absolute;
+            right: 50%;
+        }
+
+        #login-card-container > #login-card {
+            position: relative;
+            right: -50%;
+        }
+
+    </style>
+</head>
+<body>
+<div id="app">
+    <el-container>
+        <el-header></el-header>
+        <el-main>
+            <div id="login-card-container">
+                <el-card id="login-card">
+                    <el-row>
+                        <div class="samewidth-cols">
+                            <div id="login-bg"></div>
+                            <div class="spliter"></div>
+                            <div id="login-form">
+                                <header>后勤物资<br>多维调度系统</header>
+                                <el-form :model="loginForm" ref="loginForm" :rules="rules" label-position="right"
+                                         label-width="80px">
+                                    <el-form-item prop="username" label="用户名" required>
+                                        <el-input v-model="loginForm.username"></el-input>
+                                    </el-form-item>
+                                    <el-form-item prop="password" label="密码" required>
+                                        <el-input type="password" v-model="loginForm.password"
+                                                  auto-complete="off"></el-input>
+                                    </el-form-item>
+                                    <el-form-item>
+                                        <el-button type="primary" class="full-fill" @click="()=>{isLogging=true;loginPost()}" :loading="isLogging">{{isLogging?'登录中...':'登录'}}</el-button>
+                                    </el-form-item>
+                                    <el-form-item>
+                                        <el-row :gutter="20">
+                                            <el-col :span="12">
+                                                <a href="signup.html">
+                                                    <el-button class="full-fill">立即注册</el-button>
+                                                </a>
+                                            </el-col>
+                                            <el-col :span="12">
+                                                <el-button class="full-fill">找回密码</el-button>
+                                            </el-col>
+                                        </el-row>
+                                    </el-form-item>
+                                </el-form>
+                            </div>
+                            <div class="spliter-large"></div>
+                        </div>
+                    </el-row>
+                </el-card>
+            </div>
+        </el-main>
+    </el-container>
+</div>
+</body>
+<script src="lib/vue.js"></script>
+<script src="lib/jquery.min.js"></script>
+<script src="lib/eleme-index.js"></script>
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                isLogging:false,
+                loginForm: {
+                    username: '',
+                    password: ''
+                },
+                rules: {
+                    username: [
+                        {required: true, message: '请输入用户名'}
+                    ],
+                    password: [
+                        {required: true, message: '请输入密码'}
+                    ]
+                }
+            }
+        },
+        methods: {
+            loginPost: function(){
+                $.ajax({
+                    type: 'post',
+                    url: 'http://10.112.128.63:8080/dispatch/login',
+                    data: {
+                        username: this.loginForm.username,
+                        password: this.loginForm.password
+                    },
+                    beforeSend: function () {
+                        console.log('Prepared');
+                    },
+                    success: (data, result, resultDesp,header) => {
+                        if (result === 1000||result==='success') {
+                            header.token;//TODO: deal with token
+                            data;//TODO: deal with userInfo
+                            window.location.href = 'mainPage.html';
+                        }else if(result===4001){
+                            this.$alert('账号或密码错误');
+                            this.isLogging=false;
+                        }else if(result===4002){
+                            this.$alert('登录失败');
+                            this.isLogging=false;
+                        } else {
+                            console.log(resultDesp);
+                            this.$alert('网络错误，请稍后重试');
+                            this.isLogging=false;
+                        }
+                    },
+                    complete: function () {
+                        console.log('Done');
+                    },
+                    error: () => {
+                        console.log();
+                        this.$alert('网络错误，请稍后重试');
+                        this.isLogging=false;
+                    }
+
+                });
+            }
+        }
+    });
+</script>
+</html>

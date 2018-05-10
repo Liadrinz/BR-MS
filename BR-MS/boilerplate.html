@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ElementUI + Vue 模板</title>
+    <!--随时参考 element文档 http://element-cn.eleme.io/#/zh-CN/component/installation-->
+    <link rel="stylesheet" href="lib/eleme-index.css">
+    <style>
+        /* 你的布局代码（一般来说用不到？） */
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <!-- 你的页面 HTML！可以使用 Vue 的模板和 element-ui 的组件 -->
+    <div>
+        <b>Hello World: </b>
+        <el-button @click="showMessageBox">{{ hw }}</el-button>
+    </div>
+    <div>
+        <b>计时器: </b>
+        <p>
+            <span>更新间隔：</span>
+            <el-select v-model="selected">
+                <el-option
+                    v-for="item in options"
+                    :label="item"
+                    :value="item">
+                </el-option>
+            </el-select>
+            <el-button @click="beginTiming" type="primary">开始计时</el-button>
+        </p>
+        <el-tag>
+            距离开始计时已：{{ Number(timeSec).toFixed(2) }}秒
+        </el-tag>
+    </div>
+</div>
+</body>
+<!-- 这是 JS 代码，一定要放在 <body> 后面 -->
+<script src="lib/vue.js"></script>
+<script src="lib/eleme-index.js"></script>
+<script>
+    // 可以随时参考 Vue.js文档 https://cn.vuejs.org/v2/api
+    var app = new Vue({
+        // el: 把<div id="app"></div>当做Vue应该渲染的部分
+        el: '#app',
+        // data: 一个Vue实例中的所有变量，最好先在这里声明。
+        data: function () {
+            return {
+                hw: 'Hello, world!',
+                options: [50, 100, 500, 1000],
+                selected: 1000,
+                timeSec: 0.0,
+                timeBegin: 0
+            }
+        },
+        // methods: 当前Vue实例的所有方法，既可以通过 this.[方法名] 调用，也可以在v-on中直接调用。
+        methods: {
+            // 这个方法在 hello,world! 按钮中使用了
+            showMessageBox: function () {
+                // 方法中的 this 指向的是当前的 vue 实例，也就是说
+                // 可以用 this.[变量名] 访问 data 中的变量
+
+                // this.$alert() 是 element-ui 提供的方法，可以上
+                this.$alert(this.hw);
+            },
+            beginTiming: function () {
+                // 记录按下按钮的起始时间
+                this.timeBegin = (new Date()).getTime() / 1000;
+
+                // 每隔this.selected毫秒执行此函数
+                setInterval(() => {
+                    // 修改timeSec以显示经过的时间
+                    this.timeSec = (new Date()).getTime() / 1000 - this.timeBegin;
+                }, this.selected);
+            }
+        }
+    });
+</script>
+</html>
