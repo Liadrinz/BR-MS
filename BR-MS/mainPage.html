@@ -2,115 +2,203 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>用户页面</title>
+    <title>后勤物资多维度调配系统</title>
+    <script src="res/dependencies.js"></script>
     <link rel="stylesheet" href="lib/eleme-index.css">
     <style>
+        @font-face {
+            font-family: "FZQuSong";
+            src: url("res/fonts/FZQuSong.ttf") format("truetype");
+        }
+
+        .container {
+            box-sizing: border-box;
+        }
+
+        .no-border {
+            border: none;
+        }
+
+        .full-page {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            overflow: hidden;
+        }
+
+        .flex-column {
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            flex: 0 0 110px;
+            overflow: hidden;
+            /*border-bottom: 1px solid #eee;*/
+            box-shadow: 1px 1px 4px 0 rgba(0, 0, 0, 0.15);
+            z-index: 2;
+        }
+
+        header > #logo-text {
+            flex: 0 0 460px;
+            display: flex;
+            position: relative;
+        }
+
+        #logo-text > img {
+            position: absolute;
+            top: 32px;
+            left: 56px;
+        }
+
+        #logo-text > span {
+            position: absolute;
+            top: 45px;
+            left: 134px;
+            font-size: 28px;
+            font-family: 'FZQuSong', 'Microsoft YaHei UI', sans-serif;
+            color: #508eca;
+        }
+
+        header > #user-info {
+            flex: 0 0 285px;
+            padding: 20px 0;
+            border-left: 1px solid #eee;
+            position: relative;
+        }
+
+        #user-info > img {
+            position: absolute;
+            left: 43px;
+            top: 14px;
+        }
+
+        #user-info > div {
+            position: absolute;
+            left: 135px;
+            top: 24px;
+            width: 104px;
+            height: 68px;
+            text-align: center;
+        }
+
+        #user-info span.user-name {
+            display: inline-block;
+            font-size: 18px;
+            line-height: 32px;
+            color: #2d93e6;
+            font-weight: bold;
+        }
+
+        section.container {
+            flex: 1 0 0;
+            display: flex;
+        }
+
+        div.sidenav {
+            flex: 0 0 300px;
+            overflow: auto;
+            border-right: 1px solid #eee;
+            font-weight: bold;
+            z-index: 1;
+        }
+
+        main {
+            z-index: 0;
+            flex: 1 0 0;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+
+        main > iframe {
+            border: none;
+            width: 100%;
+            height: 100%;
+        }
     </style>
 </head>
 <body>
 
-<div id="app">
-    <div>
-        <el-container style="height:600px">
-            <el-header>Header</el-header>
-            <el-container style="height:500px">
-                <el-aside width="200px" style="background-color: #eef1f6">
-                    <el-menu>
-                        <el-menu-item index="1">仓库维护</el-menu-item>
-                        <el-menu-item index="2">用户管理</el-menu-item>
-                        <el-menu-item index="3">系统消息</el-menu-item>
-                    </el-menu>
-                </el-aside>
-                <el-main>
-                    <div v-show="menuSelect===1">
-                        <el-table :data="repoData.repoInfo">
-                            <el-table-column prop="repoId" label="仓库编号" width="120">
-                            </el-table-column>
-                            <el-table-column prop="repoAddr" label="仓库位置" width="200">
-                            </el-table-column>
-                            <el-table-column prop="repoAdmin" label="仓库管理员" width="120">
-                            </el-table-column>
-                            <el-table-column label="操作" width="240">
-                                <template slot-scope="scope">
-                                    <el-button type="warning" size="mini">修改信息</el-button>
-                                    <el-button type="danger" size="mini">删除仓库</el-button>
-                                </template>
-                            </el-table-column>
-                        </el-table>
-                    </div>
-                    <div v-show="menuSelect===2">
-                        <el-table :data="repoData.repoInfo">
-                            <el-table-column prop="repoId" label="" width="120">
-                            </el-table-column>
-                            <el-table-column prop="repoAddr" label="仓库位置" width="200">
-                            </el-table-column>
-                            <el-table-column prop="repoAdmin" label="仓库管理员" width="120">
-                            </el-table-column>
-                            <el-table-column label="操作" width="240">
-                                <template slot-scope="scope">
-                                    <el-button type="warning" size="mini">修改信息</el-button>
-                                    <el-button type="danger" size="mini">删除仓库</el-button>
-                                </template>
-                            </el-table-column>
-                        </el-table>
-                    </div>
-                    <div v-show="menuSelect===3">
-                        <el-table :data="repoData.repoInfo">
-                            <el-table-column prop="repoId" label="仓库编号" width="120">
-                            </el-table-column>
-                            <el-table-column prop="repoAddr" label="仓库位置" width="200">
-                            </el-table-column>
-                            <el-table-column prop="repoAdmin" label="仓库管理员" width="120">
-                            </el-table-column>
-                            <el-table-column label="操作" width="240">
-                                <template slot-scope="scope">
-                                    <el-button type="warning" size="mini">修改信息</el-button>
-                                    <el-button type="danger" size="mini">删除仓库</el-button>
-                                </template>
-                            </el-table-column>
-                        </el-table>
-                    </div>
-                </el-main>
-            </el-container>
-        </el-container>
-    </div>
+<div id="app" class="full-page flex-column">
+    <header class="container">
+        <div id="logo-text">
+            <img src="res/icon-box.png">
+            <span>后勤物资多维度调配系统</span>
+        </div>
+        <div id="user-info">
+            <img src="res/user-avatar.png">
+            <div>
+                <span class="user-name">{{user.name}}</span>
+                <el-tag type="primary">{{roleText}}</el-tag>
+            </div>
+        </div>
+    </header>
+    <section class="container">
+        <div class="sidenav container">
+            <el-menu
+                class="no-border"
+                background-color="#fbfbfb"
+                text-color="#615c6c"
+                active-text-color="#4a88ec"
+                @select="handleSelect">
+                <template v-for="(menu,index) in menus">
+                    <el-submenu
+                        v-if="isMenuGroup(menu)"
+                        :index="nonUrlBegin+index">
+                        <template slot="title">
+                            {{ menu.name }}
+                        </template>
+                        <el-menu-item v-for="subMenu in menu.menus" :index="subMenu.url">
+                            {{ subMenu.name }}
+                        </el-menu-item>
+                    </el-submenu>
+                    <el-menu-item v-else :index="menu.url">
+                        {{ menu.name }}
+                    </el-menu-item>
+                </template>
+            </el-menu>
+        </div>
+        <main class="container">
+            <iframe :src="router"></iframe>
+        </main>
+    </section>
 </div>
 </body>
 <script src="lib/vue.js"></script>
 <script src="lib/eleme-index.js"></script>
 <script>
+    var roles = require('/mods/roles');
+
     var app = new Vue({
         el: '#app',
-        data: function () {
-
-            //具体item从后端获取
-            const item1 = {
-                'repoId': '1234',
-                'repoAddr': '北京邮电大学',
-                'repoAdmin': '张三'
-            };
-            const item2 = {
-                'repoId': '1235',
-                'repoAddr': '北京师范大学',
-                'repoAdmin': '李四'
-            }
-
-            return {
-                menuSelect: 1,
-                repoData: {
-                    repoInfo: [item1, item2]
-                }
+        data: {
+            user: {
+                name: '付泓霖',
+                role: 'admin'
+            },
+            menus: [],
+            nonUrlBegin: '^', // 用 url 中不可能出现的字符 ^ 表示非 url。用于非 url 的菜单 index
+            router: ''
+        },
+        computed: {
+            roleText: function() {
+                return roles.roleText[this.user.role];
             }
         },
         mounted: function () {
-
+            // TEST: ADMIN
+            this.menus = roles.menus[this.user.role];
         },
         methods: {
-            alertEdit:function(){
-                this.$message({
-                    title:'修改仓库信息',
-
-                })
+            isMenuGroup: function (menu) {
+                return ('menus' in menu);
+            },
+            handleSelect: function (url) {
+                this.router = url;
             }
         }
     });
