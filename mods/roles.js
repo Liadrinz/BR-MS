@@ -40,7 +40,15 @@ export default {
 
     // roleId: Translate role name to backend-supported name.
     //         Currently useless.
-    roleId: {
+    backToMine: {
+        admin: "admin",
+        manager: "manager",
+        normal: "user"
+    },
+
+    // roleId: Translate role name to backend-supported name.
+    //         Currently useless.
+    mineToOther: {
         admin: "admin",
         manager: "manager",
         normal: "user"
