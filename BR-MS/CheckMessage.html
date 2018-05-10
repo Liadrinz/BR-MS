@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>消息列表 版本2</title>
+    <link rel="stylesheet" href="lib/eleme-index.css">
+    <style>
+    </style>
+</head>
+<body>
+<div id="app">
+    <!--全部 未读 已读(checkbox) 发送消息(dialog)--><!--status 状态-->
+    <el-form>
+        <!--checkbox多选框：进行状态切换--全部 未读 已读-->
+        <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange">全部</el-checkbox>
+        <el-checkbox-group v-model="checkedStatuses" @change="handleCheckedStatusesChange">
+            <el-checkbox v-for="status in statuses" :label="status" :key="status">{{status}}</el-checkbox>
+        </el-checkbox-group>
+        <!--dialog对话框：在保留当前页面状态的情况下，告知用户并承载相关操作-->
+        <el-button type="text" @click="dialogVisible=true">发送消息</el-button>
+        <el-dialog title="发送消息" :visible.sync="dialogVisible" width="30%" :before-close="handleClose">
+            <el-form :model="formInput1"><!--弹出对话框的发送信息功能：收件人 标题 正文-->
+                <el-form-item label="收件人" :label-width="formLabelWidth">
+                    <el-input placeholder="请输入收件人" v-model="formInput1.name" clearable auto-complete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="标题" :label-width="formLabelWidth">
+                    <el-input placeholder="请输入消息标题" v-model="formInput1.title" clearable auto-complete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="正文" :label-width="formLabelWidth">
+                    <el-input type="textarea" :row="10" placeholder="请输入内容" v-model="formInput1.content" auto-complete="off"></el-input>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer"><!--弹出对话框的底部-->
+                <el-button type="primary" @click="dialogVisible=false">确认发送</el-button>
+                <el-button @click="dialogVisible=false">取消</el-button>
+            </span>
+        </el-dialog>
+    </el-form>
+    <!--表格 时间 发件人 标题 操作：查看详情(dialog) 标为已读 标为未读 删除一条消息-->
+    <template>
+        <el-table :data="tableData" stripe style="width:100%" :default-sort="{prop:'date',order:'descending'}">
+            <el-table-column fixed prop="recDate" sortable label="日期" width="130"></el-table-column>
+            <el-table-column fixed prop="senderId" sortable label="发件人" width="100"></el-table-column>
+            <el-table-column prop="title" label="标题" width="400"></el-table-column>
+            <el-table-column fixed="right" label="操作" width="400"><!--固定操作一栏-->
+                <template slot-scope="scope">
+                    <el-button size="mini" @click="dialog2Visible=true" type="text">查看</el-button><!--查看button 嵌套dialog-->
+                    <el-dialog title="消息详情" :visible.sync="dialog2Visible" width="30%" :before-close="handleClose">
+                        <el-form :model="checkMessage"><!--弹出对话框的发送信息功能：收件人 标题 正文-->
+                            <el-form-item label="发件人" :label-width="formLabelWidth">
+                                <el-input v-model="checkMessage.senderId" clearable auto-complete="off"></el-input>
+                            </el-form-item>
+                            <el-form-item label="标题" :label-width="formLabelWidth">
+                                <el-input v-model="checkMessage.title" clearable auto-complete="off"></el-input>
+                            </el-form-item>
+                            <el-form-item label="正文" :label-width="formLabelWidth">
+                                <el-input type="textarea" :row="10" v-model="checkMessage.content" auto-complete="off"></el-input>
+                            </el-form-item>
+                        </el-form>
+                        <span slot="footer" class="dialog-footer"><!--弹出对话框的底部-->
+                            <el-button @click="dialog2Visible=false">返回</el-button>
+                        </span>
+                    </el-dialog>
+                    <el-button size="mini" @click.native.prevent="handleDeleteMessage(scope.$index,tableData)" type="text" size="mini">删除</el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+    </template>
+    <!--标为已读 标为未读 删除-->
+</div>
+</body>
+<script src="lib/vue.js"></script>
+<script src="lib/eleme-index.js"></script>
+
+<script>
+    var app = new Vue({
+        el: '#app',
+        const:statusOptions = ['未读', '已读'],
+        data: function () {
+            const statusOptions = ['未读', '已读']
+            return {
+                checkAll: false,
+                checkedStatuses: [],
+                statuses: statusOptions,
+                isIndeterminate: true,
+                dialogVisible:false,
+                formInput1:{
+                    name:'',
+                    title:'',
+                    content:''
+                },
+                formLabelWidth:'120px',
+                tableData:[{
+                    recDate:'2018-5-10',
+                    senderId:'匿名',
+                    title:''
+                },{
+                    recDate:'2018-5-9',
+                    senderId:'匿名',
+                    title:'你打开看看呀！'
+                }],
+                dialog2Visible:false,
+                checkMessage:{
+                    senderId:'匿名',
+                    title:'你打开看看呀！',
+                    content:'（一jio踹飞！）'
+                }
+            }
+        },
+        methods: {
+            handleCheckAllChange(val) {
+                this.checkedStatuses = val ? statusOptions : [];
+                this.isIndeterminate = false;
+            },
+            handleCheckedStatusesChange(value) {
+                let checkedCount = value.length;
+                this.checkAll = checkedCount === this.statuses.length;
+                this.isIndeterminate = checkedCount > 0 && checkedCount < this.statuses.length;
+            },
+            handleClose(done){
+                this.$confirm('确认关闭？')
+                    .then(_=>{
+                        done();
+                    })
+                    .catch(_=>{});
+            },
+            handleDeleteMessage(index,rows){
+                rows.splice(index,1);
+            }
+        }
+    })
+</script>
+
+</html>
