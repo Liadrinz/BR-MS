@@ -30,28 +30,32 @@
             test:function(){
                 $.ajax({
                     type:'post',
-                    url:'http://10.103.251.150:8080/dispatch/user/register',
+                    url:'http://10.112.128.63:8080/dispatch/common/register',
+                    headers:{Accept:'application/json'},
                     data:{
-                        userId:'1234',
-                        realName:'tomcat',
+                        username:'1234',
                         password: '123456',
-                        role:'user',
+                        role:'manager',
+                        realName:'tomcat',
                         IDType:'1',
                         IDNumber:'123456',
                         companyName:'555',
-                        title:null,
+                        title:'教师',
                         phoneNumber:'12333333333',
-                        tel:null,
+                        tel:'66656666',
                         email:'435438602@qq.com',
                         address:'bupt',
-                        warehouseId:null,
+                        warehouseId:'2603',
                         employeeId:'123456'
                     },
                     beforeSend:function(){
                     },
                     success:function(data,result,resultDesp){
+                        console.log('data:')
                         console.log(data);
+                        console.log('result:');
                         console.log(result);
+                        console.log('resultDesp:');
                         console.log(resultDesp);
                     },
                     error:function(){
