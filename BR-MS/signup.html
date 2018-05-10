@@ -8,6 +8,7 @@
         body {
             background: url(res/bg-air.jpg) center top;
             background-size: 100%;
+            margin:0;
         }
 
         .full-fill {
@@ -17,8 +18,8 @@
 </head>
 <body>
 <div id="app">
-    <el-row>
-        <el-col :span="10" :offset="7">
+    <el-row v-loading.fullscreen.lock="loading" element-loading-text="正在提交" element-loading-background="rgba(0,0,0,0.7)">
+        <el-col :span="14" :offset="5">
             <el-card>
                 <transition name="el-fade-in">
                     <div v-show="state===0">
@@ -57,10 +58,10 @@
                             <el-form-item label="员工ID" prop="staffId" required>
                                 <el-input v-model="form1.staffId"></el-input>
                             </el-form-item>
-                            <el-form-item label="手机号码">
+                            <el-form-item label="手机号码" prop="mobile" required>
                                 <el-input v-model="form1.mobile"></el-input>
                             </el-form-item>
-                            <el-form-item label="固定电话" prop="tel" required>
+                            <el-form-item label="固定电话">
                                 <el-input v-model="form1.tel"></el-input>
                             </el-form-item>
                             <el-form-item label="电子邮箱" prop="email" required>
@@ -71,16 +72,16 @@
                             </el-form-item>
                             <el-form-item label="用户类型" prop="usertype" required>
                                 <el-select v-model="form1.usertype">
-                                    <el-option label="普通用户" value="common"></el-option>
-                                    <el-option label="仓库管理员" value="admin"></el-option>
+                                    <el-option label="普通用户" value="user"></el-option>
+                                    <el-option label="仓库管理员" value="manager"></el-option>
                                 </el-select>
                             </el-form-item>
                             <transition name="el-zoom-in-top">
-                                <div v-if="form1.usertype==='admin'">
-                                    <el-form-item label="仓库编号" prop="repoId" required="false">
+                                <div v-if="form1.usertype==='manager'">
+                                    <el-form-item label="仓库编号" prop="repoId" required>
                                         <el-input v-model="form1.repoId"></el-input>
                                     </el-form-item>
-                                    <el-form-item label="仓库地址" prop="repoAddr" required="false">
+                                    <el-form-item label="仓库地址" prop="repoAddr" required>
                                         <el-input v-model="form1.repoAddr"></el-input>
                                     </el-form-item>
                                     <el-form-item label="仓库经纬度" prop="repoCoord">
@@ -131,6 +132,7 @@
         data: function () {
             return {
                 state: 0,
+                loading:false,
                 form1: {
                     documentType: '',
                     documentId: '',
@@ -211,9 +213,9 @@
                         {required: true, message: '请输入员工ID'},
                         {pattern: /^\d+$/, message: '请输入正确的员工ID'}
                     ],
-                    tel: [
-                        {required: true, message: '请输入固定电话'},
-                        {pattern: /^[\d()-]+$/, message: '请输入正确的固定电话'}
+                    mobile: [
+                        {required: true, message: '请输入手机号码'},
+                        {pattern: /^\d{11}$/, message: '请输入正确的手机号码'}
                     ],
                     email: [
                         {required: true, message: '请输入电子邮箱'},
@@ -251,13 +253,15 @@
                 })
             },
             register: function () {
+                this.loading=true;
                 $.ajax({
                     type:'post',
-                    url:'/user/register',
+                    url:'http://10.103.251.150:8080/dispatch/user/register',
                     data:{
                         userId: this.form1.userId,
+                        realName:this.form1.name,
                         password: this.form1.password,
-                        role: this.form1.usertype,
+                        role:this.form1.usertype,
                         IDType:this.form1.documentType,
                         IDNumber:this.form1.documentId,
                         companyName:this.form1.company,
@@ -273,7 +277,11 @@
                         console.log('Prepared');
                     },
                     success:(data,result,resultDesp)=>{
-                        if(result===1000){
+                        this.loading=false;
+                        console.log(data);
+                        console.log(result);
+                        console.log(resultDesp);
+                        if(result===1000||result==='success'){
                             this.$alert('请耐心等待管理员审核，若审核通过系统将自动为您发送提示邮件！', {
                                 confirmButtonText: '返回首页',
                                 callback: action => {
@@ -290,15 +298,15 @@
                         }
                     },
                     complete:function(){
+                        this.loading=false;
                         console.log('Done');
                     },
                     error:()=>{
+                        this.loading=false;
                         console.log('Error');
                         this.$alert('网络错误，请稍后重试');
                     }
-                })
-
-
+                });
             }
         },
         computed: {
@@ -310,6 +318,8 @@
                         '2': '军官证',
                         '3': '护照'
                     }[this.form1.documentType],
+                    '证件号码':this.form1.documentId,
+                    '登录用户名':this.form1.userId,
                     '用户姓名': this.form1.name,
                     '单位名称': this.form1.company,
                     '职务': this.form1.position,
@@ -324,7 +334,7 @@
                 };
 
                 var result = [];
-                if (this.form1.usertype == 'common') {
+                if (this.form1.usertype == 'user') {
                     for (var i in renderData) {
                         if (!i.includes('仓库')) {
                             result.push({key: i, value: renderData[i]});
