@@ -135,18 +135,19 @@
                 $.ajax({
                     type: 'post',
                     url: 'http://10.112.128.63:8080/dispatch/login',
-                    data: {
-                        username: this.loginForm.username,
-                        password: this.loginForm.password
-                    },
+                    headers:{'Content-Type':'application/json'},
+                    data: JSON.stringify({
+                        "username": this.loginForm.username,
+                        "password": this.loginForm.password
+                    }),
                     beforeSend: function () {
                         console.log('Prepared');
                     },
-                    success: (data, result, resultDesp,header) => {
+                    success: (data, result, resultDesp,XMLResponse) => {
+                        console.log(result);
+                        console.log(data);
                         if (result === 1000||result==='success') {
-                            header.token;//TODO: deal with token
-                            data;//TODO: deal with userInfo
-                            window.location.href = 'mainPage.html';
+                            console.log(123);
                         }else if(result===4001){
                             this.$alert('账号或密码错误');
                             this.isLogging=false;

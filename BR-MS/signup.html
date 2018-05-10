@@ -245,23 +245,23 @@
                 this.loading=true;
                 $.ajax({
                     type:'post',
-                    url:'http://10.112.128.63:8080/dispatch/common/register',
-                    data:{
-                        username: this.form1.username,
-                        password: this.form1.confirmedPassword,
-                        role:this.form1.role,
-                        realName:this.form1.realName,
-                        IDType:this.form1.IDType,
-                        IDNumber:this.form1.IDNumber,
-                        companyName:this.form1.companyName,
-                        title:this.form1.title,
-                        phoneNumber:this.form1.phoneNumber,
-                        tel:this.form1.tel,
-                        email:this.form1.email,
-                        address:this.form1.address,
-                        warehouseId:this.form1.warehouseId,
-                        employeeId:this.form1.employeeId
-                    },
+                    url:'http://10.112.128.63:8080/dispatch/register',
+                    data:JSON.stringify({
+                        "username": this.form1.username,
+                        "password": this.form1.confirmedPassword,
+                        "role":this.form1.role,
+                        "realName":this.form1.realName,
+                        "IDType":this.form1.IDType,
+                        "IDNumber":this.form1.IDNumber,
+                        "companyName":this.form1.companyName,
+                        "title":this.form1.title,
+                        "phoneNumber":this.form1.phoneNumber,
+                        "tel":this.form1.tel,
+                        "email":this.form1.email,
+                        "address":this.form1.address,
+                        "warehouseId":this.form1.warehouseId,
+                        "employeeId":this.form1.employeeId
+                    }),
                     beforeSend:function(){
                         console.log('Prepared');
                     },
