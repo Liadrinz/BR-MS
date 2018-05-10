@@ -1,0 +1,1 @@
+export default {url:'http://10.112.128.63:8080/dispatch'}

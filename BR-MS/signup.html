@@ -248,6 +248,7 @@
                 $.ajax({
                     type:'post',
                     url:'http://10.112.128.63:8080/dispatch/register',
+                    headers:{'Content-Type':'application/json'},
                     data:JSON.stringify({
                         "username": this.form1.username,
                         "password": this.form1.confirmedPassword,

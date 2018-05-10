@@ -11,7 +11,8 @@ npm_modules = [
 # modules written in mods directory.
 # Remember to require with prefix '/mods/'
 local_modules = [    
-    "roles"
+    "roles",
+    'backend'
 ]
 
 # Build scripts, DO NOT MODIFY
