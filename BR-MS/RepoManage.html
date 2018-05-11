@@ -203,7 +203,9 @@
 <script src="lib/vue.js"></script>
 <script src="lib/eleme-index.js"></script>
 <script src="lib/jquery.min.js"></script>
+<script src="res/dependencies.js"></script>
 <script>
+    var urlPrefix=require('/mods/backend').url;
     var app = new Vue({
         el: '#app',
         data: function () {
@@ -293,7 +295,7 @@
             //从后端拉取数据
             $.ajax({
                 type:'get',
-                url:'http://10.103.251.150:8080/dispatch/warehouse',
+                url:urlPrefix+'/warehouse',
                 complete:(data,result,resultDesp)=>{
                     if (result === 1000 || result === 'success') {
                         console.log(data);
@@ -320,8 +322,13 @@
                         this.loading=true;
                         $.ajax({
                             type: 'post',
-                            url: way==='add'?'http://10.103.251.150:8080/dispatch/admin/add_warehouse':'http://10.103.251.150:8080/dispatch/admin/update_warehouse',//TODO: set correct URL
-                            data: {
+                            url: way==='add'?urlPrefix+'/admin/add_warehouse':urlPrefix+'/admin/update_warehouse',//TODO: set correct URL
+                            headers:{
+                                "token":localStorage.getItem('token'),
+                                "Accept":"application/json",
+                                "Content-Type":"application/json"
+                            },
+                            data: JSON.stringify({
                                 warehouse_id:this.editedForm.warehouse_id,
                                 warehouse_name:this.editedForm.warehouse_name,
                                 warehouse_code:this.editedForm.warehouse_code,
@@ -334,7 +341,7 @@
                                 city:this.editedForm.city,
                                 county:this.editedForm.county,
                                 detail_location:this.editedForm.detail_location,
-                            },
+                            }),
                             complete: (data, result, resultDesp) => {
                                 if (result === 1000 || result === 'success') {
                                     console.log(data);
@@ -365,7 +372,12 @@
             confirmDelete:function(){
                 $.ajax({
                     type:'delete',
-                    url:'http://10.112.128.63:8080/admin/del_warehouse',
+                    url:urlPrefix+'/admin/del_warehouse',
+                    headers:{
+                        "token":localStorage.getItem('token'),
+                        "Accept":"application/json",
+                        "Content-Type":"application/json"
+                    },
                     data:{
                         warehouse_id:this.editedForm.warehouse_id
                     },
