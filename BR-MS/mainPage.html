@@ -6,6 +6,10 @@
     <script src="res/dependencies.js"></script>
     <link rel="stylesheet" href="lib/eleme-index.css">
     <style>
+        [v-cloak] {
+            display: none;
+        }
+
         @font-face {
             font-family: "FZQuSong";
             src: url("res/fonts/FZQuSong.ttf") format("truetype");
@@ -123,7 +127,7 @@
 </head>
 <body>
 
-<div id="app" class="full-page flex-column">
+<div id="app" class="full-page flex-column" v-cloak>
     <header class="container">
         <div id="logo-text">
             <img src="res/icon-box.png">

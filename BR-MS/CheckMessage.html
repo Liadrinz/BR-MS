@@ -41,10 +41,10 @@
     <template>
         <el-table :data="tableData" stripe style="width:100%" :default-sort="{prop:'date',order:'descending'}">
             <!--fixed 固定了除日期外所有column-->
-            <el-table-column fixed prop="recDate" sortable label="日期" width="130"></el-table-column>
-            <el-table-column fixed prop="senderId" sortable label="发件人" width="100"></el-table-column>
+            <el-table-column prop="recDate" sortable label="日期" width="130"></el-table-column>
+            <el-table-column prop="senderId" sortable label="发件人" width="100"></el-table-column>
             <el-table-column prop="title" label="标题" width="400"></el-table-column>
-            <el-table-column fixed="right" label="操作" width="400">
+            <el-table-column label="操作" width="400">
                 <template slot-scope="scope">
                     <!--查看button 嵌套dialog-->
                     <el-button size="mini" @click="dialog2Visible=true" type="text">查看</el-button>
