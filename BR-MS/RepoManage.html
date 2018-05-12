@@ -32,20 +32,20 @@
     <el-form id="search" :inline="true" ref="queryParams" label-position="right" label-with="80px" :model="queryParams"
              v-loading.fullscreen="initializing" element-loading-text="正在获取数据"
              element-loading-background="rgba(0,0,0,0.8)">
-        <el-form-item label="仓库地址" v-model="queryParams.warehouse_location">
-            <el-input></el-input>
+        <el-form-item label="仓库id">
+            <el-input v-model="queryParams.warehouse_id"></el-input>
         </el-form-item>
-        <el-form-item label="仓库编号" v-model="queryParams.warehouse_code">
-            <el-input></el-input>
+        <el-form-item label="仓库名称">
+            <el-input v-model="queryParams.warehouse_name"></el-input>
         </el-form-item>
-        <el-form-item label="国家" v-model="queryParams.country">
-            <el-input></el-input>
+        <el-form-item label="仓库编号">
+            <el-input v-model="queryParams.warehouse_code"></el-input>
         </el-form-item>
-        <el-form-item label="省" v-model="queryParams.province">
-            <el-input></el-input>
+        <el-form-item label="仓库地址">
+            <el-input v-model="queryParams.warehouse_location"></el-input>
         </el-form-item>
         <el-form-item>
-            <el-button type="primary">查找</el-button>
+            <el-button type="primary" @click="search">查找</el-button>
             <el-button>返回</el-button>
         </el-form-item>
     </el-form>
@@ -76,9 +76,9 @@
         </el-table-column>
         <el-table-column prop="warehouse_id" label="仓库id" width="80">
         </el-table-column>
-        <el-table-column prop="warehouse_code" label="仓库编号" width="130">
-        </el-table-column>
         <el-table-column prop="warehouse_name" label="仓库名称" width="205">
+        </el-table-column>
+        <el-table-column prop="warehouse_code" label="仓库编号" width="130">
         </el-table-column>
         <el-table-column prop="warehouse_location" label="仓库地址" width="275">
         </el-table-column>
@@ -91,8 +91,10 @@
                 <el-button type="warning" size="mini" @click="()=>{
                     props.row.dialogVisible=true;
                     editedForm={...props.row};
-                }">修改信息</el-button>
-                <el-button type="danger" size="mini" @click="confirmDelete">删除仓库</el-button>
+                }">修改信息
+                </el-button>
+                <el-button type="danger" size="mini" @click="()=>{confirmDelete(props.row.warehouse_id)}">删除仓库
+                </el-button>
                 <el-dialog :visible.sync="props.row.dialogVisible" v-loading.fullscreen="loading"
                            element-loading-text="正在提交" element-loading-background="rgba(0,0,0,0.8)">
                     <el-form ref="editedForm" label-position="right" label-width="100px" :rules="editRule"
@@ -207,7 +209,7 @@
 <script src="res/dependencies.js"></script>
 <script>
     var items = [];
-    var genralForm={
+    var genralForm = {
         warehouse_id: '',
         warehouse_name: '',
         warehouse_code: '',
@@ -225,12 +227,16 @@
     var post = require('/mods/backend');
     var urlPrefix = 'http://10.112.128.63:8080/dispatch/'
 
-    function getData(page) {
-        post('/system/get_warehouse', {
+    function getData(page, searchKey) {
+        if (searchKey) {
+            searchKey["pageSize"] = pageSize;
+            searchKey["pageNum"] = page;
+        }
+        post('/system/get_warehouse', searchKey ? searchKey : {
             "pageSize": pageSize,
             "pageNum": page
         }, (data, errid) => {
-            if(errid){
+            if (errid) {
                 app.$alert('数据拉取失败');
                 app.initializing = false;
                 return;
@@ -239,10 +245,17 @@
             maxPage = data.allPages;
             for (var item in warehouses) {
                 warehouses[item]['dialogVisible'] = false;
+                warehouses[item]['addDialogVisible'] = false;
                 items.push(warehouses[item]);
             }
             app.initializing = false;
         })
+    }
+
+    function clearData() {
+        for (let i = 0; i < pageSize; i++) {
+            items.pop();
+        }
     }
 
     function pageControl(control) {
@@ -251,36 +264,26 @@
                 return;
             }
             //items=[]不行，不知道为什么。
-            for (let i = 0; i < pageSize; i++) {
-                items.pop();
-            }
+            clearData();
             pageNum -= 1;
             getData.call(app, pageNum);
         } else if (control === 'next') {
             if (pageNum >= maxPage) {
                 return;
             }
-            for (let i = 0; i < pageSize; i++) {
-                items.pop();
-            }
+            clearData();
             pageNum += 1;
             getData.call(app, pageNum);
         } else if (control === 'first') {
-            for (let i = 0; i < pageSize; i++) {
-                items.pop();
-            }
+            clearData();
             pageNum = 1;
             getData.call(app, pageNum);
         } else if (control === 'last') {
-            for (let i = 0; i < pageSize; i++) {
-                items.pop();
-            }
+            clearData();
             pageNum = maxPage;
             getData.call(app, pageNum);
         } else if (control === 'stay') {
-            for (let i = 0; i < pageSize; i++) {
-                items.pop();
-            }
+            clearData();
             getData.call(app, pageNum);
         }
     }
@@ -298,13 +301,14 @@
                     repoInfo: items
                 },
                 queryParams: {
-                    warehouse_location: '',
-                    warehouse_code: '',
-                    longitude: ''
+                    warehouse_id:"",
+                    warehouse_name: "",
+                    warehouse_code: "",
+                    warehouse_location: ""
                 },
-                confirmedForm:genralForm,
-                editedForm:genralForm,
-                addForm:genralForm,
+                confirmedForm: genralForm,
+                editedForm: genralForm,
+                addForm: genralForm,
                 editRule: {
                     warehouse_id: [
                         {required: true, message: '请输入仓库id', trigger: 'blur'}
@@ -324,78 +328,83 @@
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
                         this.loading = true;
-                        post('/system/update_warehouse',{
-                            "warehouse_id": this.editedForm.warehouse_id,
-                            "warehouse_name": this.editedForm.warehouse_name,
-                            "warehouse_code": this.editedForm.warehouse_code,
-                            "warehouse_location": this.editedForm.warehouse_location,
-                            "longitude": this.editedForm.longitude,
-                            "latitude": this.editedForm.latitude,
-                            "country": this.editedForm.country,
-                            "area": this.editedForm.area,
-                            "province": this.editedForm.province,
-                            "city": this.editedForm.city,
-                            "county": this.editedForm.county,
-                            "detail_location": this.editedForm.detail_location,
-                        },(data,errid)=>{
-                            if(errid){
+                        post('/system/update_warehouse', app.editedForm, (data, errid) => {
+                            if (errid) {
                                 console.log(errid);
-                                app.$alert('修改失败');
-                                app.loading=false;
+                                app.$message.error('修改失败');
+                                app.loading = false;
                                 return;
                             }
-                            this.$alert('修改成功');
-                            app.loading=false;
+                            this.$message({
+                                type: "success",
+                                message: '修改成功'
+                            });
+                            pageControl.call(this, 'stay');
+                            app.loading = false;
+                            app.dialogVisible = false;
                         });
                     } else {
                         this.$alert('信息错误，请重新填写');
                         return false;
                     }
-                })
-
+                });
             },
-            confirmAdd:function (formName) {
+            confirmAdd: function (formName) {
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
                         this.loading = true;
-                        post('/system/add_warehouse',{
-                            "warehouse_id": this.editedForm.warehouse_id,
-                            "warehouse_name": this.editedForm.warehouse_name,
-                            "warehouse_code": this.editedForm.warehouse_code,
-                            "warehouse_location": this.editedForm.warehouse_location,
-                            "longitude": this.editedForm.longitude,
-                            "latitude": this.editedForm.latitude,
-                            "country": this.editedForm.country,
-                            "area": this.editedForm.area,
-                            "province": this.editedForm.province,
-                            "city": this.editedForm.city,
-                            "county": this.editedForm.county,
-                            "detail_location": this.editedForm.detail_location,
-                        },(data,errid)=>{
-                            if(errid){
+                        post('/system/add_warehouse', app.addForm, (data, errid) => {
+                            if (errid) {
                                 console.log(errid);
-                                app.$alert('添加失败');
-                                app.loading=false;
+                                app.$message.error('添加失败');
+                                app.loading = false;
                                 return;
                             }
-                            this.$alert('添加成功');
-                            app.loading=false;
+                            this.$message({
+                                type: "success",
+                                message: '添加成功'
+                            });
+                            pageControl.call(this, 'last');
+                            app.loading = false;
                             app.addDialogVisible = false;
                         });
                     } else {
                         this.$alert('信息错误，请重新填写');
                         return false;
                     }
-                })
+                });
             },
             confirmDelete: function (id_toDel) {
-                post('/system/del_warehouse',{
-                    "warehouse_id":id_toDel
-                },(data,errid)=>{
-                    if(errid){
-                        
+                this.$confirm('确认删除该仓库？', null, {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    post('/system/del_warehouse', {
+                        "warehouse_id": id_toDel
+                    }, (data, errid) => {
+                        if (errid) {
+                            this.$message.error('删除失败');
+                            return;
+                        }
+                        this.$message({
+                            type: 'success',
+                            message: '删除成功!'
+                        });
+                        pageControl.call(this, 'stay');
+                    });
+                });
+            },
+            search: function () {
+                var validate={"pageSize":pageSize,"pageNum":pageNum};
+                for(var i in app.queryParams){
+                    if(app.queryParams[i]!==""){
+                        validate[i]=app.queryParams[i];
                     }
-                })
+                }
+                console.log(validate);
+                clearData();
+                getData(1, validate);
             }
         }
     });
