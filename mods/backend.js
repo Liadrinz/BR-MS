@@ -46,13 +46,11 @@ export default function (api, data, callback) {
         },
         success(data, _, jqXHR) {
             // TODO: Should I update token on every success or result === 1000?
-            if (!data.result || !data.data) {
+            if (!data.result) {
                 callback("服务器连接成功，但服务器返回的数据格式不正确。", 1);
             } else if (data.result === 1000) {
-                localStorage.setItem(
-                    "token",
-                    jqXHR.getResponseHeader("token")
-                );
+                var newToken = jqXHR.getResponseHeader("token");
+                
                 callback(data.data);
             } else {
                 callback(data.resultDesp || "", data.result);
