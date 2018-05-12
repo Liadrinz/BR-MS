@@ -149,20 +149,16 @@
             $.ajax({
                 type: 'get',
                 url: 'http://10.112.128.63:8080/dispatch/user/toauth',
-                success: (data, result, resultDesp) => {
-                    if (result === 1000 || result === 'success') {
-                        console.log(data);
-                        console.log(result);
-                        console.log(resultDesp);
+                success: (data) => {
+                    if (data.result === 1000) {
+                        console.log(data.result);
                         this.initializing = false;
                     } else {
                         this.$alert('数据拉取失败');
                     }
                     this.initializing = false;
                 },
-                error: (result, resultDesp) => {
-                    console.log(result);
-                    console.log(resultDesp);
+                error: () => {
                     this.$alert('数据拉取失败');
                     this.initializing = false;
                 }

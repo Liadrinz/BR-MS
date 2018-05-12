@@ -97,18 +97,7 @@
                 <el-button type="primary" size="mini" @click="()=>{changePassword(props.row)}">重置密码</el-button>
                 <el-button size="mini" @click="()=>{
                     props.row.dialogVisible=true;
-                    editedForm.username=props.row.username;
-                    editedForm.role=props.row.role;
-                    editedForm.realName=props.row.realName;
-                    editedForm.IDType=props.row.IDType;
-                    editedForm.IDNumber=props.row.IDNumber;
-                    editedForm.companyName=props.row.companyName;
-                    editedForm.title=props.row.title;
-                    editedForm.phoneNumber=props.row.phoneNumber;
-                    editedForm.tel=props.row.tel;
-                    editedForm.email=props.row.email;
-                    editedForm.address=props.row.address;
-                    editedForm.employeeId=props.row.employeeId;
+                    editedForm=props.row
                 }">修改信息
                 </el-button>
                 <el-button type="danger" size="mini" @click="()=>{deleteUser(props.row)}">删除用户</el-button>
@@ -249,7 +238,7 @@
                 type: 'get',
                 url: 'http://10.112.128.63:8080/dispatch/user',
                 success: (data, result, resultDesp) => {
-                    if (result === 1000 || result === 'success') {
+                    if (data.result === 1000) {
                         console.log(data);
                         console.log(result);
                         console.log(resultDesp);
@@ -272,20 +261,20 @@
                 $.ajax({
                     method: 'get',
                     url: '/user',
-                    data: {
-                        userId: this.queryParams.IDNumber,
-                        realName: this.queryParams.realName,
-                        IDNumber: this.queryParams.documentId,
-                        phoneNumber: this.queryParams.mobile,
-                        employeeId: this.queryParams.staffId
-                    },
-                    success: (data, result, resultDesp) => {
-                        for (var item in data) {
+                    data: JSON.stringify({
+                        "username": this.queryParams.username,
+                        "realName": this.queryParams.realName,
+                        "IDNumber": this.queryParams.IDNumber,
+                        "phoneNumber": this.queryParams.phoneNumber,
+                        "employeeId": this.queryParams.employeeId
+                    }),
+                    success: (data) => {
+                        for (var item in data.data) {
                             this.results.push(item);
                         }
                     },
                     error: () => {
-                        this.$alert('网络错误，请稍后重试');
+                        this.$alert('查找失败，请稍后重试');
                     }
                 })
             },
@@ -297,11 +286,8 @@
                             type: 'post',
                             url: 'http://10.112.128.63:8080/dispatch/user/1/change',//TODO: set correct URL
                             data: {},
-                            success: (data, result, resultDesp) => {
-                                if (result === 1000 || result === 'success') {
-                                    console.log(data);
-                                    console.log(result);
-                                    console.log(resultDesp);
+                            success: (data) => {
+                                if (data.result === 1000) {
                                     this.$alert('修改成功');
                                     this.dialogVisible = false;
                                 } else {
@@ -309,9 +295,7 @@
                                 }
                                 this.loading = false;
                             },
-                            error: (result, resultDesp) => {
-                                console.log(result);
-                                console.log(resultDesp);
+                            error: () => {
                                 this.$alert('修改失败');
                                 this.loading = false;
                                 return true;

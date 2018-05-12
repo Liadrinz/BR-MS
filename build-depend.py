@@ -12,7 +12,8 @@ npm_modules = [
 # Remember to require with prefix '/mods/'
 local_modules = [    
     "roles",
-    'backend'
+    'backend',
+    'easyAjax',
 ]
 
 # Build scripts, DO NOT MODIFY

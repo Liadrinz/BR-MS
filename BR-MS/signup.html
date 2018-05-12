@@ -268,12 +268,9 @@
                     beforeSend:function(){
                         console.log('Prepared');
                     },
-                    success:(data,result,resultDesp)=>{
+                    success:(data)=>{
                         this.loading=false;
-                        console.log(data);
-                        console.log(result);
-                        console.log(resultDesp);
-                        if(result===1000||result==='success'){
+                        if(data.result===1000){
                             this.$alert('请耐心等待管理员审核，若审核通过系统将自动为您发送提示邮件', {
                                 confirmButtonText: '返回首页',
                                 callback: action => {
@@ -285,17 +282,15 @@
                                 }
                             });
                         }else{
-                            console.log(resultDesp);
                             this.$alert('网络错误，请稍后重试');
                         }
                     },
-                    complete:function(){
+                    complete:()=>{
                         this.loading=false;
                         console.log('Done');
                     },
                     error:()=>{
                         this.loading=false;
-                        console.log('Error');
                         this.$alert('网络错误，请稍后重试');
                     }
                 });
