@@ -1,6 +1,6 @@
 var $ = require('jquery');
 
-var apiPrefix = "http://10.112.128.63:8080/dispatch";
+var apiPrefix = "http://10.112.128.63:8080/dispatch/";
 var timeout = 6000;
 
 /*
@@ -46,7 +46,7 @@ export default function (api, data, callback) {
         },
         success(data, _, jqXHR) {
             // TODO: Should I update token on every success or result === 1000?
-            if (!data.result || !data.data) {
+            if (!data.result) {
                 callback("服务器连接成功，但服务器返回的数据格式不正确。", 1);
             } else if (data.result === 1000) {
                 localStorage.setItem(

@@ -90,9 +90,8 @@
             <template slot-scope="props">
                 <el-button type="warning" size="mini" @click="()=>{
                     props.row.dialogVisible=true;
-                    editedForm=props.row
-                }">修改信息
-                </el-button>
+                    editedForm={...props.row};
+                }">修改信息</el-button>
                 <el-button type="danger" size="mini" @click="confirmDelete">删除仓库</el-button>
                 <el-dialog :visible.sync="props.row.dialogVisible" v-loading.fullscreen="loading"
                            element-loading-text="正在提交" element-loading-background="rgba(0,0,0,0.8)">
@@ -147,53 +146,53 @@
     </el-table>
     <p style="text-align: center">
         <el-button style="margin-right:150px;" @click="convertPages('previous')">上一页</el-button>
-        <el-button style="margin-left: 150px;" @click="convertPages()">下一页</el-button>
+        <el-button style="margin-left: 150px;" @click="convertPages('next')">下一页</el-button>
     </p>
     <p style="text-align: center">
         <el-button type="primary" @click="()=>{addDialogVisible=true;}">+ 添加仓库</el-button>
     </p>
     <el-dialog :visible.sync="addDialogVisible" v-loading.fullscreen="loading" element-loading-text="正在提交"
                element-loading-background="rgba(0,0,0,0.8)">
-        <el-form ref="editedForm" label-position="right" label-width="100px" :rules="editRule" :model="editedForm">
+        <el-form ref="addForm" label-position="right" label-width="100px" :rules="editRule" :model="addForm">
             <el-form-item label="仓库id" prop="warehouse_id">
-                <el-input v-model="editedForm.warehouse_id" required></el-input>
+                <el-input v-model="addForm.warehouse_id" required></el-input>
             </el-form-item>
             <el-form-item label="仓库名称" prop="warehouse_name">
-                <el-input v-model="editedForm.warehouse_name"></el-input>
+                <el-input v-model="addForm.warehouse_name"></el-input>
             </el-form-item>
             <el-form-item label="仓库编号" prop="warehouse_code">
-                <el-input v-model="editedForm.warehouse_code"></el-input>
+                <el-input v-model="addForm.warehouse_code"></el-input>
             </el-form-item>
             <el-form-item label="仓库地址" prop="warehouse_location">
-                <el-input v-model="editedForm.warehouse_location" clearable></el-input>
+                <el-input v-model="addForm.warehouse_location" clearable></el-input>
             </el-form-item>
             <el-form-item label="经度" prop="longitude">
-                <el-input v-model="editedForm.longitude" clearable></el-input>
+                <el-input v-model="addForm.longitude" clearable></el-input>
             </el-form-item>
             <el-form-item label="纬度" prop="latitude">
-                <el-input v-model="editedForm.latitude" clearable></el-input>
+                <el-input v-model="addForm.latitude" clearable></el-input>
             </el-form-item>
             <el-form-item label="国家" prop="country">
-                <el-input v-model="editedForm.country" clearable></el-input>
+                <el-input v-model="addForm.country" clearable></el-input>
             </el-form-item>
             <el-form-item label="地区" prop="area">
-                <el-input v-model="editedForm.area" clearable></el-input>
+                <el-input v-model="addForm.area" clearable></el-input>
             </el-form-item>
             <el-form-item label="省" prop="province">
-                <el-input v-model="editedForm.province" clearable></el-input>
+                <el-input v-model="addForm.province" clearable></el-input>
             </el-form-item>
             <el-form-item label="城市" prop="city">
-                <el-input v-model="editedForm.city" clearable></el-input>
+                <el-input v-model="addForm.city" clearable></el-input>
             </el-form-item>
             <el-form-item label="区" prop="county">
-                <el-input v-model="editedForm.county" clearable></el-input>
+                <el-input v-model="addForm.county" clearable></el-input>
             </el-form-item>
             <el-form-item label="详细地址" prop="detail_location">
-                <el-input v-model="editedForm.detail_location" clearable></el-input>
+                <el-input v-model="addForm.detail_location" clearable></el-input>
             </el-form-item>
             <el-form-item>
                 <p style="text-align: right">
-                    <el-button type="primary" @click="confirmEdition('editedForm','add')">添加</el-button>
+                    <el-button type="primary" @click="confirmAdd('addForm')">添加</el-button>
                     <el-button @click="addDialogVisible=false">取消</el-button>
                 </p>
             </el-form-item>
@@ -208,82 +207,84 @@
 <script src="res/dependencies.js"></script>
 <script>
     var items = [];
-    var pageNum = 1,pageSize=6,maxPage=0;
-    var urlPrefix = require('/mods/backend').url;
+    var genralForm={
+        warehouse_id: '',
+        warehouse_name: '',
+        warehouse_code: '',
+        warehouse_location: '',
+        longitude: '',
+        latitude: '',
+        country: '',
+        area: '',
+        province: '',
+        city: '',
+        county: '',
+        detail_location: ''
+    };
+    var pageNum = 1, pageSize = 6, maxPage = 0;
+    var post = require('/mods/backend');
+    var urlPrefix = 'http://10.112.128.63:8080/dispatch/'
 
     function getData(page) {
-        $.ajax({
-            type: 'post',
-            url: urlPrefix + '/system/get_warehouse',
-            headers: {
-                'Content-Type': 'application/json',
-                'token': localStorage.getItem('token')
-            },
-            data: JSON.stringify({
-                "pageSize":pageSize,
-                "pageNum": page
-            }),
-            success: (data) => {
-                if (data.result === 1000) {
-                    var warehouses = data.data.warehouses;
-                    maxPage=data.data.allPages;
-                    for (var item in warehouses) {
-                        warehouses[item]['dialogVisible'] = false;
-                        items.push(warehouses[item]);
-                    }
-                    app.initializing = false;
-                } else {
-                    this.$alert('数据拉取失败');
-                }
-                app.initializing = false;
-            },
-            error: () => {
+        post('/system/get_warehouse', {
+            "pageSize": pageSize,
+            "pageNum": page
+        }, (data, errid) => {
+            if(errid){
                 app.$alert('数据拉取失败');
                 app.initializing = false;
+                return;
             }
-        });
+            var warehouses = data.warehouses;
+            maxPage = data.allPages;
+            for (var item in warehouses) {
+                warehouses[item]['dialogVisible'] = false;
+                items.push(warehouses[item]);
+            }
+            app.initializing = false;
+        })
     }
 
-    function pageControl(control){
+    function pageControl(control) {
         if (control === 'previous') {
-            if(pageNum<=1){
+            if (pageNum <= 1) {
                 return;
             }
             //items=[]不行，不知道为什么。
-            for(let i=0;i<pageSize;i++){
+            for (let i = 0; i < pageSize; i++) {
                 items.pop();
             }
             pageNum -= 1;
-            getData.call(app,pageNum);
-        }else if(control==='next'){
-            if(pageNum>=maxPage){
+            getData.call(app, pageNum);
+        } else if (control === 'next') {
+            if (pageNum >= maxPage) {
                 return;
             }
-            for(let i=0;i<pageSize;i++){
+            for (let i = 0; i < pageSize; i++) {
                 items.pop();
             }
             pageNum += 1;
-            getData.call(app,pageNum);
-        }else if(control==='first'){
-            for(let i=0;i<pageSize;i++){
+            getData.call(app, pageNum);
+        } else if (control === 'first') {
+            for (let i = 0; i < pageSize; i++) {
                 items.pop();
             }
-            pageNum=1;
-            getData.call(app,pageNum);
-        }else if(control==='last'){
-            for(let i=0;i<pageSize;i++){
+            pageNum = 1;
+            getData.call(app, pageNum);
+        } else if (control === 'last') {
+            for (let i = 0; i < pageSize; i++) {
                 items.pop();
             }
-            pageNum=maxPage;
-            getData.call(app,pageNum);
-        }else if(control==='stay'){
-            for(let i=0;i<pageSize;i++){
+            pageNum = maxPage;
+            getData.call(app, pageNum);
+        } else if (control === 'stay') {
+            for (let i = 0; i < pageSize; i++) {
                 items.pop();
             }
-            getData.call(app,pageNum);
+            getData.call(app, pageNum);
         }
     }
-    
+
     var app = new Vue({
         el: '#app',
         data: function () {
@@ -294,27 +295,16 @@
                 addDialogVisible: false,
                 page: pageNum,
                 repoData: {
-                    repoInfo:items
+                    repoInfo: items
                 },
                 queryParams: {
                     warehouse_location: '',
                     warehouse_code: '',
                     longitude: ''
                 },
-                editedForm: {
-                    warehouse_id: '',
-                    warehouse_name: '',
-                    warehouse_code: '',
-                    warehouse_location: '',
-                    longitude: '',
-                    latitude: '',
-                    country: '',
-                    area: '',
-                    province: '',
-                    city: '',
-                    county: '',
-                    detail_location: ''
-                },
+                confirmedForm:genralForm,
+                editedForm:genralForm,
+                addForm:genralForm,
                 editRule: {
                     warehouse_id: [
                         {required: true, message: '请输入仓库id', trigger: 'blur'}
@@ -324,57 +314,39 @@
         },
         mounted: function () {
             //从后端拉取数据
-            getData.call(app,pageNum);
+            getData.call(app, pageNum);
         },
         methods: {
-            convertPages:(control)=>{
-                pageControl.call(app,control);
+            convertPages: (control) => {
+                pageControl.call(app, control);
             },
-            confirmEdition: function (formName, way) {
+            confirmEdition: function (formName) {
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
                         this.loading = true;
-                        $.ajax({
-                            type: 'post',
-                            url: way === 'add' ? urlPrefix + '/system/add_warehouse' : urlPrefix + '/system/update_warehouse',//TODO: set correct URL
-                            headers: {
-                                "token": localStorage.getItem('token'),
-                                "Accept": "application/json",
-                                "Content-Type": "application/json"
-                            },
-                            data: JSON.stringify({
-                                "warehouse_id": this.editedForm.warehouse_id,
-                                "warehouse_name": this.editedForm.warehouse_name,
-                                "warehouse_code": this.editedForm.warehouse_code,
-                                "warehouse_location": this.editedForm.warehouse_location,
-                                "longitude": this.editedForm.longitude,
-                                "latitude": this.editedForm.latitude,
-                                "country": this.editedForm.country,
-                                "area": this.editedForm.area,
-                                "province": this.editedForm.province,
-                                "city": this.editedForm.city,
-                                "county": this.editedForm.county,
-                                "detail_location": this.editedForm.detail_location,
-                            }),
-                            success: (data) => {
-                                if (data.result === 1000) {
-                                    console.log(data.data);
-                                    this.$alert(way === 'add' ? '添加成功' : '修改成功');
-                                    pageControl.call(app,'last');
-                                    app.addDialogVisible = false;
-                                } else {
-                                    this.$alert(way === 'add' ? '添加失败' : '修改失败');
-                                }
-                                this.loading = false;
-                            },
-                            error: (result, resultDesp) => {
-                                console.log(result);
-                                console.log(resultDesp);
-                                this.$alert(way === 'add' ? '添加失败' : '修改失败');
-                                this.loading = false;
-                                return true;
+                        post('/system/update_warehouse',{
+                            "warehouse_id": this.editedForm.warehouse_id,
+                            "warehouse_name": this.editedForm.warehouse_name,
+                            "warehouse_code": this.editedForm.warehouse_code,
+                            "warehouse_location": this.editedForm.warehouse_location,
+                            "longitude": this.editedForm.longitude,
+                            "latitude": this.editedForm.latitude,
+                            "country": this.editedForm.country,
+                            "area": this.editedForm.area,
+                            "province": this.editedForm.province,
+                            "city": this.editedForm.city,
+                            "county": this.editedForm.county,
+                            "detail_location": this.editedForm.detail_location,
+                        },(data,errid)=>{
+                            if(errid){
+                                console.log(errid);
+                                app.$alert('修改失败');
+                                app.loading=false;
+                                return;
                             }
-                        })
+                            this.$alert('修改成功');
+                            app.loading=false;
+                        });
                     } else {
                         this.$alert('信息错误，请重新填写');
                         return false;
@@ -382,26 +354,48 @@
                 })
 
             },
-            confirmDelete: function () {
-                $.ajax({
-                    type: 'delete',
-                    url: urlPrefix + '/admin/del_warehouse',
-                    headers: {
-                        "token": localStorage.getItem('token'),
-                        "Accept": "application/json",
-                        "Content-Type": "application/json"
-                    },
-                    data: {
-                        warehouse_id: this.editedForm.warehouse_id
-                    },
-                    complete: function (data, result, resultDesp) {
-                        console.log(data);
-                        console.log(result);
-                        console.log(resultDesp);
+            confirmAdd:function (formName) {
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        this.loading = true;
+                        post('/system/add_warehouse',{
+                            "warehouse_id": this.editedForm.warehouse_id,
+                            "warehouse_name": this.editedForm.warehouse_name,
+                            "warehouse_code": this.editedForm.warehouse_code,
+                            "warehouse_location": this.editedForm.warehouse_location,
+                            "longitude": this.editedForm.longitude,
+                            "latitude": this.editedForm.latitude,
+                            "country": this.editedForm.country,
+                            "area": this.editedForm.area,
+                            "province": this.editedForm.province,
+                            "city": this.editedForm.city,
+                            "county": this.editedForm.county,
+                            "detail_location": this.editedForm.detail_location,
+                        },(data,errid)=>{
+                            if(errid){
+                                console.log(errid);
+                                app.$alert('添加失败');
+                                app.loading=false;
+                                return;
+                            }
+                            this.$alert('添加成功');
+                            app.loading=false;
+                            app.addDialogVisible = false;
+                        });
+                    } else {
+                        this.$alert('信息错误，请重新填写');
+                        return false;
                     }
-
                 })
-
+            },
+            confirmDelete: function (id_toDel) {
+                post('/system/del_warehouse',{
+                    "warehouse_id":id_toDel
+                },(data,errid)=>{
+                    if(errid){
+                        
+                    }
+                })
             }
         }
     });

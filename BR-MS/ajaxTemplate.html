@@ -17,7 +17,9 @@
 <script src="lib/vue.js"></script>
 <script src="lib/eleme-index.js"></script>
 <script src="lib/jquery.min.js"></script>
+<script src="res/dependencies.js"></script>
 <script>
+    var post=require('/mods/backend');
     var app = new Vue({
         el: '#app',
         data: function () {
@@ -28,33 +30,16 @@
         },
         methods: {
             test:function(){
-                $.ajax({
-                    type:'post',
-                    url:'http://10.112.128.63:8080/dispatch/common/get_demo',
-                    headers:{
-                        "Accept":'application/json',
-                        "Content-Type":'application/json',
-                        "token":"eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIxIiwiaWF0IjoxNTI1OTU5MDgxLCJzdWIiOiJ7XCJyb2xlXCI6XCJhZG1pblwiLFwiaWRcIjoxfSIsImV4cCI6MTUyNTk5NTA4MX0.mG0K8u_NDRR04vKtLNKLMNRKUa4jtbf2PnSVXhRCbVI"
-                    },
-                    data:JSON.stringify(
-                        {
-                            "id":2
-                        }
-                    ),
-                    beforeSend:function(){
-                    },
-                    success:function(data,result,XMLResponse){
-                        console.log('data:')
-                        console.log(data);
-                        console.log('result:');
-                        console.log(result);
-                        console.log('resultDesp:');
-                        console.log(XMLResponse.getResponseHeader('authorized'));
-                    },
-                    error:function(){
-                        console.log('Error');
+                post('/login',{
+                    username:'admin',
+                    password:'123456'
+                },function(data,errid){
+                    if(errid){
+                        console.log(errid,data);
+                        return;
                     }
-                })
+                    console.log(data);
+                });
             }
         },
     });
