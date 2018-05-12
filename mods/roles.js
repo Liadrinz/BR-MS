@@ -1,7 +1,8 @@
 var pages = {
     "仓库管理": "RepoManage.html",
     "用户审核": "UserAuth.html",
-    "用户列表": "UserQuery.html"
+    "用户列表": "UserQuery.html",
+    "消息": "CheckMessage.html"
 };
 
 // Get menus like [{name: ..., url: ...}, ...] from menulist.
@@ -63,7 +64,10 @@ export default {
             "仓库管理"
         ]),
         manager: getMenus([
+            "消息"
         ]),
-        normal: []
+        normal: [
+            "消息"
+        ]
     }
 };
