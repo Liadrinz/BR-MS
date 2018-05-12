@@ -4,9 +4,9 @@ var apiPrefix = "http://10.112.128.63:8080/dispatch";
 var timeout = 6000;
 
 /*
-    Post data to specified url asynchronous.
+    Post.
         api: String
-            the postfix of api.
+            the postfix of api url.
 
         data: PlainObject
             Parameters of the api that will be post as the request header.
