@@ -1,6 +1,6 @@
 var $ = require('jquery');
 
-var apiPrefix = "http://10.112.128.63:8080/dispatch/";
+var apiPrefix = "http://10.112.128.63:8080/dispatch";
 var timeout = 6000;
 
 /*
@@ -50,10 +50,15 @@ export default function (api, data, callback) {
                 callback("服务器连接成功，但服务器返回的数据格式不正确。", 1);
             } else if (data.result === 1000) {
                 var newToken = jqXHR.getResponseHeader("token");
-                
+                if (newToken) {
+                    localStorage.setItem(
+                        "token",
+                        newToken
+                    );
+                }
                 callback(data.data);
             } else {
-                callback(data.resultDesp || "", data.result);
+                callback(data.resultDesp || "发生了未知错误。", data.result);
             }
         },
         error() {
