@@ -11,7 +11,7 @@
 <body>
 
 <div id="app">
-    <el-button @click="test">注销！</el-button>
+    <el-button @click="test">测试</el-button>
 </div>
 </body>
 <script src="lib/vue.js"></script>
@@ -30,22 +30,23 @@
         },
         methods: {
             test:function(){
-                $.ajax({
-                    type:'post',
-                    url:"http://10.112.128.63:8080/dispatch/system/get_register",
-                    headers:{
-                        "token":localStorage.getItem('token'),
-                        "Content-Type":"application/json",
-                        "Accept":"application/json"
-                    },
-                    data:JSON.stringify({
-                        "isPass":0
-                    }),
-                    success:(data)=>{
-                        console.log(data);
-                    }
+                post('/system/get_user_info',{},(data,err)=>{
+                    console.log(data);
                 });
-                localStorage.clear();
+                // $.ajax({
+                //     type:'post',
+                //     url:"http://10.112.128.63:8080/dispatch/system/get_user_info",
+                //     headers:{
+                //         "token":localStorage.getItem('token'),
+                //         "Content-Type":"application/json",
+                //         "Accept":"application/json"
+                //     },
+                //     data:JSON.stringify({
+                //     }),
+                //     success:(data)=>{
+                //         console.log(data.data);
+                //     }
+                // });
             }
         },
     });

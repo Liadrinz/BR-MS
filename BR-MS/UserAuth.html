@@ -68,7 +68,7 @@
                 </el-form>
             </template>
         </el-table-column>
-        <el-table-column prop="id" label="用户ID" width="75px"></el-table-column>
+        <el-table-column prop="id" label="用户ID" width="100px"></el-table-column>
         <el-table-column prop="realName" label="姓名" width="100px"></el-table-column>
         <el-table-column prop="username" label="用户名" width="125px"></el-table-column>
         <el-table-column prop="role" label="用户类型" width="125px"></el-table-column>
@@ -103,7 +103,7 @@
     var post = require('/mods/backend');
 
     function clearData() {
-        for (let i = 0; i < pageSize; i++) {
+        for (let i = 0; items.length>0; i++) {
             items.pop();
         }
     }
@@ -120,7 +120,7 @@
                 }
                 return;
             }
-            for (var i in data) {
+            for (let i in data) {
                 post('/system/get_detail_info', {
                     id: Number(data[i]['id'])
                 }, (data2) => {

@@ -114,7 +114,6 @@
     </div>
     <div id="step-3">
     </div>
-    <el-button @click="testForm">自动填充</el-button>
 </div>
 </body>
 <script src="lib/vue.js"></script>
@@ -266,7 +265,7 @@
                         "employeeId":this.form1.employeeId
                     }),
                     beforeSend:function(){
-                        console.log('Prepared');
+
                     },
                     success:(data)=>{
                         this.loading=false;
@@ -282,7 +281,7 @@
                                 }
                             });
                         }else{
-                            this.$alert('网络错误，请稍后重试');
+                            this.$alert('注册失败，请稍后重试');
                         }
                     },
                     complete:()=>{
@@ -291,27 +290,9 @@
                     },
                     error:()=>{
                         this.loading=false;
-                        this.$alert('网络错误，请稍后重试');
+                        this.$alert('注册失败，请稍后重试');
                     }
                 });
-            },
-            testForm:function(){
-                with(this.form1){
-                    username="liadrin";
-                    initPassword="123456";
-                    confirmedPassword="123456";
-                    role="user";
-                    realName="蔡宇昂";
-                    IDType="2";
-                    IDNumber="123456";
-                    companyName='bupt';
-                    title='student';
-                    phoneNumber="13120171889";
-                    tel="66666666";
-                    email="435438602@qq.com";
-                    address="bupt";
-                    employeeId="2333";
-                }
             }
         },
         computed: {
@@ -334,8 +315,6 @@
                     '电子邮箱': this.form1.email,
                     '联系地址': this.form1.address,
                     '仓库id': this.form1.warehouseId,
-                    '仓库地址': this.form1.repoAddress,
-                    '仓库经纬度': this.form1.repoCoord
                 };
 
                 var result = [];

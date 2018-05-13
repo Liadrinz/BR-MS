@@ -51,7 +51,8 @@
                     queryParams[i]='';
                 };
                 search();
-            }">返回</el-button>
+            }">返回
+            </el-button>
         </el-form-item>
     </el-form>
     <el-table :data="repoData.repoInfo">
@@ -244,8 +245,8 @@
             if (err) {
                 app.$message.error(err.msg);
                 app.initializing = false;
-                if(err.id===post.NOT_LOGIN){
-                    window.location.href='login.html';
+                if (err.id === post.NOT_LOGIN) {
+                    window.location.href = 'login.html';
                 }
                 return;
             }
@@ -271,23 +272,22 @@
             if (pageNum <= 1) {
                 return;
             }
-            //items=[]不行，不知道为什么。
-                        pageNum -= 1;
+            pageNum -= 1;
             getData.call(app, pageNum);
         } else if (control === 'next') {
             if (pageNum >= maxPage) {
                 return;
             }
-                        pageNum += 1;
+            pageNum += 1;
             getData.call(app, pageNum);
         } else if (control === 'first') {
-                        pageNum = 1;
+            pageNum = 1;
             getData.call(app, pageNum);
         } else if (control === 'last') {
-                        pageNum = maxPage;
+            pageNum = maxPage;
             getData.call(app, pageNum);
         } else if (control === 'stay') {
-                        getData.call(app, pageNum);
+            getData.call(app, pageNum);
         }
     }
 
@@ -304,12 +304,11 @@
                     repoInfo: items
                 },
                 queryParams: {
-                    warehouse_id:"",
+                    warehouse_id: "",
                     warehouse_name: "",
                     warehouse_code: "",
                     warehouse_location: ""
                 },
-                confirmedForm: genralForm,
                 editedForm: genralForm,
                 addForm: genralForm,
                 editRule: {
@@ -333,10 +332,10 @@
                         this.loading = true;
                         post('/system/update_warehouse', app.editedForm, (data, err) => {
                             if (err) {
-                                app.$message.error('修改失败'+err.msg);
+                                app.$message.error('修改失败' + err.msg);
                                 app.initializing = false;
-                                if(err.id===post.NOT_LOGIN){
-                                    window.location.href='login.html';
+                                if (err.id === post.NOT_LOGIN) {
+                                    window.location.href = 'login.html';
                                 }
                                 return;
                             }
@@ -360,10 +359,10 @@
                         this.loading = true;
                         post('/system/add_warehouse', app.addForm, (data, err) => {
                             if (err) {
-                                app.$message.error('添加失败'+err.msg);
+                                app.$message.error('添加失败' + err.msg);
                                 app.initializing = false;
-                                if(err.id===post.NOT_LOGIN){
-                                    window.location.href='login.html';
+                                if (err.id === post.NOT_LOGIN) {
+                                    window.location.href = 'login.html';
                                 }
                                 return;
                             }
@@ -391,10 +390,10 @@
                         "warehouse_id": id_toDel
                     }, (data, err) => {
                         if (err) {
-                            app.$message.error('删除失败'+err.msg);
+                            app.$message.error('删除失败' + err.msg);
                             app.initializing = false;
-                            if(err.id===post.NOT_LOGIN){
-                                window.location.href='login.html';
+                            if (err.id === post.NOT_LOGIN) {
+                                window.location.href = 'login.html';
                             }
                             return;
                         }
@@ -407,14 +406,14 @@
                 });
             },
             search: function () {
-                var validate={"pageSize":pageSize,"pageNum":pageNum};
-                for(var i in app.queryParams){
-                    if(app.queryParams[i]!==""){
-                        validate[i]=app.queryParams[i];
+                var validate = {"pageSize": pageSize, "pageNum": pageNum};
+                for (var i in app.queryParams) {
+                    if (app.queryParams[i] !== "") {
+                        validate[i] = app.queryParams[i];
                     }
                 }
                 console.log(validate);
-                                getData(1, validate);
+                getData(1, validate);
             }
         }
     });

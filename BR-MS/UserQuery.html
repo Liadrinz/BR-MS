@@ -85,7 +85,7 @@
             </template>
         </el-table-column>
         <el-table-column prop="realName" label="姓名" width="75px"></el-table-column>
-        <el-table-column prop="id" label="用户ID" width="125px"></el-table-column>
+        <el-table-column prop="userId" label="用户ID" width="125px"></el-table-column>
         <el-table-column prop="role" label="用户类型" width="125px"></el-table-column>
         <el-table-column prop="IDType" label="证件类型" width="125px"></el-table-column>
         <el-table-column prop="IDNumber" label="证件号码" width="200px"></el-table-column>
@@ -95,7 +95,7 @@
                 <el-button type="primary" size="mini" @click="()=>{changePassword(props.row)}">重置密码</el-button>
                 <el-button size="mini" @click="()=>{
                     props.row.dialogVisible=true;
-                    editedForm=props.row
+                    editedForm={...props.row}
                 }">修改信息
                 </el-button>
                 <el-button type="danger" size="mini" @click="()=>{deleteUser(props.row)}">删除用户</el-button>
@@ -158,12 +158,38 @@
 <script src="lib/jquery.min.js"></script>
 <script src="res/dependencies.js"></script>
 <script>
+    function getData(searchKey) {
+        clearData();
+        post('/system/get_user_info', searchKey, (data, err) => {
+            if (err) {
+                app.$message.error(err.msg);
+                app.initializing = false;
+                if (err.id === post.NOT_LOGIN) {
+                    window.location.href = 'login.html';
+                }
+                return;
+            }
+            if (data instanceof Array) {
+                var users = data;
+            } else {
+                var users = [data,];
+            }
+            console.log(typeof(data));
+            for (var item in users) {
+                console.log(data[item]);
+                users[item]['dialogVisible'] = false;
+                items.push(users[item]);
+            }
+            app.initializing = false;
+        })
+    }
+
     var items = [];
     var pageNum = 1, pageSize = 6, maxPage = 0;
     var post = require('/mods/backend');
-    var generalForm={
+    var generalForm = {
         id: '',
-        username:'',
+        username: '',
         role: '',
         realName: '',
         IDType: '',
@@ -176,11 +202,13 @@
         address: '',
         employeeId: ''
     };
+
     function clearData() {
-        for (let i = 0; i < pageSize; i++) {
+        for (let i = 0; items.length > 0; i++) {
             items.pop();
         }
     }
+
     var app = new Vue({
         el: '#app',
         data: function () {
@@ -190,58 +218,36 @@
                 dialogVisible: false,
                 results: items,
                 queryParams: {
-                    id: '',
-                    username:'',
-                    realName: '',
-                    companyName: ''
+                    id: "",
+                    username: "",
+                    realName: "",
+                    companyName: ""
                 },
-                editedForm: {
-                    id: '',
-                    username:'',
-                    role: '',
-                    realName: '',
-                    IDType: '',
-                    IDNumber: '',
-                    companyName: '',
-                    title: '',
-                    phoneNumber: '',
-                    tel: '',
-                    email: '',
-                    address: '',
-                    employeeId: ''
-                },
+                editedForm:generalForm,
                 editRule: {}
             }
         },
         mounted: function () {
             //从后端拉取数据
+            getData({});
         },
         methods: {
             search: () => {
-                clearData();
-                post('/system/get_user_info', app.queryParams, (data, errid) => {
-                    console.log(data);
-                    if (errid) {
-                        app.$alert('数据拉取失败');
-                        app.initializing = false;
-                        return;
+                var validate = {};
+                for (var i in app.queryParams) {
+                    if (app.queryParams[i] !== "") {
+                        validate[i] = app.queryParams[i];
                     }
-                    if(data){
-                        var user = data;
-                        data.dialogVisible = false;
-                        items.push(user);
-                        app.initializing = false;
-                    }
-
-                });
+                }
+                getData(validate);
             },
             confirmEdition: function (formName) {
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
                         this.loading = true;
-                        post('/system/update_user_info', app.editedForm, (data, errid) => {
-                            if (errid) {
-                                console.log(errid);
+                        post('/system/update_user_info', app.editedForm, (data, err) => {
+                            if (err) {
+                                console.log(err);
                                 app.$message.error('修改失败');
                                 app.loading = false;
                                 return;
