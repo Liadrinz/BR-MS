@@ -225,9 +225,9 @@
     };
     var pageNum = 1, pageSize = 6, maxPage = 0;
     var post = require('/mods/backend');
-    var urlPrefix = 'http://10.112.128.63:8080/dispatch/'
 
     function getData(page, searchKey) {
+        clearData();
         if (searchKey) {
             searchKey["pageSize"] = pageSize;
             searchKey["pageNum"] = page;
@@ -237,6 +237,7 @@
             "pageNum": page
         }, (data, errid) => {
             if (errid) {
+                if(errid)
                 app.$alert('数据拉取失败');
                 app.initializing = false;
                 return;
@@ -264,27 +265,22 @@
                 return;
             }
             //items=[]不行，不知道为什么。
-            clearData();
-            pageNum -= 1;
+                        pageNum -= 1;
             getData.call(app, pageNum);
         } else if (control === 'next') {
             if (pageNum >= maxPage) {
                 return;
             }
-            clearData();
-            pageNum += 1;
+                        pageNum += 1;
             getData.call(app, pageNum);
         } else if (control === 'first') {
-            clearData();
-            pageNum = 1;
+                        pageNum = 1;
             getData.call(app, pageNum);
         } else if (control === 'last') {
-            clearData();
-            pageNum = maxPage;
+                        pageNum = maxPage;
             getData.call(app, pageNum);
         } else if (control === 'stay') {
-            clearData();
-            getData.call(app, pageNum);
+                        getData.call(app, pageNum);
         }
     }
 
@@ -403,8 +399,7 @@
                     }
                 }
                 console.log(validate);
-                clearData();
-                getData(1, validate);
+                                getData(1, validate);
             }
         }
     });

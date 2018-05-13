@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>向API发起请求的模板模板</title>
+    <title>ajax测试用</title>
     <link rel="stylesheet" href="lib/eleme-index.css">
     <style>
 
@@ -30,16 +30,22 @@
         },
         methods: {
             test:function(){
-                post('/login',{
-                    username:'admin',
-                    password:'123456'
-                },function(data,errid){
-                    if(errid){
-                        console.log(errid,data);
-                        return;
+                $.ajax({
+                    type:'post',
+                    url:"http://10.112.128.63:8080/dispatch/system/get_user_info",
+                    headers:{
+                        "token":localStorage.getItem('token'),
+                        "Content-Type":"application/json"
+                    },
+                    data:JSON.stringify({
+                        "id":1,
+                        "companyName":null,
+                        "realName":null
+                    }),
+                    success:(data)=>{
+                        console.log(data);
                     }
-                    console.log(data);
-                });
+                })
             }
         },
     });
