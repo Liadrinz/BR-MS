@@ -14,7 +14,7 @@ local_modules = [
 ]
 
 # Build scripts, DO NOT MODIFY
-uglifyJs = " | uglifyjs -m toplevel -o ./BR-MS/res/dependencies.js"
+uglifyJs = " | uglifyjs -m toplevel,eval -c toplevel -o ./BR-MS/res/dependencies.js"
 
 import os
 requires = ["-r "+x for x in npm_modules] + ["-r ./mods/"+x for x in local_modules]
