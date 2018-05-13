@@ -68,17 +68,18 @@
                 </el-form>
             </template>
         </el-table-column>
+        <el-table-column prop="id" label="用户ID" width="75px"></el-table-column>
         <el-table-column prop="realName" label="姓名" width="100px"></el-table-column>
-        <el-table-column prop="username" label="用户名" width="150px"></el-table-column>
-        <el-table-column prop="role" label="用户类型" width="150px"></el-table-column>
-        <el-table-column prop="idtype" label="证件类型" width="150px"></el-table-column>
+        <el-table-column prop="username" label="用户名" width="125px"></el-table-column>
+        <el-table-column prop="role" label="用户类型" width="125px"></el-table-column>
+        <el-table-column prop="idtype" label="证件类型" width="125px"></el-table-column>
         <el-table-column prop="idnumber" label="证件号码" width="225px"></el-table-column>
         <el-table-column prop="companyName" label="单位名称" width="225px"></el-table-column>
         <el-table-column label="操作" v-if="!queryParams.isPass">
             <template slot-scope="props">
                 <span class="no-wrap">
-                    <el-button type="success" size="mini" @click="()=>{agree(props.row)}">同意</el-button>
-                    <el-button type="danger" size="mini" @click="()=>{reject(props.row)}">拒绝</el-button>
+                    <el-button type="success" size="mini" @click="()=>{check(props.row.id,1)}">同意</el-button>
+                    <el-button type="danger" size="mini" @click="()=>{check(props.row.id,-1)}">拒绝</el-button>
                 </span>
             </template>
         </el-table-column>
@@ -111,11 +112,18 @@
         clearData();
         post('/system/get_register', {
             isPass: pass
-        }, (data, errid) => {
+        }, (data, err) => {
+            if (err) {
+                app.$message.error(err.msg);
+                if (err.id === post.NOT_LOGIN) {
+                    window.location.href = 'login.html';
+                }
+                return;
+            }
             for (var i in data) {
                 post('/system/get_detail_info', {
                     id: Number(data[i]['id'])
-                }, (data2, errid) => {
+                }, (data2) => {
                     console.log(data2);
                     items.push({...data, ...data2});
                 })
@@ -140,35 +148,29 @@
             getDate.call(this, 0);
         },
         methods: {
-            agree: function (row) {
-                $.ajax({
-                    type: 'post',
-                    url: APIs[0],
-                    data: {},
-                    success: () => {
-                        this.$alert(`已同意${row.realName}的请求`);
-                    },
-                    error: function () {
-                        this.$alert('网络错误，请稍后重试');
+            check: function (id, pass) {
+                post('/system/check_register', {
+                    id: id,
+                    isPass: pass
+                }, (data, err) => {
+                    if (err) {
+                        app.$message.error(err.msg);
+                        app.initializing = false;
+                        if (err.id === post.NOT_LOGIN) {
+                            window.location.href = 'login.html';
+                        }
+                        return;
                     }
-                })
-
-            },
-            reject: function (row) {
-                $.ajax({
-                    type: 'post',
-                    url: APIs[1],
-                    data: {},
-                    success: () => {
-                        this.$alert(`已拒绝${row.realName}的请求`)
-                    },
-                    error: function () {
-                        this.$alert('网络错误，请稍后重试');
-                    }
+                    this.$message({
+                        type: "success",
+                        message: pass === 1 ? '已同意' : '已拒绝'
+                    });
+                    getDate.call(this, 0);
+                    app.loading = false;
                 })
             },
             filter: function (pass) {
-                    getDate(pass);
+                getDate(pass);
             }
         }
     });

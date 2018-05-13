@@ -196,6 +196,9 @@
         },
         created: function() {
             this.user.name = localStorage.getItem('realName');
+            if(this.user.name==null){
+                window.location.href='login.html';
+            }
             this.user.role = roles.backToMine[localStorage.getItem('role')];
             this.token = localStorage.getItem('token');
             this.menus = roles.menus[this.user.role];
