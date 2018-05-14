@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>调配业务管理</title>
+    <link rel="stylesheet" href="lib/eleme-index.css">
+    <style>
+
+    </style>
+</head>
+<body>
+<div id="app">
+    <template>
+        <el-table :data="management" style="width: 100%">
+            <el-table-column prop="number" label="物资编号" width="180"></el-table-column>
+            <el-table-column prop="name" label="物资名称" width="180"></el-table-column>
+            <el-table-column prop="applicationDate" label="申请日期"></el-table-column>
+            <el-table-column prop="approvalDate" label="批准日期"></el-table-column>
+            <el-table-column prop="outboundDate" label="出库日期"></el-table-column>
+            <el-table-column prop="storageDate" label="入库日期"></el-table-column>
+            <el-table-column prop="status" label="状态"></el-table-column>
+            <el-table-column label="操作">
+                <template slot-scope="scope">
+                    <el-button type="text" size="small" @click="dialogVisible=true">详情</el-button>
+                    <el-dialog title="调配详情" :visible.sync="dialogVisible" :before-close="handleClose">
+                        <span slot="footer" class="dialog-footer">
+                            <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+                        </span>
+                    </el-dialog>
+                    <el-button @click.native.prevent="deleteRow(scope.$index, management)" type="text" size="small">撤销</el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+    </template>
+
+</div>
+</body>
+<script src="lib/vue.js"></script>
+<script src="lib/eleme-index.js"></script>
+
+<script>
+    var app = new Vue({
+        el: '#app',
+        data:function() {
+            return {
+                management: [{
+                    number: '00001',
+                    name: '除蚊电器',
+                    applicationDate: '2018-5-13',
+                    approvalDate: '2018-5-14',
+                    outboundDate: '2018-5-14',
+                    storageDate: '2018-5-14',
+                    status: '调配'
+                }],
+                dialogVisible: false
+            };
+        },
+        methods: {
+            deleteRow(index, rows) {
+                rows.splice(index, 1);
+            },
+            handleClose(done) {
+                this.$confirm('确认关闭？')
+                    .then(_ => {
+                        done();
+                    })
+                    .catch(_ => {});
+            }
+        }
+    });
+</script>
+
+</html>
