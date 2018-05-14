@@ -88,23 +88,26 @@
         <el-table-column prop="userId" label="用户ID" width="125px"></el-table-column>
         <el-table-column prop="role" label="用户类型" width="125px"></el-table-column>
         <el-table-column prop="IDType" label="证件类型" width="125px"></el-table-column>
-        <el-table-column prop="IDNumber" label="证件号码" width="200px"></el-table-column>
-        <el-table-column prop="companyName" label="单位名称" width="200px"></el-table-column>
+        <el-table-column prop="IDNumber" label="证件号码" width="125px"></el-table-column>
+        <el-table-column prop="companyName" label="单位名称" width="150px"></el-table-column>
         <el-table-column label="操作">
             <template slot-scope="props">
-                <el-button type="primary" size="mini" @click="()=>{changePassword(props.row)}">重置密码</el-button>
+                <el-button type="primary" size="mini" @click="()=>{changePassword(props.row.id)}">重置密码</el-button>
                 <el-button size="mini" @click="()=>{
                     props.row.dialogVisible=true;
-                    editedForm={...props.row}
+                    var c={...props.row};
+                    delete c.userId;
+                    editedForm={...c};
+                    editedForm.id=props.row.userId;
                 }">修改信息
                 </el-button>
-                <el-button type="danger" size="mini" @click="()=>{deleteUser(props.row)}">删除用户</el-button>
+                <el-button type="danger" size="mini" @click="()=>{deleteUser(props.row.userId)}">删除用户</el-button>
                 <el-dialog :visible.sync="props.row.dialogVisible" v-loading.fullscreen="loading"
                            element-loading-text="正在提交" element-loading-background="rgba(0,0,0,0.7)">
                     <el-form ref="editedForm" label-position="right" label-width="120px" :rules="editRule"
                              :model="editedForm">
-                        <el-form-item label="用户ID" prop="id" required>
-                            <el-input v-model="editedForm.id" :value="props.row.id"
+                        <el-form-item label="用户ID" prop="userId">
+                            <el-input v-model="editedForm.id" :value="props.row.userId"
                                       :disabled="true"></el-input>
                         </el-form-item>
                         <el-form-item label="用户类型" prop="role" required>
@@ -116,10 +119,10 @@
                         <el-form-item label="用户姓名" prop="realName" required>
                             <el-input v-model="editedForm.realName" :value="props.row.realName" required></el-input>
                         </el-form-item>
-                        <el-form-item label="单位名称" prop="companyName" required>
+                        <el-form-item label="单位名称" prop="companyName">
                             <el-input v-model="editedForm.companyName"></el-input>
                         </el-form-item>
-                        <el-form-item label="员工ID" prop="employeeId" required>
+                        <el-form-item label="员工ID" prop="employeeId">
                             <el-input v-model="editedForm.employeeId"></el-input>
                         </el-form-item>
                         <el-form-item label="职务" prop="title">
@@ -161,6 +164,7 @@
     function getData(searchKey) {
         clearData();
         post('/system/get_user_info', searchKey, (data, err) => {
+            console.log(data);
             if (err) {
                 app.$message.error(err.msg);
                 app.initializing = false;
@@ -189,7 +193,6 @@
     var post = require('/mods/backend');
     var generalForm = {
         id: '',
-        username: '',
         role: '',
         realName: '',
         IDType: '',
@@ -245,10 +248,24 @@
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
                         this.loading = true;
-                        post('/system/update_user_info', app.editedForm, (data, err) => {
+                        post('/system/update_user_info', {
+                            id: app.editedForm.id,
+                            role: app.editedForm.role,
+                            realName: app.editedForm.realName,
+                            IDType: app.editedForm.IDType,
+                            IDNumber: app.editedForm.IDNumber,
+                            companyName: app.editedForm.companyName,
+                            title: app.editedForm.title,
+                            phoneNumber: app.editedForm.phoneNumber,
+                            tel: app.editedForm.tel,
+                            email: app.editedForm.email,
+                            address: app.editedForm.address,
+                            employeeId: app.editedForm.employeeId
+                        }, (data, err) => {
+                            console.log(data);
                             if (err) {
                                 console.log(err);
-                                app.$message.error('修改失败');
+                                app.$message.error('修改失败 '+err.msg);
                                 app.loading = false;
                                 return;
                             }
@@ -256,7 +273,7 @@
                                 type: "success",
                                 message: '修改成功'
                             });
-                            pageControl.call(this, 'stay');
+                            getData({});
                             app.loading = false;
                             app.dialogVisible = false;
                         });
@@ -265,6 +282,39 @@
                         return false;
                     }
                 });
+            },
+            changePassword:function(id){
+                post('/system/reset_password',{
+                    id:id
+                },(data,err)=>{
+                    if(err){
+                        console.log(err);
+                        app.$message.error('重置失败 '+err.msg);
+                        app.loading = false;
+                        return;
+                    }
+                    this.$message({
+                        type: "success",
+                        message: '密码已重置为123456'
+                    });
+                    app.loading = false;
+                    app.dialogVisible = false;
+                })
+            },
+            deleteUser:function(id){
+                this.$confirm('确认删除该用户？', null, {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(()=>{
+                    post('/system/delete_user',{
+                        id:id
+                    },(data,err)=>{
+                        console.log(data);
+                        getData({});
+                    });
+                })
+
             }
         }
     });
