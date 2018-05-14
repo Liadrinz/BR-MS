@@ -2,7 +2,9 @@ var pages = {
     "仓库管理": "RepoManage.html",
     "用户审核": "UserAuth.html",
     "用户列表": "UserQuery.html",
-    "消息": "CheckMessage.html"
+    "消息": "CheckMessage.html",
+    "历史申请查询": "HistoryLookup.html",
+    "调配业务管理": "Management.html"
 };
 
 // Get menus like [{name: ..., url: ...}, ...] from menulist.
@@ -68,6 +70,8 @@ export default {
             "消息"
         ]),
         normal: [
+            "调配业务管理",
+            "历史申请查询",
             "消息"
         ]
     }
