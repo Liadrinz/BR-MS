@@ -157,6 +157,7 @@
                             localStorage.setItem('token',token);
                             localStorage.setItem('realName',data.data.realName);
                             localStorage.setItem('role',data.data.role);
+                            localStorage.setItem('id',data.data.username);
                             window.location.href="mainPage.html";
                         }else if(data.result===4001){
                             this.$alert('账号或密码错误');

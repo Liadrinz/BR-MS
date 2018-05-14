@@ -30,7 +30,22 @@
         },
         methods: {
             test:function(){
-                post('/system/get_user_info',{},(data,err)=>{
+                post('/system/update_user_info',{
+                    id:1,
+                    username:"admin",
+                    role:"admin",
+                    IDType:"3",
+                    IDNumber:"123456",
+                    companyName:"bupt",
+                    title:"student",
+                    phoneNumber:"18888888888",
+                    tel:"1",
+                    email:"zhangsan@123.com",
+                    address:"bupt",
+                    warehouseId:null,
+                    employeeId:123456,
+                    realName:"李四"
+                },(data,err)=>{
                     console.log(data);
                 });
                 // $.ajax({
