@@ -5,6 +5,10 @@
     <title>登录</title>
     <link rel="stylesheet" href="lib/eleme-index.css">
     <style>
+        [v-cloak] {
+            display: none;
+        }
+
         body {
             background: url(res/bg-air.jpg) center top;
             background-size: 100%;
@@ -56,11 +60,10 @@
             position: relative;
             right: -50%;
         }
-
     </style>
 </head>
 <body>
-<div id="app">
+<div id="app" v-cloak>
     <el-container>
         <el-header></el-header>
         <el-main>
@@ -82,7 +85,10 @@
                                                   auto-complete="off"></el-input>
                                     </el-form-item>
                                     <el-form-item>
-                                        <el-button type="primary" class="full-fill" @click="()=>{isLogging=true;loginPost()}" :loading="isLogging">{{isLogging?'登录中...':'登录'}}</el-button>
+                                        <el-button type="primary" class="full-fill"
+                                                   @click="()=>{isLogging=true;loginPost()}" :loading="isLogging">
+                                            {{isLogging?'登录中...':'登录'}}
+                                        </el-button>
                                     </el-form-item>
                                     <el-form-item>
                                         <el-row :gutter="20">
@@ -108,67 +114,39 @@
 </div>
 </body>
 <script src="lib/vue.js"></script>
-<script src="lib/jquery.min.js"></script>
 <script src="lib/eleme-index.js"></script>
+<script src="res/dependencies.js"></script>
 <script>
+    var post = require('/mods/backend');
+
     var app = new Vue({
         el: '#app',
-        data: function () {
-            return {
-                isLogging:false,
-                loginForm: {
-                    username: '',
-                    password: ''
-                },
-                rules: {
-                    username: [
-                        {required: true, message: '请输入用户名'}
-                    ],
-                    password: [
-                        {required: true, message: '请输入密码'}
-                    ]
-                }
+        data: {
+            isLogging: false,
+            loginForm: {
+                username: '',
+                password: ''
+            },
+            rules: {
+                username: [
+                    {required: true, message: '请输入用户名'}
+                ],
+                password: [
+                    {required: true, message: '请输入密码'}
+                ]
             }
         },
         methods: {
-            loginPost: function(){
-                $.ajax({
-                    type: 'post',
-                    url: 'http://10.112.128.63:8080/dispatch/login',
-                    data: {
-                        username: this.loginForm.username,
-                        password: this.loginForm.password
-                    },
-                    beforeSend: function () {
-                        console.log('Prepared');
-                    },
-                    success: (data, result, resultDesp,header) => {
-                        if (result === 1000||result==='success') {
-                            header.token;//TODO: deal with token
-                            data;//TODO: deal with userInfo
-                            window.location.href = 'mainPage.html';
-                        }else if(result===4001){
-                            this.$alert('账号或密码错误');
-                            this.isLogging=false;
-                        }else if(result===4002){
-                            this.$alert('登录失败');
-                            this.isLogging=false;
-                        } else {
-                            console.log(resultDesp);
-                            this.$alert('网络错误，请稍后重试');
-                            this.isLogging=false;
-                        }
-                    },
-                    complete: function () {
-                        console.log('Done');
-                    },
-                    error: () => {
-                        console.log();
-                        this.$alert('网络错误，请稍后重试');
-                        this.isLogging=false;
+            loginPost: function () {
+                this.isLogging = true;
+                post('/login', this.loginForm, (data, err) => {
+                    this.isLogging = false;
+                    if (err) {
+                        this.$alert(`发生了错误：[${err.id}] ${err.msg}`);
+                    } else {
+                        window.location.href="mainPage.html";
                     }
-
-                });
+                })
             }
         }
     });

@@ -118,9 +118,10 @@
 </body>
 <script src="lib/vue.js"></script>
 <script src="lib/eleme-index.js"></script>
-<script src="lib/jquery.min.js"></script>
 <script src="res/dependencies.js"></script>
 <script>
+    var $ = require('jquery');
+
     var app = new Vue({
         el: '#app',
         data: function () {
@@ -245,33 +246,31 @@
                 this.loading=true;
                 $.ajax({
                     type:'post',
-                    url:'http://10.112.128.63:8080/dispatch/common/register',
-                    data:{
-                        username: this.form1.username,
-                        password: this.form1.confirmedPassword,
-                        role:this.form1.role,
-                        realName:this.form1.realName,
-                        IDType:this.form1.IDType,
-                        IDNumber:this.form1.IDNumber,
-                        companyName:this.form1.companyName,
-                        title:this.form1.title,
-                        phoneNumber:this.form1.phoneNumber,
-                        tel:this.form1.tel,
-                        email:this.form1.email,
-                        address:this.form1.address,
-                        warehouseId:this.form1.warehouseId,
-                        employeeId:this.form1.employeeId
-                    },
+                    url:'http://10.112.128.63:8080/dispatch/register',
+                    headers:{'Content-Type':'application/json'},
+                    data:JSON.stringify({
+                        "username": this.form1.username,
+                        "password": this.form1.confirmedPassword,
+                        "role":this.form1.role,
+                        "realName":this.form1.realName,
+                        "IDType":this.form1.IDType,
+                        "IDNumber":this.form1.IDNumber,
+                        "companyName":this.form1.companyName,
+                        "title":this.form1.title,
+                        "phoneNumber":this.form1.phoneNumber,
+                        "tel":this.form1.tel,
+                        "email":this.form1.email,
+                        "address":this.form1.address,
+                        "warehouseId":this.form1.warehouseId,
+                        "employeeId":this.form1.employeeId
+                    }),
                     beforeSend:function(){
-                        console.log('Prepared');
+
                     },
-                    success:(data,result,resultDesp)=>{
+                    success:(data)=>{
                         this.loading=false;
-                        console.log(data);
-                        console.log(result);
-                        console.log(resultDesp);
-                        if(result===1000||result==='success'){
-                            this.$alert('请耐心等待管理员审核，若审核通过系统将自动为您发送提示邮件！', {
+                        if(data.result===1000){
+                            this.$alert('请耐心等待管理员审核，若审核通过系统将自动为您发送提示邮件', {
                                 confirmButtonText: '返回首页',
                                 callback: action => {
                                     this.$message({
@@ -282,18 +281,16 @@
                                 }
                             });
                         }else{
-                            console.log(resultDesp);
-                            this.$alert('网络错误，请稍后重试');
+                            this.$alert('注册失败，请稍后重试');
                         }
                     },
-                    complete:function(){
+                    complete:()=>{
                         this.loading=false;
                         console.log('Done');
                     },
                     error:()=>{
                         this.loading=false;
-                        console.log('Error');
-                        this.$alert('网络错误，请稍后重试');
+                        this.$alert('注册失败，请稍后重试');
                     }
                 });
             }
@@ -318,8 +315,6 @@
                     '电子邮箱': this.form1.email,
                     '联系地址': this.form1.address,
                     '仓库id': this.form1.warehouseId,
-                    '仓库地址': this.form1.repoAddress,
-                    '仓库经纬度': this.form1.repoCoord
                 };
 
                 var result = [];

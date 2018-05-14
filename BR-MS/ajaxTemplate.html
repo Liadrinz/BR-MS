@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ajax测试用</title>
+    <link rel="stylesheet" href="lib/eleme-index.css">
+    <style>
+
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <el-button @click="test">测试</el-button>
+</div>
+</body>
+<script src="lib/vue.js"></script>
+<script src="lib/eleme-index.js"></script>
+<script src="lib/jquery.min.js"></script>
+<script src="res/dependencies.js"></script>
+<script>
+    var post=require('/mods/backend');
+    var app = new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                results:[],
+                userInfo:[]
+            }
+        },
+        methods: {
+            test:function(){
+                post('/common/addms',{
+                    theme: "1234",
+                    content: "6666",
+                    type: 0,
+                    sender_Id: Number(localStorage.getItem('id')),
+                    sender: String(localStorage.getItem('realName')),
+                    recipient_Id: 1,
+                    recipient: "admin"
+                },(data,err)=>{
+                    console.log(err);
+                    console.log(data);
+                });
+                // $.ajax({
+                //     type:'post',
+                //     url:"http://10.112.128.63:8080/dispatch/system/get_user_info",
+                //     headers:{
+                //         "token":localStorage.getItem('token'),
+                //         "Content-Type":"application/json",
+                //         "Accept":"application/json"
+                //     },
+                //     data:JSON.stringify({
+                //     }),
+                //     success:(data)=>{
+                //         console.log(data.data);
+                //     }
+                // });
+            }
+        },
+    });
+</script>
+</html>

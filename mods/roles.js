@@ -1,7 +1,10 @@
 var pages = {
     "仓库管理": "RepoManage.html",
     "用户审核": "UserAuth.html",
-    "用户列表": "UserQuery.html"
+    "用户列表": "UserQuery.html",
+    "消息": "CheckMessage.html",
+    "历史申请查询": "HistoryLookup.html",
+    "调配业务管理": "Management.html"
 };
 
 // Get menus like [{name: ..., url: ...}, ...] from menulist.
@@ -40,7 +43,15 @@ export default {
 
     // roleId: Translate role name to backend-supported name.
     //         Currently useless.
-    roleId: {
+    backToMine: {
+        admin: "admin",
+        manager: "manager",
+        normal: "user"
+    },
+
+    // roleId: Translate role name to backend-supported name.
+    //         Currently useless.
+    mineToOther: {
         admin: "admin",
         manager: "manager",
         normal: "user"
@@ -51,11 +62,17 @@ export default {
             {"用户信息管理": [
                 "用户审核",
                 "用户列表"
-            ]}
+            ]},
+            "仓库管理",
+            "消息"
         ]),
         manager: getMenus([
-            "仓库管理"
+            "消息"
         ]),
-        normal: []
+        normal: [
+            "调配业务管理",
+            "历史申请查询",
+            "消息"
+        ]
     }
 };
