@@ -30,22 +30,16 @@
         },
         methods: {
             test:function(){
-                post('/system/update_user_info',{
-                    id:1,
-                    username:"admin",
-                    role:"admin",
-                    IDType:"3",
-                    IDNumber:"123456",
-                    companyName:"bupt",
-                    title:"student",
-                    phoneNumber:"18888888888",
-                    tel:"1",
-                    email:"zhangsan@123.com",
-                    address:"bupt",
-                    warehouseId:null,
-                    employeeId:123456,
-                    realName:"李四"
+                post('/common/addms',{
+                    theme: "1234",
+                    content: "6666",
+                    type: 0,
+                    sender_Id: Number(localStorage.getItem('id')),
+                    sender: String(localStorage.getItem('realName')),
+                    recipient_Id: 1,
+                    recipient: "admin"
                 },(data,err)=>{
+                    console.log(err);
                     console.log(data);
                 });
                 // $.ajax({

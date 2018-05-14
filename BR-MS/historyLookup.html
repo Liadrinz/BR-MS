@@ -48,7 +48,7 @@
             </el-radio-group>
         </el-form-item>
         <el-form-item>
-            <el-button type="primary">查询</el-button>
+            <el-button type="primary" @click="search">查询</el-button>
         </el-form-item>
     </el-form>
     <div>{{ lookupDateText }}的历史数据</div>
@@ -67,6 +67,8 @@
 <script src="lib/eleme-index.js"></script>
 <script src="res/dependencies.js"></script>
 <script>
+    var post=require('/mods/backend');
+
     function getDaysBefore(days) {
         return function(picker) {
             var end = new Date(),
@@ -121,6 +123,13 @@
                     text: '最近一年',
                     onClick: getMonthsBefore(12)
                 }]
+            }
+        },
+        methods:{
+            search:function(){
+                post('/system/schedulehistory',{
+
+                })
             }
         },
         computed: {

@@ -157,7 +157,8 @@
                             localStorage.setItem('token',token);
                             localStorage.setItem('realName',data.data.realName);
                             localStorage.setItem('role',data.data.role);
-                            localStorage.setItem('id',data.data.username);
+                            localStorage.setItem('username',data.data.username);
+                            localStorage.setItem('id',data.data.id);
                             window.location.href="mainPage.html";
                         }else if(data.result===4001){
                             this.$alert('账号或密码错误');
@@ -166,7 +167,7 @@
                             this.$alert('登录失败');
                             this.isLogging=false;
                         } else {
-                            this.$alert('网络错误，请稍后重试');
+                            this.$alert('登录失败');
                             this.isLogging=false;
                         }
                     },
@@ -175,7 +176,7 @@
                     },
                     error: () => {
                         console.log();
-                        this.$alert('网络错误，请稍后重试');
+                        this.$alert('登录失败');
                         this.isLogging=false;
                     }
 
