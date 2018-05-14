@@ -46,7 +46,7 @@ export default {
     backToMine: {
         admin: "admin",
         manager: "manager",
-        normal: "user"
+        user: "normal"
     },
 
     // roleId: Translate role name to backend-supported name.
@@ -69,10 +69,10 @@ export default {
         manager: getMenus([
             "消息"
         ]),
-        normal: [
+        normal: getMenus([
             "调配业务管理",
             "历史申请查询",
             "消息"
-        ]
+        ])
     }
 };
