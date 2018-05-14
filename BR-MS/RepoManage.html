@@ -46,7 +46,13 @@
         </el-form-item>
         <el-form-item>
             <el-button type="primary" @click="search">查找</el-button>
-            <el-button>返回</el-button>
+            <el-button @click="()=>{
+                for(var i in queryParams){
+                    queryParams[i]='';
+                };
+                search();
+            }">返回
+            </el-button>
         </el-form-item>
     </el-form>
     <el-table :data="repoData.repoInfo">
@@ -225,9 +231,9 @@
     };
     var pageNum = 1, pageSize = 6, maxPage = 0;
     var post = require('/mods/backend');
-    var urlPrefix = 'http://10.112.128.63:8080/dispatch/'
 
     function getData(page, searchKey) {
+        clearData();
         if (searchKey) {
             searchKey["pageSize"] = pageSize;
             searchKey["pageNum"] = page;
@@ -235,10 +241,13 @@
         post('/system/get_warehouse', searchKey ? searchKey : {
             "pageSize": pageSize,
             "pageNum": page
-        }, (data, errid) => {
-            if (errid) {
-                app.$alert('数据拉取失败');
+        }, (data, err) => {
+            if (err) {
+                app.$message.error(err.msg);
                 app.initializing = false;
+                if (err.id === post.NOT_LOGIN) {
+                    window.location.href = 'login.html';
+                }
                 return;
             }
             var warehouses = data.warehouses;
@@ -263,27 +272,21 @@
             if (pageNum <= 1) {
                 return;
             }
-            //items=[]不行，不知道为什么。
-            clearData();
             pageNum -= 1;
             getData.call(app, pageNum);
         } else if (control === 'next') {
             if (pageNum >= maxPage) {
                 return;
             }
-            clearData();
             pageNum += 1;
             getData.call(app, pageNum);
         } else if (control === 'first') {
-            clearData();
             pageNum = 1;
             getData.call(app, pageNum);
         } else if (control === 'last') {
-            clearData();
             pageNum = maxPage;
             getData.call(app, pageNum);
         } else if (control === 'stay') {
-            clearData();
             getData.call(app, pageNum);
         }
     }
@@ -301,12 +304,11 @@
                     repoInfo: items
                 },
                 queryParams: {
-                    warehouse_id:"",
+                    warehouse_id: "",
                     warehouse_name: "",
                     warehouse_code: "",
                     warehouse_location: ""
                 },
-                confirmedForm: genralForm,
                 editedForm: genralForm,
                 addForm: genralForm,
                 editRule: {
@@ -328,11 +330,13 @@
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
                         this.loading = true;
-                        post('/system/update_warehouse', app.editedForm, (data, errid) => {
-                            if (errid) {
-                                console.log(errid);
-                                app.$message.error('修改失败');
-                                app.loading = false;
+                        post('/system/update_warehouse', app.editedForm, (data, err) => {
+                            if (err) {
+                                app.$message.error('修改失败' + err.msg);
+                                app.initializing = false;
+                                if (err.id === post.NOT_LOGIN) {
+                                    window.location.href = 'login.html';
+                                }
                                 return;
                             }
                             this.$message({
@@ -344,7 +348,7 @@
                             app.dialogVisible = false;
                         });
                     } else {
-                        this.$alert('信息错误，请重新填写');
+                        this.$message.error('信息错误，请重新填写');
                         return false;
                     }
                 });
@@ -353,11 +357,13 @@
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
                         this.loading = true;
-                        post('/system/add_warehouse', app.addForm, (data, errid) => {
-                            if (errid) {
-                                console.log(errid);
-                                app.$message.error('添加失败');
-                                app.loading = false;
+                        post('/system/add_warehouse', app.addForm, (data, err) => {
+                            if (err) {
+                                app.$message.error('添加失败' + err.msg);
+                                app.initializing = false;
+                                if (err.id === post.NOT_LOGIN) {
+                                    window.location.href = 'login.html';
+                                }
                                 return;
                             }
                             this.$message({
@@ -369,7 +375,7 @@
                             app.addDialogVisible = false;
                         });
                     } else {
-                        this.$alert('信息错误，请重新填写');
+                        this.$message.error('信息错误，请重新填写');
                         return false;
                     }
                 });
@@ -382,9 +388,13 @@
                 }).then(() => {
                     post('/system/del_warehouse', {
                         "warehouse_id": id_toDel
-                    }, (data, errid) => {
-                        if (errid) {
-                            this.$message.error('删除失败');
+                    }, (data, err) => {
+                        if (err) {
+                            app.$message.error('删除失败' + err.msg);
+                            app.initializing = false;
+                            if (err.id === post.NOT_LOGIN) {
+                                window.location.href = 'login.html';
+                            }
                             return;
                         }
                         this.$message({
@@ -396,14 +406,13 @@
                 });
             },
             search: function () {
-                var validate={"pageSize":pageSize,"pageNum":pageNum};
-                for(var i in app.queryParams){
-                    if(app.queryParams[i]!==""){
-                        validate[i]=app.queryParams[i];
+                var validate = {"pageSize": pageSize, "pageNum": pageNum};
+                for (var i in app.queryParams) {
+                    if (app.queryParams[i] !== "") {
+                        validate[i] = app.queryParams[i];
                     }
                 }
                 console.log(validate);
-                clearData();
                 getData(1, validate);
             }
         }

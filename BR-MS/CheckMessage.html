@@ -24,15 +24,28 @@
                 <el-form-item label="收件人" :label-width="formLabelWidth">
                     <el-input placeholder="请输入收件人" v-model="formInput1.name" clearable auto-complete="off"></el-input>
                 </el-form-item>
+                <el-form-item label="收件人ID" :label-width="formLabelWidth">
+                    <el-input placeholder="请输入收件人ID" v-model="formInput1.recipientId" clearable auto-complete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="消息类型" :label-width="formLabelWidth">
+                    <el-select v-model="formInput1.type" placeholder="请选择">
+                        <el-option label="申请注册" value="0"></el-option>
+                        <el-option label="重置密码" value="1"></el-option>
+                        <el-option label="申请物资调配" value="2"></el-option>
+                        <el-option label="申请物资注册" value="3"></el-option>
+                        <el-option label="普通消息" value="4"></el-option>
+                    </el-select>
+                </el-form-item>
                 <el-form-item label="标题" :label-width="formLabelWidth">
                     <el-input placeholder="请输入消息标题" v-model="formInput1.title" clearable auto-complete="off"></el-input>
                 </el-form-item>
                 <el-form-item label="正文" :label-width="formLabelWidth">
-                    <el-input type="textarea" :row="10" placeholder="请输入内容" v-model="formInput1.content" auto-complete="off"></el-input>
+                    <el-input type="textarea" :row="10" placeholder="请输入内容" v-model="formInput1.content"
+                              auto-complete="off"></el-input>
                 </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer"><!--弹出对话框的底部-->
-                <el-button type="primary" @click="dialogVisible=false">确认发送</el-button>
+                <el-button type="primary" @click="send">确认发送</el-button>
                 <el-button @click="dialogVisible=false">取消</el-button>
             </span>
         </el-dialog>
@@ -58,14 +71,17 @@
                                 <el-input v-model="checkMessage.title" clearable auto-complete="off"></el-input>
                             </el-form-item>
                             <el-form-item label="正文" :label-width="formLabelWidth">
-                                <el-input type="textarea" :row="10" v-model="checkMessage.content" auto-complete="off"></el-input>
+                                <el-input type="textarea" :row="10" v-model="checkMessage.content"
+                                          auto-complete="off"></el-input>
                             </el-form-item>
                         </el-form>
                         <span slot="footer" class="dialog-footer"><!--弹出对话框的底部 返回-->
                             <el-button @click="dialog2Visible=false">返回</el-button>
                         </span>
                     </el-dialog>
-                    <el-button size="mini" @click.native.prevent="handleDeleteMessage(scope.$index,tableData)" type="text" size="mini">删除</el-button>
+                    <el-button size="mini" @click.native.prevent="handleDeleteMessage(scope.$index,tableData)"
+                               type="text" size="mini">删除
+                    </el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -75,11 +91,12 @@
 </body>
 <script src="lib/vue.js"></script>
 <script src="lib/eleme-index.js"></script>
-
+<script src="res/dependencies.js"></script>
 <script>
+    var post = require('/mods/backend');
     var app = new Vue({
         el: '#app',
-        const:statusOptions = ['未读', '已读'],
+        const: statusOptions = ['未读', '已读'],
         data: function () {
             const statusOptions = ['未读', '已读']
             return {
@@ -88,30 +105,33 @@
                 checkedStatuses: [],
                 statuses: statusOptions,
                 isIndeterminate: true,
-                dialogVisible:false,
+                dialogVisible: false,
                 <!--发送消息 弹窗-->
-                formInput1:{
-                    name:'',
-                    title:'',
-                    content:''
+                formInput1: {
+                    name: '',
+                    title: '',
+                    content: '',
+                    type: '',
+                    recipientId:''
                 },
-                formLabelWidth:'120px',
+                formLabelWidth: '120px',
                 <!--页面中table中 假数据-->
-                tableData:[{
-                    recDate:'2018-5-10',
-                    senderId:'匿名',
-                    title:''
-                },{
-                    recDate:'2018-5-9',
-                    senderId:'匿名',
-                    title:'你打开看看呀！'
+                tableData: [{
+                    recDate: '2018-5-10',
+                    senderId: '匿名',
+                    title: ''
+                }, {
+                    recDate: '2018-5-9',
+                    senderId: '匿名',
+                    title: '你打开看看呀！'
                 }],
                 <!--查看button 及 假数据-->
-                dialog2Visible:false,
-                checkMessage:{
-                    senderId:'匿名',
-                    title:'你打开看看呀！',
-                    content:'（一jio踹飞！）'
+                dialog2Visible: false,
+                checkMessage: {
+                    senderId: '匿名',
+                    title: '你打开看看呀！',
+                    content: '（一jio踹飞！）',
+                    type: ''
                 }
             }
         },
@@ -127,16 +147,31 @@
                 this.isIndeterminate = checkedCount > 0 && checkedCount < this.statuses.length;
             },
             <!--所有弹窗右上角关闭时确认关闭-->
-            handleClose(done){
+            handleClose(done) {
                 this.$confirm('确认关闭？')
-                    .then(_=>{
+                    .then(_ => {
                         done();
                     })
-                    .catch(_=>{});
+                    .catch(_ => {
+                    });
             },
             <!--操作：删除button-->
-            handleDeleteMessage(index,rows){
-                rows.splice(index,1);
+            handleDeleteMessage(index, rows) {
+                rows.splice(index, 1);
+            },
+            send: function () {
+                post('/common/addms', {
+                    theme: app.formInput1.title,
+                    content: app.formInput1.content,
+                    type: app.formInput1.type,
+                    sender_Id:localStorage.getItem('id'),
+                    sender:localStorage.getItem('realName'),
+                    recipient_Id:app.formInput1.recipientId,
+                    recipient:app.formInput1.name
+                },(data,err)=>{
+                    console.log(data);
+                    console.log(err);
+                })
             }
         }
     })
