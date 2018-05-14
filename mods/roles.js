@@ -63,7 +63,8 @@ export default {
                 "用户审核",
                 "用户列表"
             ]},
-            "仓库管理"
+            "仓库管理",
+            "消息"
         ]),
         manager: getMenus([
             "消息"

@@ -47,7 +47,13 @@
 
         <el-form-item>
             <el-button type="primary" @click="search">查找</el-button>
-            <el-button>返回</el-button>
+            <el-button @click="()=>{
+                for(var i in queryParams){
+                    queryParams[i]='';
+                };
+                search();
+            }">返回
+            </el-button>
         </el-form-item>
     </el-form>
     <el-table :data="results">
@@ -226,7 +232,7 @@
                     realName: "",
                     companyName: ""
                 },
-                editedForm:generalForm,
+                editedForm: generalForm,
                 editRule: {}
             }
         },
@@ -265,7 +271,7 @@
                             console.log(data);
                             if (err) {
                                 console.log(err);
-                                app.$message.error('修改失败 '+err.msg);
+                                app.$message.error('修改失败 ' + err.msg);
                                 app.loading = false;
                                 return;
                             }
@@ -283,13 +289,13 @@
                     }
                 });
             },
-            changePassword:function(id){
-                post('/system/reset_password',{
-                    id:id
-                },(data,err)=>{
-                    if(err){
+            changePassword: function (id) {
+                post('/system/reset_password', {
+                    id: id
+                }, (data, err) => {
+                    if (err) {
                         console.log(err);
-                        app.$message.error('重置失败 '+err.msg);
+                        app.$message.error('重置失败 ' + err.msg);
                         app.loading = false;
                         return;
                     }
@@ -301,15 +307,15 @@
                     app.dialogVisible = false;
                 })
             },
-            deleteUser:function(id){
+            deleteUser: function (id) {
                 this.$confirm('确认删除该用户？', null, {
                     confirmButtonText: '确定',
                     cancelButtonText: '取消',
                     type: 'warning'
-                }).then(()=>{
-                    post('/system/delete_user',{
-                        id:id
-                    },(data,err)=>{
+                }).then(() => {
+                    post('/system/delete_user', {
+                        id: id
+                    }, (data, err) => {
                         console.log(data);
                         getData({});
                     });
