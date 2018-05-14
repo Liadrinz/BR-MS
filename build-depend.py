@@ -3,7 +3,8 @@
 # modules on npm
 npm_modules = [
     "verify-identity-card",
-    "jquery"
+    "jquery",
+    "dateformat"
 ]
 
 # modules written in mods directory.
