@@ -406,20 +406,21 @@
                             }
                         });
                     }
-                }).then(()=>{
-                    var len=delList.length;
-                    if(app.pageNum!==maxPageRef[0]){
-                        getData(maxPageRef[0],searchKey);
-                    }else{
-                        if(len==lastPageItems){
-                            if(app.pageNum===1&&){
-                                getData(maxPageRef[0] - 1,searchKey);
-                            }
-                        }else{
-                            getData(maxPageRef[0],searchKey);
-                        }
-                    }
                 })
+                //     .then(()=>{
+                //     var len=delList.length;
+                //     if(app.pageNum!==maxPageRef[0]){
+                //         getData(maxPageRef[0],searchKey);
+                //     }else{
+                //         if(len==lastPageItems){
+                //             if(app.pageNum===1){
+                //                 getData(maxPageRef[0] - 1,searchKey);
+                //             }
+                //         }else{
+                //             getData(maxPageRef[0],searchKey);
+                //         }
+                //     }
+                // })
             },
             send: function () {
                 post('/common/addms', {
