@@ -31,11 +31,11 @@
         methods: {
             test:function(){
                 post('/common/addms',{
-                    theme: "1234",
+                    theme: "5678",
                     content: "6666",
                     type: 0,
-                    sender_Id: Number(localStorage.getItem('id')),
-                    sender: String(localStorage.getItem('realName')),
+                    sender_Id: 33,
+                    sender: 'sb',
                     recipient_Id: 1,
                     recipient: "admin"
                 },(data,err)=>{

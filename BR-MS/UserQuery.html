@@ -27,6 +27,15 @@
         span.no-wrap {
             white-space: nowrap;
         }
+
+        .tips{
+            font-size:13px;
+            color:#8c939d;
+        }
+
+        .hide{
+            display:none;
+        }
     </style>
 </head>
 <body>
@@ -52,7 +61,7 @@
                     queryParams[i]='';
                 };
                 search();
-            }">返回
+            }">重置
             </el-button>
         </el-form-item>
     </el-form>
@@ -92,9 +101,10 @@
         </el-table-column>
         <el-table-column prop="realName" label="姓名" width="75px"></el-table-column>
         <el-table-column prop="userId" label="用户ID" width="125px"></el-table-column>
+        <el-table-column prop="username" label="用户名" width="125px"></el-table-column>
         <el-table-column prop="role" label="用户类型" width="125px"></el-table-column>
-        <el-table-column prop="IDType" label="证件类型" width="125px"></el-table-column>
-        <el-table-column prop="IDNumber" label="证件号码" width="125px"></el-table-column>
+        <el-table-column prop="iDType" label="证件类型" width="125px"></el-table-column>
+        <el-table-column prop="iDNumber" label="证件号码" width="125px"></el-table-column>
         <el-table-column prop="companyName" label="单位名称" width="150px"></el-table-column>
         <el-table-column label="操作">
             <template slot-scope="props">
@@ -112,8 +122,12 @@
                            element-loading-text="正在提交" element-loading-background="rgba(0,0,0,0.7)">
                     <el-form ref="editedForm" label-position="right" label-width="120px" :rules="editRule"
                              :model="editedForm">
-                        <el-form-item label="用户ID" prop="userId">
+                        <el-form-item class="hide" label="用户ID" prop="userId">
                             <el-input v-model="editedForm.id" :value="props.row.userId"
+                                      :disabled="true"></el-input>
+                        </el-form-item>
+                        <el-form-item class="hide" label="用户名" prop="userId">
+                            <el-input v-model="editedForm.username" :value="props.row.username"
                                       :disabled="true"></el-input>
                         </el-form-item>
                         <el-form-item label="用户类型" prop="role" required>
@@ -122,30 +136,48 @@
                                 <el-option label="仓库管理员" value="manager"></el-option>
                             </el-select>
                         </el-form-item>
+                        <el-form-item class="hide" label="证件类型" prop="iDType" required>
+                            <el-select v-model="editedForm.iDType" disabled>
+                                <el-option label="公民身份证" value="1"></el-option>
+                                <el-option label="军官证" value="2"></el-option>
+                                <el-option label="护照" value="3"></el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item class="hide" label="证件号码" prop="iDNumber" required>
+                            <el-input v-model="editedForm.iDNumber" :value="props.row.iDNumber" :disabled="true" required></el-input>
+                        </el-form-item>
                         <el-form-item label="用户姓名" prop="realName" required>
                             <el-input v-model="editedForm.realName" :value="props.row.realName" required></el-input>
+                            <span class="tips">请务必输入正确的姓名</span>
                         </el-form-item>
                         <el-form-item label="单位名称" prop="companyName">
                             <el-input v-model="editedForm.companyName"></el-input>
+                            <span class="tips">请务必输入正确的单位名称</span>
                         </el-form-item>
                         <el-form-item label="员工ID" prop="employeeId">
                             <el-input v-model="editedForm.employeeId"></el-input>
+                            <span class="tips">您单位的ID，若有则填</span>
                         </el-form-item>
                         <el-form-item label="职务" prop="title">
                             <el-input v-model="editedForm.title" :value="props.row.title" required></el-input>
+                            <span class="tips">请输入您的职务，如工程师</span>
                         </el-form-item>
                         <el-form-item label="手机号码" prop="phoneNumber" required>
                             <el-input v-model="editedForm.phoneNumber" :value="props.row.phoneNumber"
                                       required></el-input>
+                            <span class="tips">示例：18833336666（11位）</span>
                         </el-form-item>
                         <el-form-item label="固定电话">
                             <el-input v-model="editedForm.tel" :value="props.row.tel"></el-input>
+                            <span class="tips">示例：010-66668888</span>
                         </el-form-item>
                         <el-form-item label="电子邮箱" required>
                             <el-input v-model="editedForm.email" :value="props.row.email"></el-input>
+                            <span class="tips">示例：zhangsan@example.com</span>
                         </el-form-item>
                         <el-form-item label="联系地址" required>
                             <el-input v-model="editedForm.address" :value="props.row.address"></el-input>
+                            <span class="tips">请输入正确详细的地址</span>
                         </el-form-item>
 
                         <p style="text-align: right">
@@ -170,12 +202,13 @@
     function getData(searchKey) {
         clearData();
         post('/system/get_user_info', searchKey, (data, err) => {
+            app.initializing = false;
             console.log(data);
             if (err) {
                 app.$message.error(err.msg);
                 app.initializing = false;
                 if (err.id === post.NOT_LOGIN) {
-                    window.location.href = 'login.html';
+                    
                 }
                 return;
             }
@@ -188,9 +221,10 @@
             for (var item in users) {
                 console.log(data[item]);
                 users[item]['dialogVisible'] = false;
-                items.push(users[item]);
+                if(users[item].role!=='admin'){
+                    items.push(users[item]);
+                }
             }
-            app.initializing = false;
         })
     }
 
@@ -201,8 +235,8 @@
         id: '',
         role: '',
         realName: '',
-        IDType: '',
-        IDNumber: '',
+        iDType: '',
+        iDNumber: '',
         companyName: '',
         title: '',
         phoneNumber: '',
@@ -223,7 +257,7 @@
         data: function () {
             return {
                 loading: false,
-                initializing: false,
+                initializing: true,
                 dialogVisible: false,
                 results: items,
                 queryParams: {
@@ -242,6 +276,7 @@
         },
         methods: {
             search: () => {
+                app.initializing = true;
                 var validate = {};
                 for (var i in app.queryParams) {
                     if (app.queryParams[i] !== "") {
@@ -258,8 +293,8 @@
                             id: app.editedForm.id,
                             role: app.editedForm.role,
                             realName: app.editedForm.realName,
-                            IDType: app.editedForm.IDType,
-                            IDNumber: app.editedForm.IDNumber,
+                            iDType: app.editedForm.iDType,
+                            iDNumber: app.editedForm.iDNumber,
                             companyName: app.editedForm.companyName,
                             title: app.editedForm.title,
                             phoneNumber: app.editedForm.phoneNumber,
@@ -272,15 +307,14 @@
                             if (err) {
                                 console.log(err);
                                 app.$message.error('修改失败 ' + err.msg);
-                                app.loading = false;
                                 return;
                             }
                             this.$message({
                                 type: "success",
                                 message: '修改成功'
                             });
+                            app.initializing = true;
                             getData({});
-                            app.loading = false;
                             app.dialogVisible = false;
                         });
                     } else {
@@ -317,6 +351,7 @@
                         id: id
                     }, (data, err) => {
                         console.log(data);
+                        app.initializing = true;
                         getData({});
                     });
                 })

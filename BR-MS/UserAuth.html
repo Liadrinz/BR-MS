@@ -113,10 +113,11 @@
         post('/system/get_register', {
             isPass: pass
         }, (data, err) => {
+            app.initializing=false;
             if (err) {
                 app.$message.error(err.msg);
                 if (err.id === post.NOT_LOGIN) {
-                    window.location.href = 'login.html';
+                    
                 }
                 return;
             }
@@ -137,7 +138,7 @@
 
             return {
                 results: items,
-                initializing: false,
+                initializing: true,
                 queryParams: {
                     isPass: 0
                 }
@@ -157,7 +158,7 @@
                         app.$message.error(err.msg);
                         app.initializing = false;
                         if (err.id === post.NOT_LOGIN) {
-                            window.location.href = 'login.html';
+                            
                         }
                         return;
                     }
@@ -165,11 +166,12 @@
                         type: "success",
                         message: pass === 1 ? '已同意' : '已拒绝'
                     });
+                    app.initializing=true;
                     getDate.call(this, 0);
-                    app.loading = false;
                 })
             },
             filter: function (pass) {
+                app.initializing=true;
                 getDate(pass);
             }
         }
