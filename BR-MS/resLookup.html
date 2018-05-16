@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>后勤物资查询调配</title>
+    <link rel="stylesheet" href="lib/eleme-index.css">
+    <style>
+        .el-form-item{
+            margin:0;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <el-container>
+        <el-form>
+            <!--查询条件 Form-->
+            <el-form>
+                <!--物资状态-->
+                <el-form :inline="true">
+                    <el-form-item label="物资状态：" size="mini">
+                        <el-radio-group  v-model="statusRadio">
+                            <el-radio label="1" border>不限</el-radio>
+                            <el-radio label="2" border>调配</el-radio>
+                            <el-radio label="3" border>占用</el-radio>
+                            <el-radio label="4" border>使用</el-radio>
+                            <el-radio label="5" border>空闲</el-radio>
+                        </el-radio-group>
+                    </el-form-item>
+                </el-form>
+                <!--物资类别-->
+                <el-form :inline="true">
+                    <el-form-item label="物资类别：" size="mini">
+                        <!--Waiting for LSJ 的 组件-->
+                    </el-form-item>
+                </el-form>
+                <!--地理位置-->
+                <el-form>
+                    <el-form-item label="地理位置：" size="mini">
+                        <el-radio v-model="locationRadio" label="1" border>不限</el-radio>
+                        <el-cascader :options="location" v-model="selectedLocations" @change="handleChange"></el-cascader>
+                    </el-form-item>
+                </el-form>
+                <!--生产日期-->
+                <el-form>
+                    <el-form-item label="生产日期：" size="mini">
+                        <el-date-picker v-model="produceDate" type="date" placeholder="选择日期" format="yyyy年MM月dd日" value-format="yyyy-MM-dd"></el-date-picker>
+                        <h>后</h>
+                    </el-form-item>
+                </el-form>
+                <el-form-item>
+                    <el-button size="mini">查询</el-button>
+                </el-form-item>
+            </el-form>
+            <template>
+                <!--查询结果 Table-->
+                <el-table ref="multipleTable" :data="resultData" tooltip-effect="dark" style="width: 100%" stripe @selection-change="handleSelectionChange">
+                    <el-table-column type="selection" width="55"></el-table-column>
+                    <el-table-column type="index" :index="indexMethod"></el-table-column>
+                    <el-table-column prop="number" label="物资编号"></el-table-column>
+                    <el-table-column prop="name" label="物资名称"></el-table-column>
+                    <el-table-column prop="manufacturer" label="生产厂商"></el-table-column>
+                    <el-table-column prop="specification" label="规格"></el-table-column>
+                    <el-table-column prop="warehouse" label="所在仓库"></el-table-column>
+                    <el-table-column prop="inventory" label="库存数量"></el-table-column>
+                    <el-table-column prop="address" label="仓库地址"></el-table-column>
+                    <el-table-column prop="status" label="状态"></el-table-column>
+                    <el-table-column label="" width="200">
+                        <template slot-scope="scope">
+                            <el-button size="mini">详情</el-button>
+                            <el-dialog></el-dialog>
+                            <el-button size="mini">申请调配</el-button>
+                        </template>
+                    </el-table-column>
+                    <div style="margin-top:20px">
+                        <el-button size="mini">申请调配所选项</el-button>
+                        <el-button size="mini">查看申请表单</el-button>
+                    </div>
+                </el-table>
+            </template>
+        </el-form>
+
+
+    </el-container>
+</div>
+</body>
+<script src="lib/vue.js"></script>
+<script src="lib/eleme-index.js"></script>
+
+<script>
+    var app = new Vue({
+        el: '#app',
+        data:function () {
+            return {
+                statusRadio:'',       <!--1.物资状态筛选statusRadio-->
+                locationRadio:'',     <!--3.地理位置不限locationRadio-->
+                produceDate:'',       <!--4.生产日期选择produceDate-->
+                location:[{
+                    value:'beijing',label:'北京',children:[{value:'beijing',label:'北京'}]
+                },{
+                    value:'tianjin',label:'天津',children:[{value:'tianjin',label:'天津'}]
+                },{
+                    value:'shanghai',label:'上海',children:[{value:'shanghai',label:'上海'}]
+                },{
+                    value:'chongqing',label:'重庆',children:[{value:'chongqing',label:'重庆'}]
+                },{
+                    value:'hebei',label:'河北',children:[{value:'shijiazhuang',label:'石家庄'},{value:'tangshan',label:'唐山'},{value:'qinhuangdao',label:'秦皇岛'},{value:'handan',label:'邯郸'},{value:'xingtai',label:'邢台'},{value:'baoding',label:'保定'},{value:'zhangjiakou',label:'张家口'},{value:'chengde',label:'承德'},{value:'cangzhou',label:'沧州'},{value:'langfang',label:'廊坊'},{value:'hengshui',label:'衡水'}]
+                },{
+                    value:'shanxi',label:'山西',children:[{value:'taiyuan',label:'太原'},{value:'datong',label:'大同'},{value:'yangquan',label:'阳泉'},{value:'changzhi',label:'长治'},{value:'jincheng',label:'晋城'},{value:'shuozhou',label:'朔州'}]
+                },{
+                    value:'liaoning',label:'辽宁',children:[{value:'shenyang',label:'沈阳'},{value:'dalian',label:'大连'},{value:'anshan',label:'鞍山'},{value:'fushun',label:'抚顺'},{value:'benxi',label:'本溪'},{value:'dandong',label:'丹东'},{value:'jinzhou',label:'锦州'},{value:'yingkou',label:'营口'},{value:'fuxin',label:'阜新'},{value:'liaoyang',label:'辽阳'},{value:'panjin',label:'盘锦'},{value:'tieling',label:'铁岭'},{value:'chaoyang',label:'朝阳'},{value:'huludao',label:'葫芦岛'}]
+                },{
+                    value:'jilin',label:'吉林',children:[{value:'changchun',label:''},{value:'jilin',label:'吉林'},{value:'siping',label:'四平'},{value:'liaoyuan',label:'辽源'},{value:'tonghua',label:'通化'},{value:'baishan',label:'白山'},{value:'songyuan',label:'松原'},{value:'baicheng',label:'白城'}]
+                },{
+                    value:'heilongjiang',label:'黑龙江',children:[{value:'haerbin',label:'哈尔滨'},{value:'qiqihaer',label:'齐齐哈尔'},{value:'xiji',label:'鸡西'},{value:'hegang',label:'鹤岗'},{value:'shuangyashan',label:'双鸭山'},{value:'daqing',label:'大庆'},{value:'yichun',label:'伊春'},{value:'jiamusi',label:'佳木斯'},{value:'qitaihe',label:'七台河'},{value:'mudanjiang',label:'牡丹江'},{value:'heihe',label:'黑河'}]
+                },{
+                    value:'jiangsu',label:'江苏',children:[{value:'nanjing',label:'南京'},{value:'wuxi',label:'无锡'},{value:'xuzhou',label:'徐州'},{value:'changzhou',label:'常州'},{value:'suzhou',label:'苏州'},{value:'nantong',label:'南通'},{value:'lianyungang',label:'连云港'},{value:'huaiyin',label:'淮阴'},{value:'yancheng',label:'盐城'},{value:'yangzhou',label:'扬州'},{value:'zhenjiang',label:'镇江'},{value:'taizhou',label:'泰州'},{value:'suqian',label:'宿迁'}]
+                },{
+                    value:'zhejiang',label:'浙江',children:[{value:'hangzhou',label:'杭州'},{value:'ningbo',label:'宁波'},{value:'wenzhou',label:'温州'},{value:'jiaxing',label:'嘉兴'},{value:'huzhou',label:'湖州'},{value:'shaoxing',label:'绍兴'},{value:'jinhua',label:'金华'},{value:'quzhou',label:'衢州'},{value:'zhoushan',label:'舟山'},{value:'taizhou',label:'台州'}]
+                },{
+                    value:'anhui',label:'安徽',children:[{value:'hefei',label:'合肥'},{value:'wuhu',label:'芜湖'},{value:'bengbu',label:'蚌埠'},{value:'huainan',label:'淮南'},{value:'maanshan',label:'马鞍山'},{value:'huaibei',label:'淮北'},{value:'tongling',label:'铜陵'},{value:'anqing',label:'安庆'},{value:'huangshan',label:'黄山'},{value:'chuzhou',label:'滁州'},{value:'fuyang',label:'阜阳'},{value:'suzhou',label:'宿州'},{value:'chaohu',label:'巢湖'},{value:'liuan',label:'六安'}]
+                },{
+                    value:'fujian',label:'福建',children:[{value:'fuzhou',label:'福州'},{value:'xiamen',label:'厦门'},{value:'putian',label:'莆田'},{value:'sanming',label:'三明'},{value:'quanzhou',label:'泉州'},{value:'zhangzhou',label:'漳州'},{value:'nanping',label:'南平'},{value:'longyan',label:'龙岩'}]
+                },{
+                    value:'jiangxi',label:'江西',children:[{value:'nanchang',label:'南昌'},{value:'jingdezhen',label:'景德镇'},{value:'pingxiang',label:'萍乡'},{value:'jiujiang',label:'九江'},{value:'xinyu',label:'新余'},{value:'yingtan',label:'鹰潭'},{value:'ganzhou',label:'赣州'}]
+                },{
+                    value:'shandong',label:'山东',children:[{value:'jinan',label:'济南'},{value:'qingdao',label:'青岛'},{value:'zibo',label:'淄博'},{value:'zaozhuang',label:'枣庄'},{value:'dongying',label:'东营'},{value:'yantai',label:'烟台'},{value:'weifang',label:'潍坊'},{value:'jining',label:'济宁'},{value:'taian',label:'泰安'},{value:'weihai',label:'威海'},{value:'rizhao',label:'日照'},{value:'laiwu',label:'莱芜'},{value:'linyi',label:'临沂'},{value:'dezhou',label:'德州'},{value:'liaocheng',label:'聊城'}]
+                },{
+                    value:'henan',label:'河南',children:[{value:'zhengzhou',label:'郑州'},{value:'kaifeng',label:'开封'},{value:'luoyang',label:'洛阳'},{value:'pingdingshan',label:'平顶山'},{value:'anyang',label:'安阳'},{value:'hebi',label:'鹤壁'},{value:'xinxiang',label:'新乡'},{value:'jiaozuo',label:'焦作'},{value:'puyang',label:'濮阳'},{value:'xuchang',label:'许昌'},{value:'luohe',label:'漯河'},{value:'sanmenxia',label:'三门峡'},{value:'nanyang',label:'南阳'},{value:'shangqiu',label:'商丘'},{value:'xinyang',label:'信阳'}]
+                },{
+                    
+                },{
+                    value:'sichuan',label:'四川',children:[{value:'chengdu',label:'成都'},{value:'zigong',label:'自贡'},{value:'panzhihua',label:'攀枝花'},{value:'luzhou',label:'泸州'},{value:'deyang',label:'德阳'},{value:'mianyang',label:'绵阳'},{value:'guangyuan',label:'广元'},{value:'suining',label:'遂宁'},{value:'neijiang',label:'内江'},{value:'leshan',label:'乐山'},{value:'nanchong',label:'南充'},{value:'yibin',label:'宜宾'},{value:'guangan',label:'广安'},{value:'dazhou',label:'达州'}]
+                },{
+                    value:''
+                }],
+                selectedLocations:[],
+                multiplySelection:[],
+                resultData:[{
+                    number:'',
+                    name:'',
+                    manufacturer:'',
+                    specification:'',
+                    warehouse:'',
+                    inventory:'',
+                    address:'',
+                    status:''
+                }]
+            }
+        },
+        methods: {
+            handleChange(value){
+                console.log(value);
+            },
+            indexMethod(index){
+                return index+1;
+            },
+            handleSelectionChange(val) {
+                this.multipleSelection = val;
+            }
+        }
+    });
+</script>
+
+</html>
