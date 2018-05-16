@@ -31,7 +31,7 @@
         <el-form-item label="相关仓库">
             <el-select
                 v-model="formInput.repo"
-                placeholder="请选择">
+                placeholder="正在加载...">
                 <el-option
                     v-for="repo in repos"
                     :label="repo.name"
@@ -53,11 +53,17 @@
     </el-form>
     <div>{{ lookupDateText }}的历史数据</div>
     <el-table stripe :data="tableData">
-        <el-table-column prop="xxx" label="测试">
+        <el-table-column prop="goodName" label="货物名" width="250">
         </el-table-column>
-        <el-table-column label="测试按钮">
+        <el-table-column prop="amount" label="申请数量" width="80">
+        </el-table-column>
+        <el-table-column prop="create_time" label="申请时间" width="300">
+        </el-table-column>
+        <el-table-column prop="myDescription" label="描述">
+        </el-table-column>
+        <el-table-column label="" width="150">
             <template slot-scope="scope">
-                <el-button>查看业务报表</el-button>
+                <el-button size="mini">查看业务报表</el-button>
             </template>
         </el-table-column>
     </el-table>
