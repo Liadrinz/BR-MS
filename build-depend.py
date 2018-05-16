@@ -4,7 +4,8 @@
 npm_modules = [
     "verify-identity-card",
     "jquery",
-    "dateformat"
+    "dateformat",
+    "element-china-area-data"
 ]
 
 # modules written in mods directory.
