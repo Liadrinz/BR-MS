@@ -69,7 +69,7 @@
           and cannot be undone. (Unless you refresh the page)
 
         For example:
-            > post.setPrefix(0);
+            > post.setPrefix("");
             > post('//www.baidu.com', {}, function(){});
 */
 var $ = require("jquery");

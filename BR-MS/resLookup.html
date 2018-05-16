@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>后勤物资查询调配</title>
+    <link rel="stylesheet" href="lib/eleme-index.css">
+    <style>
+        .el-form-item {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <el-container>
+        <el-form>
+            /* 查询条件 Form */
+            <el-form>
+                /* 物资状态 */
+                <el-form :inline="true">
+                    <el-form-item label="物资状态：" size="mini">
+                        <el-radio-group v-model="statusRadio">
+                            <el-radio label="1" border>不限</el-radio>
+                            <el-radio label="2" border>调配</el-radio>
+                            <el-radio label="3" border>占用</el-radio>
+                            <el-radio label="4" border>使用</el-radio>
+                            <el-radio label="5" border>空闲</el-radio>
+                        </el-radio-group>
+                    </el-form-item>
+                </el-form>
+                /* 物资类别 */
+                <el-form :inline="true">
+                    <el-form-item label="物资类别：" size="mini">
+                        /* Waiting for LSJ 的 组件 */
+                    </el-form-item>
+                </el-form>
+                /* 地理位置 */
+                <el-form>
+                    <el-form-item label="地理位置：" size="mini">
+                        <el-radio v-model="locationRadio" label="1" border>不限</el-radio>
+                        <el-cascader :options="location" v-model="selectedLocations"
+                                     @change="handleChange"></el-cascader>
+                    </el-form-item>
+                </el-form>
+                /* 生产日期 */
+                <el-form>
+                    <el-form-item label="生产日期：" size="mini">
+                        <el-date-picker v-model="produceDate" type="date" placeholder="选择日期" format="yyyy年MM月dd日"
+                                        value-format="yyyy-MM-dd"></el-date-picker>
+                        <h>后</h>
+                    </el-form-item>
+                </el-form>
+                <el-form-item>
+                    <el-button size="mini">查询</el-button>
+                </el-form-item>
+            </el-form>
+            <template>
+                /* 查询结果 Table */
+                <el-table ref="multipleTable" :data="resultData" tooltip-effect="dark" style="width: 100%" stripe
+                          @selection-change="handleSelectionChange">
+                    <el-table-column type="selection" width="55"></el-table-column>
+                    <el-table-column type="index" :index="indexMethod"></el-table-column>
+                    <el-table-column prop="number" label="物资编号"></el-table-column>
+                    <el-table-column prop="name" label="物资名称"></el-table-column>
+                    <el-table-column prop="manufacturer" label="生产厂商"></el-table-column>
+                    <el-table-column prop="specification" label="规格"></el-table-column>
+                    <el-table-column prop="warehouse" label="所在仓库"></el-table-column>
+                    <el-table-column prop="inventory" label="库存数量"></el-table-column>
+                    <el-table-column prop="address" label="仓库地址"></el-table-column>
+                    <el-table-column prop="status" label="状态"></el-table-column>
+                    <el-table-column label="" width="200">
+                        <template slot-scope="scope">
+                            <el-button size="mini">详情</el-button>
+                            <el-dialog></el-dialog>
+                            <el-button size="mini">申请调配</el-button>
+                        </template>
+                    </el-table-column>
+                    <div style="margin-top:20px">
+                        <el-button size="mini">申请调配所选项</el-button>
+                        <el-button size="mini">查看申请表单</el-button>
+                    </div>
+                </el-table>
+            </template>
+        </el-form>
+
+
+    </el-container>
+</div>
+</body>
+<script src="lib/vue.js"></script>
+<script src="lib/eleme-index.js"></script>
+
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            statusRadio: '', /* 1.物资状态筛选statusRadio */
+            locationRadio: '', /* 3.地理位置不限locationRadio */
+            produceDate: '', /* 4.生产日期选择produceDate */
+            selectedLocations: [],
+            multiplySelection: [],
+            resultData: [{
+                number: '',
+                name: '',
+                manufacturer: '',
+                specification: '',
+                warehouse: '',
+                inventory: '',
+                address: '',
+                status: ''
+            }]
+        },
+        methods: {
+            handleChange(value) {
+                console.log(value);
+            },
+            indexMethod(index) {
+                return index + 1;
+            },
+            handleSelectionChange(val) {
+                this.multipleSelection = val;
+            }
+        }
+    });
+</script>
+
+</html>
