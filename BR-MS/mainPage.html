@@ -143,8 +143,8 @@
             <img src="res/user-avatar.png">
             <div>
                 <span class="user-name">{{user.name}}</span>
+                <el-tag type="primary" size="medium">{{roleText}}</el-tag>
                 <el-button class="logout" type="warning" size="mini" @click="logout">注销</el-button>
-                <el-tag type="primary">{{roleText}}</el-tag>
             </div>
         </div>
     </header>

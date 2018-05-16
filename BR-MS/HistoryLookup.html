@@ -31,7 +31,12 @@
         <el-form-item label="相关仓库">
             <el-select
                 v-model="formInput.repo"
+<<<<<<< HEAD
                 placeholder="正在加载...">
+=======
+                fiterable
+                placeholder="请选择">
+>>>>>>> 2b0d140889390f0339be531ec026e95be49c9f69
                 <el-option
                     v-for="repo in repos"
                     :label="repo.name"
@@ -136,6 +141,9 @@
                 post('/system/schedulehistory',{
 
                 })
+            },
+            getWarehouses:function(){
+
             }
         },
         computed: {

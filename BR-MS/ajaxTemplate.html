@@ -20,6 +20,7 @@
 <script src="res/dependencies.js"></script>
 <script>
     var post=require('/mods/backend');
+    var a=null;
     var app = new Vue({
         el: '#app',
         data: function () {
@@ -30,15 +31,11 @@
         },
         methods: {
             test:function(){
-                post('/common/addms',{
-                    theme: "5678",
-                    content: "6666",
-                    type: 0,
-                    sender_Id: 33,
-                    sender: 'sb',
-                    recipient_Id: 1,
-                    recipient: "admin"
+                post('/common/getms',{
+                    pageNum:3,
+                    pageSize:6
                 },(data,err)=>{
+                    a=data;
                     console.log(err);
                     console.log(data);
                 });

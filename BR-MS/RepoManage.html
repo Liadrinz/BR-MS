@@ -248,7 +248,7 @@
     };
     var pageNum = 1, pageSize = 6, maxPage = 0,total=0,lastPageItems=0;
     var maxPageRef = [],totalRef=[];
-    var searchKey=null;
+    var searchKey={};
     var post = require('/mods/backend');
 
     function totalCompute(searchKey){
@@ -260,9 +260,16 @@
                 warehouse_location: searchKey.warehouse_location
             };
         }
-        post('/system/get_warehouse', searchKey?{...needed,pageNum:1}:{pageNum:1}, (data) => {
+        var common1 = {
+            pageNum: 1
+        };
+        var common2={
+
+        }
+        post('/system/get_warehouse',{pageNum:1},(data) => {
             maxPage=data.allPages;
-            post('/system/get_warehouse', searchKey?{...needed,pageNum:maxPage}:{pageNum:maxPage}, (data) => {
+            common2['pageNum']=maxPage;
+            post('/system/get_warehouse', {pageNum:maxPage-1}, (data) => {
                 var arr=[],warehouses=data.warehouses;
                 for(var key in warehouses){
                     arr.push(warehouses[key]);
@@ -293,6 +300,7 @@
                 }
                 return;
             }
+            //TODO:这个改动不确定
             totalCompute(searchKey);
             maxPageRef.push(data.allPages);
             var warehouses = data.warehouses;
@@ -376,7 +384,7 @@
         },
         mounted: function () {
             //从后端拉取数据
-            getData.call(app, pageNum,{},true);
+            getData.call(app, pageNum,searchKey);
         },
         methods: {
             handleCurrentChange: (page) => {
