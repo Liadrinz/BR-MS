@@ -30,9 +30,6 @@
             <el-form-item label="消息主题">
                 <el-input v-model="queryParams.theme"></el-input>
             </el-form-item>
-            <el-form-item label="发送者ID">
-                <el-input v-model="queryParams.sender_Id"></el-input>
-            </el-form-item>
             <el-form-item label="发送者姓名">
                 <el-input v-model="queryParams.sender"></el-input>
             </el-form-item>
@@ -302,7 +299,6 @@
                 queryParams: {
                     theme: null,
                     type: null,
-                    sender_Id: null,
                     sender: null
                 },
                 formLabelWidth: '120px',
