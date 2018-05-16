@@ -12,6 +12,21 @@
         span.no-wrap {
             white-space: nowrap;
         }
+
+        .demo-table-expand {
+            font-size: 0;
+        }
+
+        .demo-table-expand label {
+            width: 120px;
+            color: #99a9bf;
+        }
+
+        .demo-table-expand .el-form-item {
+            margin-right: 0;
+            margin-bottom: 0;
+            width: 50%;
+        }
     </style>
 </head>
 <body>
@@ -31,12 +46,12 @@
         <el-form-item label="相关仓库">
             <el-select
                 v-model="formInput.repo"
-                fiterable
+                filterable
                 placeholder="请选择">
                 <el-option
                     v-for="repo in repos"
-                    :label="repo.name"
-                    :value="repo.value">
+                    :label="repo.warehouse_name"
+                    :value="repo.warehouse_name">
                 </el-option>
             </el-select>
         </el-form-item>
@@ -52,14 +67,56 @@
             <el-button type="primary" @click="search">查询</el-button>
         </el-form-item>
     </el-form>
-    <div>{{ lookupDateText }}的历史数据</div>
+    <div>{{ lookupDateText }} 的历史数据 </div>
     <el-table stripe :data="tableData">
-        <el-table-column prop="xxx" label="测试">
-        </el-table-column>
-        <el-table-column label="测试按钮">
-            <template slot-scope="scope">
-                <el-button>查看业务报表</el-button>
+        <el-table-column type="expand">
+            <template slot-scope="props">
+                <el-form label-position="left" inline class="demo-table-expand">
+                    <el-form-item label="货物本地ID">
+                        <span>{{props.row.goodId}}</span>
+                    </el-form-item>
+                    <el-form-item label="创建时间">
+                        <span>{{props.row.create_time}}</span>
+                    </el-form-item>
+                    <el-form-item label="更新时间">
+                        <span>{{props.row.update_time}}</span>
+                    </el-form-item>
+                    <el-form-item label="发货仓库">
+                        <span>{{props.row.startWarehouseName}}</span>
+                    </el-form-item>
+                    <el-form-item label="申请货物目的仓库">
+                        <span>{{props.row.endWarehouseName}}</span>
+                    </el-form-item>
+                    <el-form-item label="目的地址">
+                        <span>{{props.row.destinationAddress}}</span>
+                    </el-form-item>
+                    <el-form-item label="目的省">
+                        <span>{{props.row.destinationProvince}}</span>
+                    </el-form-item>
+                    <el-form-item label="目的城市">
+                        <span>{{props.row.destinationCity}}</span>
+                    </el-form-item>
+                    <el-form-item label="申请描述">
+                        <span>{{props.row.description}}</span>
+                    </el-form-item>
+                </el-form>
             </template>
+        </el-table-column>
+        <el-table-column prop="schedule_id" label="调度表ID">
+        </el-table-column>
+        <el-table-column prop="userRealName" label="用户真实姓名">
+        </el-table-column>
+        <el-table-column prop="companyName" label="用户部门名称">
+        </el-table-column>
+        <el-table-column prop="goodName" label="货物名称">
+        </el-table-column>
+        <el-table-column prop="amount" label="申请数量">
+        </el-table-column>
+        <el-table-column prop="isDone" label="是否完成">
+        </el-table-column>
+        <el-table-column prop="isPass" label="请求是否通过">
+        </el-table-column>
+        <el-table-column prop="completetime" label="完成时间">
         </el-table-column>
     </el-table>
 </div>
@@ -88,6 +145,9 @@
         }
     }
 
+    var repoItems=[],scheduleItems=[];
+    var pageSize=6,maxPage=0,pageNum=1;
+
     var app = new Vue({
         el: '#app',
         data: {
@@ -96,13 +156,13 @@
                 repo: '',
                 eventType: ''
             },
-            repos: [],
-            tableData: [{xxx: "123"}],
-            lookupDateText: 'xxxx年xx月xx日 ~ xxxx年xx月xx日',
+            repos: repoItems,
+            tableData: scheduleItems,
+            lookupDateText:"",
             eventTypes: {
-                '出入库事件': 0,
-                '物资调配申请': 1,
-                '物资调配完成': 2
+                '出入库事件': 1,
+                '物资调配申请': 2,
+                '物资调配完成': 3
             },
             pickerOptions: {
                 shortcuts: [{
@@ -126,14 +186,55 @@
                 }]
             }
         },
+        mounted:function(){
+            post('/system/get_warehouse',{
+                pageNum:1,
+                pageSize:100000
+            },(data,err)=>{
+                if(err){
+                    console.log(err);
+                    return
+                }
+                for(var i in data.warehouses){
+                    repoItems.push(data.warehouses[i]);
+                }
+            });
+        },
         methods:{
             search:function(){
                 post('/system/schedulehistory',{
-
+                    event_type:app.formInput.eventType,
+                    WarehouseName:app.formInput.repo,
+                    user_id:localStorage.getItem('id'),
+                    pageNum:1,
+                    start_time:app.dateText.slice(0,19),
+                    end_time:app.dateText.slice(22)
+                },(data,err)=>{
+                    app.lookupDateText=app.dateText;
+                    if(err){
+                        console.log(err);
+                        return
+                    }
+                    console.log(data);
+                    var Schedule=data.Schedule;
+                    for(var i in Schedule){
+                        scheduleItems.push(Schedule[i]);
+                    }
                 })
             },
             getWarehouses:function(){
-
+                post('/system/get_warehouse',{
+                    pageNum:1,
+                    pageSize:100000
+                },(data,err)=>{
+                    if(err){
+                        app.$message.error(err.msg);
+                        return;
+                    }
+                    for(var i in data){
+                        app.repos.push(data[i]);
+                    }
+                });
             }
         },
         computed: {
@@ -144,7 +245,7 @@
 
                 var dateFormat = require('dateformat');
                 var dateTexts = this.formInput.date.map(
-                    (d) => dateFormat(d, "yyyy年mm月dd日")
+                    (d) => dateFormat(d, "yyyy-mm-dd 00:00:00")
                 );
 
                 return dateTexts[0] + " ~ " + dateTexts[1];

@@ -31,12 +31,12 @@
         },
         methods: {
             test:function(){
-                post('/common/getms',{
-                    pageNum:3,
-                    pageSize:6
+                post('/system/schedulehistory',{
+                    event_type:1,
+                    WarehouseName:'001仓',
+                    user_id:localStorage.getItem('username'),
+                    pageNum:1
                 },(data,err)=>{
-                    a=data;
-                    console.log(err);
                     console.log(data);
                 });
                 // $.ajax({
