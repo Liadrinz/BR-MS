@@ -14,9 +14,9 @@
 <div id="app">
     <el-container>
         <el-form>
-            /* 查询条件 Form */
+            <!--  查询条件 Form  -->
             <el-form>
-                /* 物资状态 */
+                <!--  物资状态  -->
                 <el-form :inline="true">
                     <el-form-item label="物资状态：" size="mini">
                         <el-radio-group v-model="statusRadio">
@@ -28,26 +28,26 @@
                         </el-radio-group>
                     </el-form-item>
                 </el-form>
-                /* 物资类别 */
+                <!--  物资类别  -->
                 <el-form :inline="true">
                     <el-form-item label="物资类别：" size="mini">
-                        /* Waiting for LSJ 的 组件 */
+                        <!--  Waiting for LSJ 的 组件  -->
                     </el-form-item>
                 </el-form>
-                /* 地理位置 */
+                <!--  地理位置  -->
                 <el-form>
                     <el-form-item label="地理位置：" size="mini">
                         <el-radio v-model="locationRadio" label="1" border>不限</el-radio>
-                        <el-cascader :options="location" v-model="selectedLocations"
+                        <el-cascader :options="areaData" v-model="selectedLocations"
                                      @change="handleChange"></el-cascader>
                     </el-form-item>
                 </el-form>
-                /* 生产日期 */
+                <!--  生产日期  -->
                 <el-form>
                     <el-form-item label="生产日期：" size="mini">
                         <el-date-picker v-model="produceDate" type="date" placeholder="选择日期" format="yyyy年MM月dd日"
                                         value-format="yyyy-MM-dd"></el-date-picker>
-                        <h>后</h>
+                        <span>后</span>
                     </el-form-item>
                 </el-form>
                 <el-form-item>
@@ -55,7 +55,7 @@
                 </el-form-item>
             </el-form>
             <template>
-                /* 查询结果 Table */
+                <!--  查询结果 Table  -->
                 <el-table ref="multipleTable" :data="resultData" tooltip-effect="dark" style="width: 100%" stripe
                           @selection-change="handleSelectionChange">
                     <el-table-column type="selection" width="55"></el-table-column>
@@ -89,16 +89,20 @@
 </body>
 <script src="lib/vue.js"></script>
 <script src="lib/eleme-index.js"></script>
-
+<script src="res/dependencies.js"></script>
 <script>
+    const ChinaAreaData = require('element-china-area-data').
+        provinceAndCityData;
+
     var app = new Vue({
         el: '#app',
         data: {
-            statusRadio: '', /* 1.物资状态筛选statusRadio */
-            locationRadio: '', /* 3.地理位置不限locationRadio */
-            produceDate: '', /* 4.生产日期选择produceDate */
+            statusRadio: '', <!--  1.物资状态筛选statusRadio  -->
+            locationRadio: '', <!--  3.地理位置不限locationRadio  -->
+            produceDate: '', <!--  4.生产日期选择produceDate  -->
             selectedLocations: [],
             multiplySelection: [],
+            areaData: ChinaAreaData,
             resultData: [{
                 number: '',
                 name: '',
