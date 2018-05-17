@@ -12,13 +12,13 @@
 <div id="app">
     <template>
         <el-table :data="management" style="width: 100%">
-            <el-table-column prop="number" label="物资编号" width="180"></el-table-column>
-            <el-table-column prop="name" label="物资名称" width="180"></el-table-column>
-            <el-table-column prop="applicationDate" label="申请日期"></el-table-column>
-            <el-table-column prop="approvalDate" label="批准日期"></el-table-column>
-            <el-table-column prop="outboundDate" label="出库日期"></el-table-column>
-            <el-table-column prop="storageDate" label="入库日期"></el-table-column>
-            <el-table-column prop="status" label="状态"></el-table-column>
+            <el-table-column prop="goodId" label="物资编号" width="180"></el-table-column>
+            <el-table-column prop="goodName" label="物资名称" width="180"></el-table-column>
+            <el-table-column prop="applicationDate" label="申请日期"></el-table-column> <!--无接口名-->
+            <el-table-column prop="approvalDate" label="批准日期"></el-table-column>    <!--无接口名-->
+            <el-table-column prop="outboundDate" label="出库日期"></el-table-column>    <!--无接口名-->
+            <el-table-column prop="storageDate" label="入库日期"></el-table-column>     <!--无接口名-->
+            <el-table-column prop="state" label="状态"></el-table-column>
             <el-table-column label="操作">
                 <template slot-scope="scope">
                     <el-button type="text" size="small" @click="dialogVisible=true">详情</el-button>
@@ -44,13 +44,13 @@
         data:function() {
             return {
                 management: [{
-                    number: '00001',
-                    name: '除蚊电器',
+                    goodId: '00001',
+                    goodName: '除蚊电器',
                     applicationDate: '2018-5-13',
                     approvalDate: '2018-5-14',
                     outboundDate: '2018-5-14',
                     storageDate: '2018-5-14',
-                    status: '调配'
+                    state: '调配'
                 }],
                 dialogVisible: false
             };
