@@ -50,8 +50,8 @@
                 placeholder="请选择">
                 <el-option
                     v-for="repo in repos"
-                    :label="repo.warehouse_name"
-                    :value="repo.warehouse_name">
+                    :label="repo.warehouseName"
+                    :value="repo.warehouseId">
                 </el-option>
             </el-select>
         </el-form-item>
@@ -67,68 +67,109 @@
             <el-button type="primary" @click="search">查询</el-button>
         </el-form-item>
     </el-form>
-    <div>{{ lookupDateText }} 的历史数据 </div>
+    <div>{{ lookupDateText }} 的历史数据</div>
     <el-table stripe :data="tableData">
         <el-table-column type="expand">
             <template slot-scope="props">
                 <el-form label-position="left" inline class="demo-table-expand">
-                    <el-form-item label="货物本地ID">
-                        <span>{{props.row.goodId}}</span>
+                    <el-form-item label="发货时间">
+                        <span>{{props.row.transportTime}}</span>
                     </el-form-item>
-                    <el-form-item label="创建时间">
-                        <span>{{props.row.create_time}}</span>
+                    <el-form-item label="收货时间">
+                        <span>{{props.row.arrivalTime}}</span>
                     </el-form-item>
-                    <el-form-item label="更新时间">
-                        <span>{{props.row.update_time}}</span>
+                    <el-form-item label="传输类型">
+                        <span>{{props.row.transportType}}</span>
                     </el-form-item>
-                    <el-form-item label="发货仓库">
-                        <span>{{props.row.startWarehouseName}}</span>
+                    <el-form-item label="用户真名">
+                        <span>{{props.row.userRealName}}</span>
                     </el-form-item>
-                    <el-form-item label="申请货物目的仓库">
-                        <span>{{props.row.endWarehouseName}}</span>
-                    </el-form-item>
-                    <el-form-item label="目的地址">
-                        <span>{{props.row.destinationAddress}}</span>
-                    </el-form-item>
-                    <el-form-item label="目的省">
-                        <span>{{props.row.destinationProvince}}</span>
-                    </el-form-item>
-                    <el-form-item label="目的城市">
-                        <span>{{props.row.destinationCity}}</span>
-                    </el-form-item>
-                    <el-form-item label="申请描述">
-                        <span>{{props.row.description}}</span>
+                    <el-form-item label="用户所在单位">
+                        <span>{{props.row.companyName}}</span>
                     </el-form-item>
                 </el-form>
             </template>
         </el-table-column>
-        <el-table-column prop="schedule_id" label="调度表ID">
+        <el-table-column prop="startWarehouseName" label="发货仓库名">
         </el-table-column>
-        <el-table-column prop="userRealName" label="用户真实姓名">
+        <el-table-column prop="endWarehouseName" label="收货仓库名">
         </el-table-column>
-        <el-table-column prop="companyName" label="用户部门名称">
+        <el-table-column prop="applicationNum" label="调度单编号">
         </el-table-column>
         <el-table-column prop="goodName" label="货物名称">
         </el-table-column>
-        <el-table-column prop="amount" label="申请数量">
+        <el-table-column prop="amount" label="请求数量">
         </el-table-column>
-        <el-table-column prop="isDone" label="是否完成">
-        </el-table-column>
-        <el-table-column prop="isPass" label="请求是否通过">
-        </el-table-column>
-        <el-table-column prop="completetime" label="完成时间">
+        <el-table-column prop="idDone" label="是否完成">
         </el-table-column>
     </el-table>
+    <p style="text-align: center">
+        <el-pagination @current-change="handleCurrentChange" :current-page="pageNum"
+                       :page-size="6" layout="total,prev,pager,next,jumper" :total="total[0]"></el-pagination>
+    </p>
 </div>
 </body>
 <script src="lib/vue.js"></script>
 <script src="lib/eleme-index.js"></script>
 <script src="res/dependencies.js"></script>
 <script>
-    var post=require('/mods/backend');
+    var post = require('/mods/backend');
+
+    function getData(searchKey) {
+        clearData();
+        totalCompute(searchKey);
+        var validate = {};
+        for (var i in searchKey) {
+            if (searchKey[i] !== "")
+                validate[i] = searchKey[i];
+        }
+        console.log(validate);
+        post('/common/enandex', validate, (data, err) => {
+            app.lookupDateText = app.dateText;
+            if (err) {
+                console.log(err);
+                return
+            }
+            maxPage = data.allPages;
+            console.log(data);
+            var Schedule = data.transViews;
+            for (var i in Schedule) {
+                scheduleItems.push(Schedule[i]);
+            }
+        })
+    }
+
+    function clearData() {
+        for (var i in scheduleItems) {
+            scheduleItems.pop();
+        }
+    }
+
+    function totalCompute(searchKey){
+        var validate={
+
+        }
+        var temp=searchKey['pageNum'];
+        searchKey['pageNum']=1;
+        for(var i in searchKey){
+            if(searchKey[i]!==""){
+                validate[i]=searchKey[i];
+            }
+        }
+        post('/common/enandex',validate,(data)=>{
+            var max=data.allPages;
+            validate['pageNum']=max;
+            post('/common/enandex',validate,(data)=>{
+                var len=data.transViews.length;
+                totalRef.pop();
+                totalRef.push(len);
+                searchKey['pageNum']=temp;
+            })
+        })
+    }
 
     function getDaysBefore(days) {
-        return function(picker) {
+        return function (picker) {
             var end = new Date(),
                 start = new Date();
             start.setTime(end.getTime() - days * 24 * 3600 * 1000);
@@ -137,7 +178,7 @@
     }
 
     function getMonthsBefore(months) {
-        return function(picker) {
+        return function (picker) {
             var end = new Date(),
                 start = new Date();
             start.setMonth(end.getMonth() - months)
@@ -145,12 +186,16 @@
         }
     }
 
-    var repoItems=[],scheduleItems=[];
-    var pageSize=6,maxPage=0,pageNum=1;
+    var repoItems = [], scheduleItems = [];
+    var pageSize = 6, maxPage = 0, pageNum = 1;
+    var searchKey={};
+    var totalRef=[];
 
     var app = new Vue({
         el: '#app',
         data: {
+            pageNum: pageNum,
+            total:totalRef,
             formInput: {
                 date: undefined,
                 repo: '',
@@ -158,7 +203,7 @@
             },
             repos: repoItems,
             tableData: scheduleItems,
-            lookupDateText:"",
+            lookupDateText: "",
             eventTypes: {
                 '出入库事件': 1,
                 '物资调配申请': 2,
@@ -168,79 +213,68 @@
                 shortcuts: [{
                     text: '最近一周',
                     onClick: getDaysBefore(7)
-                },{
+                }, {
                     text: '最近两周',
                     onClick: getDaysBefore(14)
-                },{
+                }, {
                     text: '最近一个月',
                     onClick: getMonthsBefore(1)
-                },{
+                }, {
                     text: '最近三个月',
                     onClick: getMonthsBefore(3)
-                },{
+                }, {
                     text: '最近半年',
                     onClick: getMonthsBefore(6)
-                },{
+                }, {
                     text: '最近一年',
                     onClick: getMonthsBefore(12)
                 }]
             }
         },
-        mounted:function(){
-            post('/system/get_warehouse',{
-                pageNum:1,
-                pageSize:100000
-            },(data,err)=>{
-                if(err){
+        mounted: function () {
+            post('/common/relatehouse', {}, (data, err) => {
+                if (err) {
                     console.log(err);
                     return
                 }
-                for(var i in data.warehouses){
-                    repoItems.push(data.warehouses[i]);
+                for (var i in data) {
+                    repoItems.push(data[i]);
                 }
             });
         },
-        methods:{
-            search:function(){
-                post('/system/schedulehistory',{
-                    event_type:app.formInput.eventType,
-                    WarehouseName:app.formInput.repo,
-                    user_id:localStorage.getItem('id'),
-                    pageNum:1,
-                    start_time:app.dateText.slice(0,19),
-                    end_time:app.dateText.slice(22)
-                },(data,err)=>{
-                    app.lookupDateText=app.dateText;
-                    if(err){
-                        console.log(err);
-                        return
-                    }
-                    console.log(data);
-                    var Schedule=data.Schedule;
-                    for(var i in Schedule){
-                        scheduleItems.push(Schedule[i]);
-                    }
-                })
+        methods: {
+            search: function () {
+                searchKey={
+                    warehouseid: app.formInput.repo,
+                    pageNum: app.pageNum,
+                    start_time: app.dateText.slice(0, 19),
+                    end_time: app.dateText.slice(22)
+                }
+                getData(searchKey);
             },
-            getWarehouses:function(){
-                post('/system/get_warehouse',{
-                    pageNum:1,
-                    pageSize:100000
-                },(data,err)=>{
-                    if(err){
+            handleCurrentChange:function(page){
+                searchKey['pageNum']=page;
+                getData(searchKey);
+            },
+            getWarehouses: function () {
+                post('/system/get_warehouse', {
+                    pageNum: 1,
+                    pageSize: 100000
+                }, (data, err) => {
+                    if (err) {
                         app.$message.error(err.msg);
                         return;
                     }
-                    for(var i in data){
+                    for (var i in data) {
                         app.repos.push(data[i]);
                     }
                 });
             }
         },
         computed: {
-            dateText: function() {
+            dateText: function () {
                 if (!this.formInput.date) {
-                    return 'xxxx年xx月xx日 ~ xxxx年xx月xx日';
+                    return '';
                 }
 
                 var dateFormat = require('dateformat');
