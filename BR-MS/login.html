@@ -5,6 +5,10 @@
     <title>登录</title>
     <link rel="stylesheet" href="lib/eleme-index.css">
     <style>
+        [v-cloak] {
+            display: none;
+        }
+
         body {
             background: url(res/bg-air.jpg) center top;
             background-size: 100%;
@@ -56,11 +60,10 @@
             position: relative;
             right: -50%;
         }
-
     </style>
 </head>
 <body>
-<div id="app">
+<div id="app" v-cloak>
     <el-container>
         <el-header></el-header>
         <el-main>
@@ -112,7 +115,8 @@
 <script src="lib/eleme-index.js"></script>
 <script src="res/dependencies.js"></script>
 <script>
-    var urlPrefix=require('/mods/backend').url;
+    // var urlPrefix=require('/mods/backend').url;
+    var urlPrefix='http://10.112.128.63:8080/dispatch';
     var app = new Vue({
         el: '#app',
         data: function () {
@@ -153,6 +157,8 @@
                             localStorage.setItem('token',token);
                             localStorage.setItem('realName',data.data.realName);
                             localStorage.setItem('role',data.data.role);
+                            localStorage.setItem('username',data.data.username);
+                            localStorage.setItem('id',data.data.id);
                             window.location.href="mainPage.html";
                         }else if(data.result===4001){
                             this.$alert('账号或密码错误');
@@ -161,7 +167,7 @@
                             this.$alert('登录失败');
                             this.isLogging=false;
                         } else {
-                            this.$alert('网络错误，请稍后重试');
+                            this.$alert('登录失败');
                             this.isLogging=false;
                         }
                     },
@@ -170,7 +176,7 @@
                     },
                     error: () => {
                         console.log();
-                        this.$alert('网络错误，请稍后重试');
+                        this.$alert('登录失败');
                         this.isLogging=false;
                     }
 

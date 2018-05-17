@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>历史数据查询</title>
+    <link rel="stylesheet" href="lib/eleme-index.css">
+    <style>
+        #app {
+            font-size: 14px;
+        }
+
+        span.no-wrap {
+            white-space: nowrap;
+        }
+
+        .demo-table-expand {
+            font-size: 0;
+        }
+
+        .demo-table-expand label {
+            width: 120px;
+            color: #99a9bf;
+        }
+
+        .demo-table-expand .el-form-item {
+            margin-right: 0;
+            margin-bottom: 0;
+            width: 50%;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <el-form label-width="100px">
+        <el-form-item label="时间范围">
+            <el-date-picker
+                v-model="formInput.date"
+                type="daterange"
+                unlink-panels
+                range-separator="至"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
+                :picker-options="pickerOptions">
+            </el-date-picker>
+        </el-form-item>
+        <el-form-item label="相关仓库">
+            <el-select
+                v-model="formInput.repo"
+                filterable
+                placeholder="请选择">
+                <el-option
+                    v-for="repo in repos"
+                    :label="repo.warehouse_name"
+                    :value="repo.warehouse_name">
+                </el-option>
+            </el-select>
+        </el-form-item>
+        <el-form-item label="选择事件类型">
+            <el-radio-group v-model="formInput.eventType">
+                <el-radio-button
+                    v-for="(val, key) in eventTypes"
+                    :label="key">
+                </el-radio-button>
+            </el-radio-group>
+        </el-form-item>
+        <el-form-item>
+            <el-button type="primary" @click="search">查询</el-button>
+        </el-form-item>
+    </el-form>
+    <div>{{ lookupDateText }} 的历史数据 </div>
+    <el-table stripe :data="tableData">
+        <el-table-column type="expand">
+            <template slot-scope="props">
+                <el-form label-position="left" inline class="demo-table-expand">
+                    <el-form-item label="货物本地ID">
+                        <span>{{props.row.goodId}}</span>
+                    </el-form-item>
+                    <el-form-item label="创建时间">
+                        <span>{{props.row.create_time}}</span>
+                    </el-form-item>
+                    <el-form-item label="更新时间">
+                        <span>{{props.row.update_time}}</span>
+                    </el-form-item>
+                    <el-form-item label="发货仓库">
+                        <span>{{props.row.startWarehouseName}}</span>
+                    </el-form-item>
+                    <el-form-item label="申请货物目的仓库">
+                        <span>{{props.row.endWarehouseName}}</span>
+                    </el-form-item>
+                    <el-form-item label="目的地址">
+                        <span>{{props.row.destinationAddress}}</span>
+                    </el-form-item>
+                    <el-form-item label="目的省">
+                        <span>{{props.row.destinationProvince}}</span>
+                    </el-form-item>
+                    <el-form-item label="目的城市">
+                        <span>{{props.row.destinationCity}}</span>
+                    </el-form-item>
+                    <el-form-item label="申请描述">
+                        <span>{{props.row.description}}</span>
+                    </el-form-item>
+                </el-form>
+            </template>
+        </el-table-column>
+        <el-table-column prop="schedule_id" label="调度表ID">
+        </el-table-column>
+        <el-table-column prop="userRealName" label="用户真实姓名">
+        </el-table-column>
+        <el-table-column prop="companyName" label="用户部门名称">
+        </el-table-column>
+        <el-table-column prop="goodName" label="货物名称">
+        </el-table-column>
+        <el-table-column prop="amount" label="申请数量">
+        </el-table-column>
+        <el-table-column prop="isDone" label="是否完成">
+        </el-table-column>
+        <el-table-column prop="isPass" label="请求是否通过">
+        </el-table-column>
+        <el-table-column prop="completetime" label="完成时间">
+        </el-table-column>
+    </el-table>
+</div>
+</body>
+<script src="lib/vue.js"></script>
+<script src="lib/eleme-index.js"></script>
+<script src="res/dependencies.js"></script>
+<script>
+    var post=require('/mods/backend');
+
+    function getDaysBefore(days) {
+        return function(picker) {
+            var end = new Date(),
+                start = new Date();
+            start.setTime(end.getTime() - days * 24 * 3600 * 1000);
+            picker.$emit('pick', [start, end]);
+        }
+    }
+
+    function getMonthsBefore(months) {
+        return function(picker) {
+            var end = new Date(),
+                start = new Date();
+            start.setMonth(end.getMonth() - months)
+            picker.$emit('pick', [start, end]);
+        }
+    }
+
+    var repoItems=[],scheduleItems=[];
+    var pageSize=6,maxPage=0,pageNum=1;
+
+    var app = new Vue({
+        el: '#app',
+        data: {
+            formInput: {
+                date: undefined,
+                repo: '',
+                eventType: ''
+            },
+            repos: repoItems,
+            tableData: scheduleItems,
+            lookupDateText:"",
+            eventTypes: {
+                '出入库事件': 1,
+                '物资调配申请': 2,
+                '物资调配完成': 3
+            },
+            pickerOptions: {
+                shortcuts: [{
+                    text: '最近一周',
+                    onClick: getDaysBefore(7)
+                },{
+                    text: '最近两周',
+                    onClick: getDaysBefore(14)
+                },{
+                    text: '最近一个月',
+                    onClick: getMonthsBefore(1)
+                },{
+                    text: '最近三个月',
+                    onClick: getMonthsBefore(3)
+                },{
+                    text: '最近半年',
+                    onClick: getMonthsBefore(6)
+                },{
+                    text: '最近一年',
+                    onClick: getMonthsBefore(12)
+                }]
+            }
+        },
+        mounted:function(){
+            post('/system/get_warehouse',{
+                pageNum:1,
+                pageSize:100000
+            },(data,err)=>{
+                if(err){
+                    console.log(err);
+                    return
+                }
+                for(var i in data.warehouses){
+                    repoItems.push(data.warehouses[i]);
+                }
+            });
+        },
+        methods:{
+            search:function(){
+                post('/system/schedulehistory',{
+                    event_type:app.formInput.eventType,
+                    WarehouseName:app.formInput.repo,
+                    user_id:localStorage.getItem('id'),
+                    pageNum:1,
+                    start_time:app.dateText.slice(0,19),
+                    end_time:app.dateText.slice(22)
+                },(data,err)=>{
+                    app.lookupDateText=app.dateText;
+                    if(err){
+                        console.log(err);
+                        return
+                    }
+                    console.log(data);
+                    var Schedule=data.Schedule;
+                    for(var i in Schedule){
+                        scheduleItems.push(Schedule[i]);
+                    }
+                })
+            },
+            getWarehouses:function(){
+                post('/system/get_warehouse',{
+                    pageNum:1,
+                    pageSize:100000
+                },(data,err)=>{
+                    if(err){
+                        app.$message.error(err.msg);
+                        return;
+                    }
+                    for(var i in data){
+                        app.repos.push(data[i]);
+                    }
+                });
+            }
+        },
+        computed: {
+            dateText: function() {
+                if (!this.formInput.date) {
+                    return 'xxxx年xx月xx日 ~ xxxx年xx月xx日';
+                }
+
+                var dateFormat = require('dateformat');
+                var dateTexts = this.formInput.date.map(
+                    (d) => dateFormat(d, "yyyy-mm-dd 00:00:00")
+                );
+
+                return dateTexts[0] + " ~ " + dateTexts[1];
+            }
+        }
+    });
+</script>
+</html>

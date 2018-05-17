@@ -6,6 +6,10 @@
     <script src="res/dependencies.js"></script>
     <link rel="stylesheet" href="lib/eleme-index.css">
     <style>
+        [v-cloak] {
+            display: none;
+        }
+
         @font-face {
             font-family: "FZQuSong";
             src: url("res/fonts/FZQuSong.ttf") format("truetype");
@@ -119,11 +123,17 @@
             width: 100%;
             height: 100%;
         }
+
+        .logout{
+            margin:0;
+            padding:3px;
+        }
+
     </style>
 </head>
 <body>
 
-<div id="app" class="full-page flex-column">
+<div id="app" class="full-page flex-column" v-cloak>
     <header class="container">
         <div id="logo-text">
             <img src="res/icon-box.png">
@@ -133,7 +143,8 @@
             <img src="res/user-avatar.png">
             <div>
                 <span class="user-name">{{user.name}}</span>
-                <el-tag type="primary">{{roleText}}</el-tag>
+                <el-tag type="primary" size="medium">{{roleText}}</el-tag>
+                <el-button class="logout" type="warning" size="mini" @click="logout">注销</el-button>
             </div>
         </div>
     </header>
@@ -170,9 +181,19 @@
 </body>
 <script src="lib/vue.js"></script>
 <script src="lib/eleme-index.js"></script>
+<script src="res/dependencies.js"></script>
 <script>
+    function judgeLogin(){
+        post('/common/getms',{
+            pageNum:1
+        },(data,err)=>{
+            if(err.id===post.NOT_LOGIN){
+                window.location.href='login.html';
+            }
+        })
+    }
     var roles = require('/mods/roles');
-
+    var post=require('/mods/backend');
     var app = new Vue({
         el: '#app',
         data: {
@@ -191,17 +212,27 @@
             }
         },
         created: function() {
+            judgeLogin();
             this.user.name = localStorage.getItem('realName');
+            if(this.user.name==null){
+                window.location.href='login.html';
+            }
             this.user.role = roles.backToMine[localStorage.getItem('role')];
             this.token = localStorage.getItem('token');
             this.menus = roles.menus[this.user.role];
         },
         methods: {
             isMenuGroup: function (menu) {
+                judgeLogin();
                 return ('menus' in menu);
             },
             handleSelect: function (url) {
+                judgeLogin();
                 this.router = url;
+            },
+            logout:function(){
+                localStorage.clear();
+                window.location.href="login.html";
             }
         }
     });

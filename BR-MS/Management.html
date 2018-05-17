@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>调配业务管理</title>
+    <link rel="stylesheet" href="lib/eleme-index.css">
+    <style>
+
+    </style>
+</head>
+<body>
+<div id="app">
+    <template>
+        <el-table stripe :data="management">
+            <el-table-column type="expand">
+                <template slot-scope="props">
+                    <el-form label-position="left" inline class="demo-table-expand">
+                        <el-form-item label="用户真实姓名">
+                            <span>{{props.row.userRealName}}</span>
+                        </el-form-item>
+                        <el-form-item label="用户部门名称">
+                            <span>{{props.row.companyName}}</span>
+                        </el-form-item>
+                        <el-form-item label="货物本地ID">
+                            <span>{{props.row.goodId}}</span>
+                        </el-form-item>
+                        <el-form-item label="创建时间">
+                            <span>{{props.row.create_time}}</span>
+                        </el-form-item>
+                        <el-form-item label="更新时间">
+                            <span>{{props.row.update_time}}</span>
+                        </el-form-item>
+                        <el-form-item label="发货仓库">
+                            <span>{{props.row.startWarehouseName}}</span>
+                        </el-form-item>
+                        <el-form-item label="申请货物目的仓库">
+                            <span>{{props.row.endWarehouseName}}</span>
+                        </el-form-item>
+                        <el-form-item label="目的地址">
+                            <span>{{props.row.destinationAddress}}</span>
+                        </el-form-item>
+                        <el-form-item label="目的省">
+                            <span>{{props.row.destinationProvince}}</span>
+                        </el-form-item>
+                        <el-form-item label="目的城市">
+                            <span>{{props.row.destinationCity}}</span>
+                        </el-form-item>
+                        <el-form-item label="申请号">
+                            <span>{{props.row.applicationNum}}</span>
+                        </el-form-item>
+                        <el-form-item label="申请描述">
+                            <span>{{props.row.description}}</span>
+                        </el-form-item>
+                    </el-form>
+                </template>
+            </el-table-column>
+            <el-table-column prop="goodName" label="货物名称">
+            </el-table-column>
+            <el-table-column prop="requestType" label="需求类型">
+            </el-table-column>
+            <el-table-column prop="expectTime" label="期待时间成本">
+            </el-table-column>
+            <el-table-column prop="amount" label="申请数量">
+            </el-table-column>
+            <el-table-column prop="validTime" label="申请单有效时间">
+            </el-table-column>
+            <el-table-column prop="isDone" label="是否完成">
+            </el-table-column>
+            <el-table-column prop="isPass" label="请求是否通过">
+            </el-table-column>
+            <el-table-column prop="completetime" label="完成时间">
+            </el-table-column>
+            <el-table-column label="操作">
+                <template slot-scope="props">
+                    <el-button type="danger" size="mini" @click="cancelReq">撤销</el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+    </template>
+</div>
+</body>
+<script src="lib/vue.js"></script>
+<script src="lib/eleme-index.js"></script>
+<script src="res/dependencies.js"></script>
+<script>
+    var post=require('/mods/backend');
+    var manageItems=[];
+    var app = new Vue({
+        el: '#app',
+        data:function() {
+            return {
+                management:manageItems
+            };
+        },
+        mounted:function(){
+            post('/user/get_current_sche',{
+                pageNum:1
+            },(data,err)=>{
+                if(err){
+                    app.$message.error(err.msg);
+                    return;
+                }
+                console.log(data);
+                for(var i in data.schedules){
+                    manageItems.push(data.schedules[i]);
+                }
+            })
+        },
+        methods: {
+            cancelReq:function(){
+                this.$confirm('确认撤销该物资调配的申请？', null, {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(()=>{
+                    //TODO
+                })
+            }
+
+        }
+    });
+</script>
+
+</html>

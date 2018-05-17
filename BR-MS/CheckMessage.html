@@ -5,138 +5,493 @@
     <title>消息列表 版本2</title>
     <link rel="stylesheet" href="lib/eleme-index.css">
     <style>
+        #search .el-input {
+            width: 140px;
+        }
     </style>
 </head>
 <body>
 <div id="app">
     <!--全部 未读 已读(checkbox) 发送消息(dialog)--><!--status 状态-->
     <el-form>
-        <!--checkbox多选框：进行状态切换--全部 未读 已读-->
-        <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange">全部</el-checkbox>
-        <el-checkbox-group v-model="checkedStatuses" @change="handleCheckedStatusesChange">
-            <el-checkbox v-for="status in statuses" :label="status" :key="status">{{status}}</el-checkbox>
-        </el-checkbox-group>
+        <el-form id="search" :inline="true" ref="queryParams" label-position="right" label-with="80px"
+                 :model="queryParams"
+                 v-loading.fullscreen="initializing" element-loading-text="正在获取数据"
+                 element-loading-background="rgba(0,0,0,0.8)">
+            <el-form-item label="消息类型">
+                <el-select v-model="queryParams.type">
+                    <el-option label="申请注册" value="0"></el-option>
+                    <el-option label="重置密码" value="1"></el-option>
+                    <el-option label="申请物资调配" value="2"></el-option>
+                    <el-option label="申请物资注册" value="3"></el-option>
+                    <el-option label="普通消息" value="4"></el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item label="消息主题">
+                <el-input v-model="queryParams.theme"></el-input>
+            </el-form-item>
+            <el-form-item label="发送者用户名">
+                <el-input v-model="queryParams.sender"></el-input>
+            </el-form-item>
+            <el-form-item>
+                <el-button type="primary" @click="search">查找</el-button>
+                <el-button @click="()=>{
+                for(var i in queryParams){
+                    queryParams[i]='';
+                };
+                search();
+            }">重置
+                </el-button>
+                <el-button type="danger" @click="delSelected">删除所选</el-button>
+            </el-form-item>
+        </el-form>
+        <el-radio-group v-model="checked" @change="handleCheckedStatusesChange">
+            <el-radio :label="1">全部收件</el-radio>
+            <el-radio :label="2">未读</el-radio>
+            <el-radio :label="3">已读</el-radio>
+            <el-radio :label="4">发件箱</el-radio>
+        </el-radio-group>
         <!--dialog对话框：在保留当前页面状态的情况下，告知用户并承载相关操作-->
-        <el-button type="text" @click="dialogVisible=true">发送消息</el-button>
-        <el-dialog title="发送消息" :visible.sync="dialogVisible" width="30%" :before-close="handleClose">
-            <!--弹出对话框的发送信息功能：收件人 标题 正文-->
+        <el-dialog title="发送消息" :visible.sync="dialogVisible" width="800px" :before-close="handleClose">
+            <!--弹出对话框的发送信息功能：收件人 消息主题 正文-->
             <el-form :model="formInput1">
                 <el-form-item label="收件人" :label-width="formLabelWidth">
-                    <el-input placeholder="请输入收件人" v-model="formInput1.name" clearable auto-complete="off"></el-input>
+                    <el-input placeholder="请输入收件人的用户名" v-model="formInput1.recipient" clearable
+                              auto-complete="off"></el-input>
                 </el-form-item>
-                <el-form-item label="标题" :label-width="formLabelWidth">
-                    <el-input placeholder="请输入消息标题" v-model="formInput1.title" clearable auto-complete="off"></el-input>
+                <el-form-item label="消息类型" :label-width="formLabelWidth">
+                    <el-select v-model="formInput1.type" placeholder="请选择">
+                        <el-option label="申请注册" value="0"></el-option>
+                        <el-option label="重置密码" value="1"></el-option>
+                        <el-option label="申请物资调配" value="2"></el-option>
+                        <el-option label="申请物资注册" value="3"></el-option>
+                        <el-option label="普通消息" value="4"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="消息主题" :label-width="formLabelWidth">
+                    <el-input placeholder="请输入消息消息主题" v-model="formInput1.theme" clearable
+                              auto-complete="off"></el-input>
                 </el-form-item>
                 <el-form-item label="正文" :label-width="formLabelWidth">
-                    <el-input type="textarea" :row="10" placeholder="请输入内容" v-model="formInput1.content" auto-complete="off"></el-input>
+                    <el-input type="textarea" :rows="10" placeholder="请输入内容" v-model="formInput1.content"
+                              auto-complete="off"></el-input>
                 </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer"><!--弹出对话框的底部-->
-                <el-button type="primary" @click="dialogVisible=false">确认发送</el-button>
+                <el-button type="primary" @click="send">确认发送</el-button>
                 <el-button @click="dialogVisible=false">取消</el-button>
             </span>
         </el-dialog>
     </el-form>
-    <!--表格 时间 发件人 标题 操作：查看详情(dialog) 标为已读 标为未读 删除一条消息-->
     <template>
         <el-table :data="tableData" stripe style="width:100%" :default-sort="{prop:'date',order:'descending'}">
             <!--fixed 固定了除日期外所有column-->
-            <el-table-column fixed prop="recDate" sortable label="日期" width="130"></el-table-column>
-            <el-table-column fixed prop="senderId" sortable label="发件人" width="100"></el-table-column>
-            <el-table-column prop="title" label="标题" width="400"></el-table-column>
-            <el-table-column fixed="right" label="操作" width="400">
-                <template slot-scope="scope">
+            <el-table-column width="40">
+                <template slot-scope="props">
+                    <el-checkbox v-model="props.row.selected"></el-checkbox>
+                </template>
+            </el-table-column>
+            <el-table-column prop="sender" sortable label="发件人" width="100"></el-table-column>
+            <el-table-column prop="type" label="消息类型" width="150">
+                <template slot-scope="props">
+                    {{['申请注册','重置密码','申请物资调配','申请物资注册','普通消息'][Number(props.row.type)]}}
+                </template>
+            </el-table-column>
+            <el-table-column prop="theme" label="消息主题" width="300"></el-table-column>
+            <el-table-column label="操作">
+                <template slot-scope="props">
                     <!--查看button 嵌套dialog-->
-                    <el-button size="mini" @click="dialog2Visible=true" type="text">查看</el-button>
-                    <el-dialog title="消息详情" :visible.sync="dialog2Visible" width="30%" :before-close="handleClose">
-                        <!--发送信息弹窗：收件人 标题 正文-->
-                        <el-form :model="checkMessage">
-                            <el-form-item label="发件人" :label-width="formLabelWidth">
-                                <el-input v-model="checkMessage.senderId" clearable auto-complete="off"></el-input>
+                    <el-button size="mini" @click="()=>{props.row.dialog2Visible=true}" type="text">查看
+                    </el-button>
+                    <el-dialog title="消息详情" :visible.sync="props.row.dialog2Visible" width="30%"
+                               :before-close="()=>{hasRead(props.row)}">
+                        <!--发送信息弹窗：收件人 消息主题 正文-->
+                        <el-form>
+                            <el-form-item label="发件人:">
+                                <span>{{props.row.sender}}</span>
                             </el-form-item>
-                            <el-form-item label="标题" :label-width="formLabelWidth">
-                                <el-input v-model="checkMessage.title" clearable auto-complete="off"></el-input>
+                            <el-form-item label="主题:">
+                                <span>{{props.row.theme}}</span>
                             </el-form-item>
-                            <el-form-item label="正文" :label-width="formLabelWidth">
-                                <el-input type="textarea" :row="10" v-model="checkMessage.content" auto-complete="off"></el-input>
+                            <el-form-item label="内容:">
+                                <p>{{props.row.content}}</p>
                             </el-form-item>
                         </el-form>
                         <span slot="footer" class="dialog-footer"><!--弹出对话框的底部 返回-->
-                            <el-button @click="dialog2Visible=false">返回</el-button>
+                            <el-button @click="()=>{props.row.dialog2Visible=false;hasRead(props.row)}">返回</el-button>
                         </span>
                     </el-dialog>
-                    <el-button size="mini" @click.native.prevent="handleDeleteMessage(scope.$index,tableData)" type="text" size="mini">删除</el-button>
+                    <el-button size="mini" @click="()=>{handleDeleteMessage(props.row.msg_Id)}"
+                               type="text" size="mini">删除
+                    </el-button>
                 </template>
             </el-table-column>
         </el-table>
     </template>
+    <p style="text-align: center">
+        <el-pagination @current-change="handleCurrentChange" :current-page.sync="pageNum"
+                       :page-size="6" layout="total,prev,pager,next,jumper" :total="total[0]"></el-pagination>
+    </p>
+
+    <p style="text-align: center">
+        <el-button type="primary" @click="dialogVisible=true">+ 发送消息</el-button>
+    </p>
     <!--标为已读 标为未读 删除-->
 </div>
 </body>
 <script src="lib/vue.js"></script>
 <script src="lib/eleme-index.js"></script>
-
+<script src="res/dependencies.js"></script>
 <script>
+    var pageNum = 1, pageSize = 6, maxPage = 0;
+
+    function getData(page, searchKey, unchanged) {
+        clearData(unchanged);
+        var common = {};
+        if (searchKey) {
+            searchKey["pageSize"] = pageSize;
+            searchKey["pageNum"] = page;
+            if (app) {
+                if (read[app.checked] !== null) {
+                    searchKey["isRead"] = read[app.checked];
+                    common["isRead"] = read[app.checked];
+                }
+                if(app.checked===4){
+                    searchKey["sender"]=localStorage.getItem('username');
+                }else{
+                    delete searchKey.sender;
+                }
+            }else{
+                delete searchKey.sender;
+            }
+        }
+        post('/common/getms', searchKey ? {...searchKey} : {
+            pageSize: pageSize,
+            pageNum: page, ...common
+        }, (data, err) => {
+            app.pageNum = page;
+            app.initializing = false;
+            console.log(data);
+            if (err) {
+                if (err.id !== 4003) {
+                    app.$message.error(err.msg);
+                    app.initializing = false;
+                }
+                if (err.id === post.NOT_LOGIN) {
+
+                }
+                return;
+            }
+            if (unchanged !== true) {
+                totalCompute(searchKey);
+                maxPageRef.push(data.allPages);
+            }
+            var msg = data.SysMessage
+            console.log(msg);
+            for (var i in msg) {
+                msg[i]['dialog2Visible'] = false;
+                msg[i]['selected'] = false;
+                items.push(msg[i]);
+            }
+        });
+    }
+
+    function totalCompute(searchKey) {
+        if (searchKey) {
+            var needed = {
+                theme: searchKey.theme,
+                type: searchKey.type,
+                sender: searchKey.sender
+            };
+        }
+        var common1 = {
+            pageNum: 1
+        };
+        var common2 = {};
+        if (app.checked === 2) {
+            common1['isRead'] = 0;
+            common2['isRead'] = 0;
+        } else if (app.checked === 3) {
+            common1['isRead'] = 1;
+            common2['isRead'] = 1;
+        }
+        post('/common/getms', searchKey ? {...needed, ...common1} : common1, (data) => {
+            maxPage = data.allPages;
+            common2['pageNum'] = maxPage;
+            post('/common/getms', searchKey ? {...needed, ...common2} : common2, (data) => {
+                var arr = [], msg = data.SysMessage;
+                for (var key in msg) {
+                    arr.push(msg[key]);
+                }
+                lastPageItems = arr.length;
+                total = pageSize * (maxPage - 1) + lastPageItems;
+                totalRef.push(total);
+            });
+        });
+    }
+
+    function clearData(unchanged) {
+        for (let i = 0; i < pageSize; i++) {
+            items.pop();
+        }
+        if (unchanged !== true) {
+            for (let i = 0; i < maxPageRef.length; i++) {
+                maxPageRef.pop();
+            }
+            for (let i = 0; i < totalRef.length; i++) {
+                totalRef.pop();
+            }
+        }
+    }
+
+    function clearForm() {
+        for (var i in app.formInput1) {
+            app.formInput1[i] = "";
+        }
+    }
+
+    function pageControl(control, searchKey) {
+
+        if (control === 'previous') {
+            if (pageNum <= 1) {
+                return;
+            }
+            pageNum -= 1;
+            getData.call(app, pageNum, searchKey);
+        } else if (control === 'next') {
+            if (pageNum >= maxPage) {
+                return;
+            }
+            pageNum += 1;
+            getData.call(app, pageNum, searchKey);
+        } else if (control === 'first') {
+            pageNum = 1;
+            getData.call(app, pageNum, searchKey);
+        } else if (control === 'last') {
+            pageNum = maxPage;
+            getData.call(app, pageNum, searchKey);
+        } else if (control === 'stay') {
+            getData.call(app, pageNum, searchKey);
+        }
+    }
+
+    var delList = [];
+    var read = [null, null, 0, 1];
+    var items = [];
+    var pageNum = 1, pageSize = 6, maxPage = 0, total = 0, lastPageItems = 0;
+    var maxPageRef = [], totalRef = [];
+    var searchKey = {
+    };
+    var post = require('/mods/backend');
     var app = new Vue({
         el: '#app',
-        const:statusOptions = ['未读', '已读'],
         data: function () {
-            const statusOptions = ['未读', '已读']
             return {
                 <!--全部 未读 已读checkbox多选框 -->
-                checkAll: false,
-                checkedStatuses: [],
-                statuses: statusOptions,
+                checked: 2,
+                dialogVisible: false,
                 isIndeterminate: true,
-                dialogVisible:false,
+                initializing: true,
+                pageNum: pageNum,
+                tempPage: null,
+                maxPage: maxPageRef,
+                total: totalRef,
                 <!--发送消息 弹窗-->
-                formInput1:{
-                    name:'',
-                    title:'',
-                    content:''
+                formInput1: {
+                    recipient: '',
+                    theme: '',
+                    content: '',
+                    type: '',
+                    recipient: ''
                 },
-                formLabelWidth:'120px',
-                <!--页面中table中 假数据-->
-                tableData:[{
-                    recDate:'2018-5-10',
-                    senderId:'匿名',
-                    title:''
-                },{
-                    recDate:'2018-5-9',
-                    senderId:'匿名',
-                    title:'你打开看看呀！'
-                }],
-                <!--查看button 及 假数据-->
-                dialog2Visible:false,
-                checkMessage:{
-                    senderId:'匿名',
-                    title:'你打开看看呀！',
-                    content:'（一jio踹飞！）'
-                }
+                queryParams: {
+                    theme: null,
+                    type: null,
+                    sender: null
+                },
+                formLabelWidth: '120px',
+                tableData: items,
+                dialog2Visible: false
             }
         },
+        mounted: function () {
+            getData(1, {isRead: 0});
+        },
         methods: {
-            <!--全部 已读 未读 状态切换-->
-            handleCheckAllChange(val) {
-                this.checkedStatuses = val ? statusOptions : [];
-                this.isIndeterminate = false;
+            handleCurrentChange: (page) => {
+                getData.call(app, page, searchKey);
             },
-            handleCheckedStatusesChange(value) {
-                let checkedCount = value.length;
-                this.checkAll = checkedCount === this.statuses.length;
-                this.isIndeterminate = checkedCount > 0 && checkedCount < this.statuses.length;
+            handleCheckedStatusesChange() {
+                app.initializing = true;
+                if (app.checked === 1) {
+                    searchKey = {};
+                } else if (app.checked === 2) {
+                    searchKey = {isRead: 0};
+                } else if (app.checked === 3) {
+                    searchKey = {isRead: 1};
+                }
+                app.search();
             },
             <!--所有弹窗右上角关闭时确认关闭-->
-            handleClose(done){
-                this.$confirm('确认关闭？')
-                    .then(_=>{
-                        done();
-                    })
-                    .catch(_=>{});
+            handleClose(done) {
+                let count = 0;
+                for (var i in app.formInput1) {
+                    if (app.formInput1[i] == "")
+                        count++;
+                }
+                if (count === 5) {
+                    done();
+                } else {
+                    this.$confirm('确认关闭？')
+                        .then(() => {
+                            clearForm();
+                            done();
+                        })
+                        .catch(() => {
+                        });
+                }
             },
             <!--操作：删除button-->
-            handleDeleteMessage(index,rows){
-                rows.splice(index,1);
+            handleDeleteMessage(msg_Id) {
+                this.$confirm('确认删除这条消息？', null, {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    console.log(msg_Id);
+                    post('/common/deletems', {
+                        msg_Id: Number(msg_Id),
+                        isDel: 0
+                    }, (data, err) => {
+                        if (err) {
+                            app.$message.error(err.msg);
+                            app.initializing = false;
+                            if (err.id === post.NOT_LOGIN) {
+
+                            }
+                            app.initializing = false;
+                            return;
+                        }
+                        app.initializing = true;
+                        if (app.pageNum !== maxPageRef[0]) {
+                            getData(maxPageRef[0], searchKey);
+                        } else {
+                            if (app.pageNum !== 1) {
+                                getData(maxPageRef[0] - 1, searchKey);
+                            }
+                        }
+                    });
+                })
+            },
+            delSelected: function () {
+                this.$confirm('确认删除所选消息？', null, {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    var idToDel = [];
+                    for (var key in app.tableData) {
+                        if (app.tableData[key]['selected'] === true) {
+                            idToDel.push(app.tableData[key]['msg_Id']);
+                        }
+                    }
+                    delList = idToDel;
+                    for (let i in idToDel) {
+                        post('/common/deletems', {
+                            msg_Id: idToDel[i]
+                        }, (data, err) => {
+                            console.log(i);
+                            if (err) {
+                                app.$message.error(err.msg);
+                                app.initializing = false;
+                                return;
+                            }
+                        });
+                    }
+                }).then(() => {
+                    var len = delList.length;
+                    if (app.pageNum !== maxPageRef[0]) {
+                        getData(maxPageRef[0], searchKey);
+                    } else {
+                        if (len == lastPageItems) {
+                            if (app.pageNum !== 1) {
+                                getData(maxPageRef[0] - 1, searchKey);
+                            } else {
+                                getData(maxPageRef[0], searchKey);
+                            }
+                        } else {
+                            getData(maxPageRef[0], searchKey);
+                        }
+                    }
+                })
+            },
+            send: function () {
+                post('/common/addms', {
+                    theme: app.formInput1.theme,
+                    content: app.formInput1.content,
+                    type: app.formInput1.type,
+                    recipient: app.formInput1.recipient
+                }, (data, err) => {
+                    app.initializing = false;
+                    if (err) {
+                        app.$message.error(err.msg);
+                        app.initializing = false;
+                        if (err.id === post.NOT_LOGIN) {
+
+                        }
+                        return;
+                    }
+                    this.$message({
+                        type: "success",
+                        message: '发送成功'
+                    })
+                    app.dialogVisible = false;
+                    app.initializing = true;
+                    pageControl('stay', searchKey);
+                    app.loading = false;
+                })
+            },
+            hasRead: function (row) {
+                row.dialog2Visible = true;
+                post('/common/readedms', {
+                    msg_Id: row.msg_Id,
+                    isDel: 0
+                }, (data, err) => {
+                    if (err) {
+                        app.$message.error(err.msg);
+                        app.initializing = false;
+                        if (err.id === post.NOT_LOGIN) {
+
+                        }
+                        app.initializing = false;
+                        return;
+                    }
+                    pageControl('stay', searchKey);
+                    console.log(data);
+                    console.log(err);
+                    app.initializing = false;
+                });
+            },
+            search: function () {
+                app.initializing = true;
+                var validate = {"pageSize": pageSize, "pageNum": pageNum};
+                for (var i in app.queryParams) {
+                    if (app.queryParams[i] !== null && app.queryParams[i] !== "") {
+                        if (i === 'sender_Id') {
+                            validate[i] = Number(app.queryParams[i]);
+                        } else {
+                            validate[i] = app.queryParams[i];
+                        }
+                    }
+                }
+                if (app.checked === 2) {
+                    validate['isRead'] = 0;
+                } else if (app.checked === 3) {
+                    validate['isRead'] = 1;
+                }
+                console.log("123", validate);
+                searchKey = validate;
+                pageControl.call(app, 'stay', validate);
             }
         }
     })

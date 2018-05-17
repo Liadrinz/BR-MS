@@ -18,14 +18,14 @@
   },
   "homepage": "https://github.com/Liadrinz/BR-MS#readme",
   "devDependencies": {
-    "axios": "^0.18.0",
     "babel-core": "^6.26.3",
     "babel-plugin-add-module-exports": "^0.2.1",
     "babel-preset-env": "^1.6.1",
     "babelify": "^8.0.0",
     "browserify": "^16.2.0",
+    "dateformat": "^3.0.3",
+    "element-china-area-data": "^4.1.0",
     "jquery": "^3.3.1",
-    "es6-promise": "^4.2.4",
     "uglify-js": "^3.3.24",
     "verify-identity-card": "0.0.2"
   },
