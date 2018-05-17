@@ -2,33 +2,49 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>修改个人信息</title>
+    <title>ElementUI + Vue 模板</title>
+    <!--随时参考 element文档 http://element-cn.eleme.io/#/zh-CN/component/installation-->
     <link rel="stylesheet" href="lib/eleme-index.css">
+    <style>
+
+    </style>
 </head>
 <body>
+
 <div id="app">
-    <h3>用户信息</h3>
-    <el-form :model="form" label-width>
-        <el-form-item label="证件类型">
-            <span>{{userInfo.}}</span>
-        </el-form-item>
-    </el-form>
+
 </div>
 </body>
+<!-- 这是 JS 代码，一定要放在 <body> 后面 -->
 <script src="lib/vue.js"></script>
 <script src="lib/eleme-index.js"></script>
+<script src="res/dependencies.js"></script>
 <script>
+    var post=require('/mods/backend')
+    var items=[];
     var app = new Vue({
         el: '#app',
-        data: {
-            userInfo: {
+        data: function () {
+            return {
+                myInfo:items,
+                editedForm:{
 
-            },
-            form: {
-
+                }
             }
-        },        
+        },
+        mounted:function(){
+            post('/common/get_my_info',{id:33},(data,err)=>{
+                if(err){
+                    app.$message.error(err.msg);
+                }
+                console.log(data);
+                for(var i in data){
+                    items.push(data[i]);
+                }
+            })
+        },
         methods: {
+
         }
     });
 </script>

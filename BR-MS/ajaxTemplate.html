@@ -31,11 +31,8 @@
         },
         methods: {
             test:function(){
-                post('/system/schedulehistory',{
-                    event_type:1,
-                    WarehouseName:'001仓',
-                    user_id:localStorage.getItem('username'),
-                    pageNum:1
+                post('/common/get_my_info',{
+                    id:33
                 },(data,err)=>{
                     console.log(data);
                 });
