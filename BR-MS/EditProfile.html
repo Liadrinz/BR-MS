@@ -3,8 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <title>修改个人信息</title>
+    <link rel="stylesheet" href="lib/eleme-index.css">
 </head>
 <body>
-
+<div id="app">
+    <h3>用户信息</h3>
+    <el-form :model="form" label-width>
+        <el-form-item label="证件类型">
+            <span>{{userInfo.}}</span>
+        </el-form-item>
+    </el-form>
+</div>
 </body>
+<script src="lib/vue.js"></script>
+<script src="lib/eleme-index.js"></script>
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            userInfo: {
+
+            },
+            form: {
+
+            }
+        },        
+        methods: {
+        }
+    });
+</script>
 </html>
