@@ -11,38 +11,23 @@
 <body>
 <div id="app">
     <template>
-        <el-table stripe :data="management">
-            <el-table-column type="expand">
-                <template slot-scope="props">
-                    <el-form label-position="left" inline class="demo-table-expand">
-                        <el-form-item label="货物本地ID">
-                            <span>{{props.row.goodId}}</span>
-                        </el-form-item>
-                        <el-form-item label="创建时间">
-                            <span>{{props.row.create_time}}</span>
-                        </el-form-item>
-                        <el-form-item label="更新时间">
-                            <span>{{props.row.update_time}}</span>
-                        </el-form-item>
-                        <el-form-item label="发货仓库">
-                            <span>{{props.row.startWarehouseName}}</span>
-                        </el-form-item>
-                        <el-form-item label="申请货物目的仓库">
-                            <span>{{props.row.endWarehouseName}}</span>
-                        </el-form-item>
-                        <el-form-item label="目的地址">
-                            <span>{{props.row.destinationAddress}}</span>
-                        </el-form-item>
-                        <el-form-item label="目的省">
-                            <span>{{props.row.destinationProvince}}</span>
-                        </el-form-item>
-                        <el-form-item label="目的城市">
-                            <span>{{props.row.destinationCity}}</span>
-                        </el-form-item>
-                        <el-form-item label="申请描述">
-                            <span>{{props.row.description}}</span>
-                        </el-form-item>
-                    </el-form>
+        <el-table :data="management" style="width: 100%">
+            <el-table-column prop="goodId" label="物资编号" width="180"></el-table-column>
+            <el-table-column prop="goodName" label="物资名称" width="180"></el-table-column>
+            <el-table-column prop="applicationDate" label="申请日期"></el-table-column> <!--无接口名-->
+            <el-table-column prop="approvalDate" label="批准日期"></el-table-column>    <!--无接口名-->
+            <el-table-column prop="outboundDate" label="出库日期"></el-table-column>    <!--无接口名-->
+            <el-table-column prop="storageDate" label="入库日期"></el-table-column>     <!--无接口名-->
+            <el-table-column prop="state" label="状态"></el-table-column>
+            <el-table-column label="操作">
+                <template slot-scope="scope">
+                    <el-button type="text" size="small" @click="dialogVisible=true">详情</el-button>
+                    <el-dialog title="调配详情" :visible.sync="dialogVisible" :before-close="handleClose">
+                        <span slot="footer" class="dialog-footer">
+                            <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+                        </span>
+                    </el-dialog>
+                    <el-button @click.native.prevent="deleteRow(scope.$index, management)" type="text" size="small">撤销</el-button>
                 </template>
             </el-table-column>
             <el-table-column prop="schedule_id" label="调度表ID">
@@ -76,7 +61,15 @@
         el: '#app',
         data:function() {
             return {
-                management: manageItems,
+                management: [{
+                    goodId: '00001',
+                    goodName: '除蚊电器',
+                    applicationDate: '2018-5-13',
+                    approvalDate: '2018-5-14',
+                    outboundDate: '2018-5-14',
+                    storageDate: '2018-5-14',
+                    state: '调配'
+                }],
                 dialogVisible: false
             };
         },
