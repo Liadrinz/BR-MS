@@ -11,34 +11,58 @@
 <body>
 <div id="app">
     <template>
-        <el-table :data="management" style="width: 100%">
-            <el-table-column prop="goodId" label="物资编号" width="180"></el-table-column>
-            <el-table-column prop="goodName" label="物资名称" width="180"></el-table-column>
-            <el-table-column prop="applicationDate" label="申请日期"></el-table-column> <!--无接口名-->
-            <el-table-column prop="approvalDate" label="批准日期"></el-table-column>    <!--无接口名-->
-            <el-table-column prop="outboundDate" label="出库日期"></el-table-column>    <!--无接口名-->
-            <el-table-column prop="storageDate" label="入库日期"></el-table-column>     <!--无接口名-->
-            <el-table-column prop="state" label="状态"></el-table-column>
-            <el-table-column label="操作">
-                <template slot-scope="scope">
-                    <el-button type="text" size="small" @click="dialogVisible=true">详情</el-button>
-                    <el-dialog title="调配详情" :visible.sync="dialogVisible" :before-close="handleClose">
-                        <span slot="footer" class="dialog-footer">
-                            <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
-                        </span>
-                    </el-dialog>
-                    <el-button @click.native.prevent="deleteRow(scope.$index, management)" type="text" size="small">撤销</el-button>
+        <el-table stripe :data="management">
+            <el-table-column type="expand">
+                <template slot-scope="props">
+                    <el-form label-position="left" inline class="demo-table-expand">
+                        <el-form-item label="用户真实姓名">
+                            <span>{{props.row.userRealName}}</span>
+                        </el-form-item>
+                        <el-form-item label="用户部门名称">
+                            <span>{{props.row.companyName}}</span>
+                        </el-form-item>
+                        <el-form-item label="货物本地ID">
+                            <span>{{props.row.goodId}}</span>
+                        </el-form-item>
+                        <el-form-item label="创建时间">
+                            <span>{{props.row.create_time}}</span>
+                        </el-form-item>
+                        <el-form-item label="更新时间">
+                            <span>{{props.row.update_time}}</span>
+                        </el-form-item>
+                        <el-form-item label="发货仓库">
+                            <span>{{props.row.startWarehouseName}}</span>
+                        </el-form-item>
+                        <el-form-item label="申请货物目的仓库">
+                            <span>{{props.row.endWarehouseName}}</span>
+                        </el-form-item>
+                        <el-form-item label="目的地址">
+                            <span>{{props.row.destinationAddress}}</span>
+                        </el-form-item>
+                        <el-form-item label="目的省">
+                            <span>{{props.row.destinationProvince}}</span>
+                        </el-form-item>
+                        <el-form-item label="目的城市">
+                            <span>{{props.row.destinationCity}}</span>
+                        </el-form-item>
+                        <el-form-item label="申请号">
+                            <span>{{props.row.applicationNum}}</span>
+                        </el-form-item>
+                        <el-form-item label="申请描述">
+                            <span>{{props.row.description}}</span>
+                        </el-form-item>
+                    </el-form>
                 </template>
-            </el-table-column>
-            <el-table-column prop="schedule_id" label="调度表ID">
-            </el-table-column>
-            <el-table-column prop="userRealName" label="用户真实姓名">
-            </el-table-column>
-            <el-table-column prop="companyName" label="用户部门名称">
             </el-table-column>
             <el-table-column prop="goodName" label="货物名称">
             </el-table-column>
+            <el-table-column prop="requestType" label="需求类型">
+            </el-table-column>
+            <el-table-column prop="expectTime" label="期待时间成本">
+            </el-table-column>
             <el-table-column prop="amount" label="申请数量">
+            </el-table-column>
+            <el-table-column prop="validTime" label="申请单有效时间">
             </el-table-column>
             <el-table-column prop="isDone" label="是否完成">
             </el-table-column>
@@ -46,9 +70,13 @@
             </el-table-column>
             <el-table-column prop="completetime" label="完成时间">
             </el-table-column>
+            <el-table-column label="操作">
+                <template slot-scope="props">
+                    <el-button type="danger" size="mini" @click="cancelReq">撤销</el-button>
+                </template>
+            </el-table-column>
         </el-table>
     </template>
-
 </div>
 </body>
 <script src="lib/vue.js"></script>
@@ -61,16 +89,7 @@
         el: '#app',
         data:function() {
             return {
-                management: [{
-                    goodId: '00001',
-                    goodName: '除蚊电器',
-                    applicationDate: '2018-5-13',
-                    approvalDate: '2018-5-14',
-                    outboundDate: '2018-5-14',
-                    storageDate: '2018-5-14',
-                    state: '调配'
-                }],
-                dialogVisible: false
+                management:manageItems
             };
         },
         mounted:function(){
@@ -88,16 +107,15 @@
             })
         },
         methods: {
-            deleteRow(index, rows) {
-                rows.splice(index, 1);
-            },
-            handleClose(done) {
-                this.$confirm('确认关闭？')
-                    .then(_ => {
-                        done();
-                    })
-                    .catch(_ => {});
-            },
+            cancelReq:function(){
+                this.$confirm('确认撤销该物资调配的申请？', null, {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(()=>{
+                    //TODO
+                })
+            }
 
         }
     });
