@@ -16,6 +16,11 @@
             {{checkList}} <br>
             <el-ext-foldable :options="[1,2,3,4,5,6,7,8]" v-model="checkList"></el-ext-foldable>
         </div>
+    
+    属性说明：
+        options: Array 供选择的项
+    
+    注：用v-model可得到当前所选的项（Array）    
 */
 
 var template = 
