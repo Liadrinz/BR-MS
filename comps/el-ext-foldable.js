@@ -1,3 +1,23 @@
+/*
+    使用方法：
+    · 必须注册组件（在new Vue的时候注册）
+        const ElExtFoldable = require('/comps/el-ext-foldable');
+
+        var app = new Vue({
+            // 别的设置...
+            components: {
+                ElExtFoldable: ElExtFoldable
+            }
+        })
+
+    · 在HTML中使用<el-ext-foldable></el-ext-foldable>
+    示例代码：
+        <div id="app">
+            {{checkList}} <br>
+            <el-ext-foldable :options="[1,2,3,4,5,6,7,8]" v-model="checkList"></el-ext-foldable>
+        </div>
+*/
+
 var template = 
 `<div :style="style">
   <div style="float: right; z-index: 1;">
