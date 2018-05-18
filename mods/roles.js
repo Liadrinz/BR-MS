@@ -4,7 +4,9 @@ var pages = {
     "用户列表": "UserQuery.html",
     "消息": "CheckMessage.html",
     "历史申请查询": "HistoryLookup.html",
-    "调配业务管理": "Management.html"
+    "调配业务管理": "Management.html",
+    "个人信息修改":"EditProfile.html",
+    "密码修改":"NewPassword.html"
 };
 
 // Get menus like [{name: ..., url: ...}, ...] from menulist.
@@ -72,7 +74,9 @@ export default {
         normal: getMenus([
             "调配业务管理",
             "历史申请查询",
-            "消息"
+            "消息",
+            "个人信息修改",
+            "密码修改"
         ])
     }
 };

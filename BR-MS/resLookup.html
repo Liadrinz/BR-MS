@@ -52,7 +52,7 @@
                     </el-form-item>
                 </el-form>
                 <el-form-item>
-                    <el-button size="mini">查询</el-button>
+                    <el-button size="mini" @click="search">查询</el-button>
                 </el-form-item>
             </el-form>
             <hr>
@@ -140,6 +140,7 @@
                         </template>
                     </el-table-column>
                 </el-table>
+                <pagination
                 <hr>
                 <div style="margin-top:10px">
                     <el-button size="mini">申请调配所选项</el-button>
@@ -156,8 +157,34 @@
 <script src="res/dependencies.js"></script>
 <script>
     //交互没写
+    var post=require('/mods/backend');
+    var searchKey={};
+    var items=[];
+    var pageNum=1,pageSize=6,maxPage=0;
+
     const ChinaAreaData = require('element-china-area-data').
         provinceAndCityData;
+
+    function getData(searchKey){
+        clearData();
+        post('/common/user_goods/query',searchKey,(data,err)=>{
+            console.log(data);
+            if(err){
+                app.$message.error(err.msg);
+                return;
+            }
+            //TODO
+            for(var i in data.overview){
+                items.push(data.overview[i]);
+            }
+        })
+    }
+
+    function clearData(){
+        while(items[0]!==undefined){
+            items.pop();
+        }
+    }
 
     var app = new Vue({
         el: '#app',
@@ -170,16 +197,7 @@
             areaData: ChinaAreaData,
             dialogMoreVisible:false,
             dialogAllocateVisible:false,
-            resultData: [{
-                locallId: '',
-                goodsName: '',
-                producerName: '',
-                norms: '',
-                warehouseId: '',
-                quantity: '',
-                address: '',
-                state: ''
-            }],
+            resultData:items,
             applicationForm:[{
                 userRealName:'',
                 companyName:'',
@@ -213,6 +231,21 @@
                         done();
                     })
                     .catch(_=>{})
+            },
+            search:function(){
+                var data={
+                    stateId:app.stateId,
+                    type:null,
+                    province:app.selectedLocations[0],
+                    city:app.selectedLocations[1],
+                    produceTime:app.produceTime
+                };
+                for(var i in data){
+                    if(data[i]!==null&&data[i]!==""){
+                        searchKey[i]=data[i];
+                    }
+                }
+                getData(searchKey);
             }
         }
     });

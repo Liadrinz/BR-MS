@@ -84,12 +84,9 @@
         </el-dialog>
     </el-form>
     <template>
-        <el-table :data="tableData" stripe style="width:100%" :default-sort="{prop:'date',order:'descending'}">
+        <el-table ref="multipleTable" :data="tableData" stripe style="width:100%" :default-sort="{prop:'date',order:'descending'}">
             <!--fixed 固定了除日期外所有column-->
-            <el-table-column width="40">
-                <template slot-scope="props">
-                    <el-checkbox v-model="props.row.selected"></el-checkbox>
-                </template>
+            <el-table-column prop="selected" type="selection" width="40" @selection-change="handleSelectionChange">
             </el-table-column>
             <el-table-column prop="sender" sortable label="发件人" width="100"></el-table-column>
             <el-table-column prop="type" label="消息类型" width="150">
@@ -288,6 +285,7 @@
         data: function () {
             return {
                 <!--全部 未读 已读checkbox多选框 -->
+                multipleSelection:[],
                 checked: 2,
                 dialogVisible: false,
                 isIndeterminate: true,
@@ -318,6 +316,9 @@
             getData(1, {isRead: 0});
         },
         methods: {
+            handleSelectionChange:(val)=>{
+
+            },
             handleCurrentChange: (page) => {
                 getData.call(app, page, searchKey);
             },
@@ -489,7 +490,6 @@
                 } else if (app.checked === 3) {
                     validate['isRead'] = 1;
                 }
-                console.log("123", validate);
                 searchKey = validate;
                 pageControl.call(app, 'stay', validate);
             }
