@@ -259,16 +259,10 @@
                 warehouse_location: searchKey.warehouse_location
             };
         }
-        var common1 = {
-            pageNum: 1
-        };
-        var common2={
-
-        }
-        post('/system/get_warehouse',{pageNum:1},(data) => {
+        post('/system/get_warehouse',searchKey?{...searchKey}:{pageNum:1},(data) => {
             maxPage=data.allPages;
-            common2['pageNum']=maxPage;
-            post('/system/get_warehouse', {pageNum:maxPage-1}, (data) => {
+            searchKey['pageNum']=maxPage;
+            post('/system/get_warehouse', searchKey?{...searchKey}:{pageNum:maxPage}, (data) => {
                 var arr=[],warehouses=data.warehouses;
                 for(var key in warehouses){
                     arr.push(warehouses[key]);
@@ -391,6 +385,10 @@
         },
         methods: {
             handleEditionClick:function(row){
+                app.editedForm.country={
+                    '中国':1,
+                    '其他':2
+                }[row.country]
                 if(row.province==row.city){
                     app.selectedLocations=[TTC[row.province]['code'],TTC[row.province]['市辖区']['code'],TTC[row.province]['市辖区'][row.county]['code']];
                 }else{
@@ -398,6 +396,7 @@
                 }
             },
             handleCurrentChange: (page) => {
+                app.pageNum=page;
                 getData.call(app, page,searchKey,true);
             },
             convertPages: (control) => {
@@ -424,7 +423,7 @@
                                 message: '修改成功'
                             });
                             app.initializing=true;
-                            pageControl.call(this, 'stay',null,true);
+                            getData(app.pageNum,searchKey);
                             app.loading = false;
                             app.dialogVisible = false;
                         });
