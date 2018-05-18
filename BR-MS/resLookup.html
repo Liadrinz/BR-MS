@@ -20,7 +20,7 @@
                 <!--  物资状态  -->
                 <el-form :inline="true">
                     <el-form-item label="物资状态：" size="mini">
-                        <el-radio-group v-model="statusRadio">
+                        <el-radio-group v-model="stateId">
                             <el-radio label="1" border>不限</el-radio>
                             <el-radio label="2" border>调配</el-radio>
                             <el-radio label="3" border>占用</el-radio>
@@ -46,7 +46,7 @@
                 <!--  生产日期  -->
                 <el-form>
                     <el-form-item label="生产日期：" size="mini">
-                        <el-date-picker v-model="produceDate" type="date" placeholder="选择日期" format="yyyy年MM月dd日"
+                        <el-date-picker v-model="produceTime" type="date" placeholder="选择日期" format="yyyy年MM月dd日"
                                         value-format="yyyy-MM-dd"></el-date-picker>
                         <span>后</span>
                     </el-form-item>
@@ -62,14 +62,14 @@
                           @selection-change="handleSelectionChange">
                     <el-table-column type="selection" width="55"></el-table-column>
                     <el-table-column type="index" :index="indexMethod"></el-table-column>
-                    <el-table-column prop="goodId" label="物资编号"></el-table-column>
-                    <el-table-column prop="goodName" label="物资名称"></el-table-column>
-                    <el-table-column prop="manufacturer" label="生产厂商"></el-table-column><!--无接口名-->
-                    <el-table-column prop="specification" label="规格"></el-table-column>   <!--无接口名-->
-                    <el-table-column prop="startWarehouseName" label="所在仓库"></el-table-column>
-                    <el-table-column prop="inventory" label="库存数量"></el-table-column>   <!--无接口名-->
+                    <el-table-column prop="localId" label="物资编号"></el-table-column>
+                    <el-table-column prop="goodsName" label="物资名称"></el-table-column>
+                    <el-table-column prop="producerName" label="生产厂商"></el-table-column><!--无接口名-->
+                    <el-table-column prop="norms" label="规格"></el-table-column>   <!--无接口名-->
+                    <el-table-column prop="warehouseId" label="所在仓库"></el-table-column>
+                    <el-table-column prop="quantity" label="库存数量"></el-table-column>   <!--无接口名-->
                     <el-table-column prop="address" label="仓库地址"></el-table-column>     <!--无接口名-->
-                    <el-table-column prop="status" label="状态"></el-table-column>          <!--无接口名-->
+                    <el-table-column prop="state" label="状态"></el-table-column>          <!--无接口名-->
                     <el-table-column label="" width="200">
                         <template slot-scope="scope">
                             <el-button size="mini" type="text" @click="dialogMoreVisible=true">详情</el-button>
@@ -162,23 +162,23 @@
     var app = new Vue({
         el: '#app',
         data: {
-            statusRadio: '',    /* 1.物资状态筛选statusRadio */
+            stateId: '',
             locationRadio: '',  /* 3.地理位置不限locationRadio */
-            produceDate: '',    /* 4.生产日期选择produceDate  */
+            produceTime: '',
             selectedLocations: [],
             multiplySelection: [],
             areaData: ChinaAreaData,
             dialogMoreVisible:false,
             dialogAllocateVisible:false,
             resultData: [{
-                goodId: '',
-                goodName: '',
-                manufacturer: '',
-                specification: '',
-                startWarehouseName: '',
-                inventory: '',
+                locallId: '',
+                goodsName: '',
+                producerName: '',
+                norms: '',
+                warehouseId: '',
+                quantity: '',
                 address: '',
-                status: ''
+                state: ''
             }],
             applicationForm:[{
                 userRealName:'',
