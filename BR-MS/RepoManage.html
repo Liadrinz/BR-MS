@@ -106,6 +106,7 @@
                 <el-button type="warning" size="mini" @click="()=>{
                     props.row.dialogVisible=true;
                     editedForm={...props.row};
+                    handleEditionClick(props.row);
                 }">修改信息
                 </el-button>
                 <el-button type="danger" size="mini" @click="()=>{confirmDelete(props.row.warehouse_id)}">删除仓库
@@ -135,21 +136,19 @@
                         <el-form-item label="纬度" prop="latitude">
                             <el-input v-model="editedForm.latitude" clearable></el-input>
                         </el-form-item>
-                        <el-form-item label="国家" prop="country">
-                            <el-input v-model="editedForm.country" clearable></el-input>
+                        <el-form-item label="国家" prop="country" required>
+                            <el-select v-model="editedForm.country">
+                                <el-option :value="1" label="中国"></el-option>
+                            </el-select>
+                            <span class="tips"></span>
                         </el-form-item>
                         <el-form-item label="战区" prop="area">
                             <el-input v-model="editedForm.area" clearable></el-input>
                             <span class="tips">示例：东部/中部/西部...</span>
                         </el-form-item>
-                        <el-form-item label="省" prop="province">
-                            <el-input v-model="editedForm.province" clearable></el-input>
-                        </el-form-item>
-                        <el-form-item label="城市" prop="city">
-                            <el-input v-model="editedForm.city" clearable></el-input>
-                        </el-form-item>
-                        <el-form-item label="区" prop="county">
-                            <el-input v-model="editedForm.county" clearable></el-input>
+                        <el-form-item label="省市区" size="mini" prop="selectedLocations" required>
+                            <el-cascader :options="areaData" v-model="selectedLocations" size="large"></el-cascader>
+                            <p class="tips">选择省市</p>
                         </el-form-item>
                         <el-form-item label="详细地址" prop="detail_location">
                             <el-input v-model="editedForm.detail_location" clearable></el-input>
@@ -194,22 +193,19 @@
             <el-form-item label="纬度" prop="latitude">
                 <el-input v-model="addForm.latitude" clearable></el-input>
             </el-form-item>
-            <el-form-item label="国家" prop="country">
-                <el-input v-model="addForm.country" clearable></el-input>
+            <el-form-item label="国家" prop="country" required>
+                <el-select v-model="addForm.country">
+                    <el-option :value="1" label="中国"></el-option>
+                </el-select>
                 <span class="tips"></span>
             </el-form-item>
             <el-form-item label="战区" prop="area">
                 <el-input v-model="addForm.area" clearable></el-input>
                 <span class="tips">示例：东部/中部/西部...</span>
             </el-form-item>
-            <el-form-item label="省" prop="province">
-                <el-input v-model="addForm.province" clearable></el-input>
-            </el-form-item>
-            <el-form-item label="城市" prop="city">
-                <el-input v-model="addForm.city" clearable></el-input>
-            </el-form-item>
-            <el-form-item label="区" prop="county">
-                <el-input v-model="addForm.county" clearable></el-input>
+            <el-form-item v-if="addForm.country===1" label="省市区" size="mini" required>
+                <el-cascader :options="areaData" v-model="selectedLocations" size="large"></el-cascader>
+                <p class="tips">选择省市</p>
             </el-form-item>
             <el-form-item label="详细地址" prop="detail_location">
                 <el-input v-model="addForm.detail_location" clearable></el-input>
@@ -231,6 +227,8 @@
 <script src="lib/jquery.min.js"></script>
 <script src="res/dependencies.js"></script>
 <script>
+    const ChinaAreaData = require('element-china-area-data').regionData;
+    const TTC=require('element-china-area-data').TextToCode;
     var items = [];
     var genralForm = {
         warehouse_id: '',
@@ -244,7 +242,8 @@
         province: '',
         city: '',
         county: '',
-        detail_location: ''
+        detail_location: '',
+        selectedLocations:[]
     };
     var pageNum = 1, pageSize = 6, maxPage = 0,total=0,lastPageItems=0;
     var maxPageRef = [],totalRef=[];
@@ -307,6 +306,7 @@
             for (var item in warehouses) {
                 warehouses[item]['dialogVisible'] = false;
                 warehouses[item]['addDialogVisible'] = false;
+                warehouses[item]['selectedLocations']=[warehouses[item]['province'],warehouses[item]['city'],warehouses[item]['county']];
                 items.push(warehouses[item]);
             }
         });
@@ -355,6 +355,9 @@
         el: '#app',
         data: function () {
             return {
+                TextToCode:TTC,
+                areaData:ChinaAreaData,
+                selectedLocations:[],
                 blank:genralForm,
                 loading: false,
                 initializing: true,
@@ -387,6 +390,13 @@
             getData.call(app, pageNum,searchKey);
         },
         methods: {
+            handleEditionClick:function(row){
+                if(row.province==row.city){
+                    app.selectedLocations=[TTC[row.province]['code'],TTC[row.province]['市辖区']['code'],TTC[row.province]['市辖区'][row.county]['code']];
+                }else{
+                    app.selectedLocations=[TTC[row.province]['code'],TTC[row.province][row.city]['code'],TTC[row.province][row.city][row.county]['code']];
+                }
+            },
             handleCurrentChange: (page) => {
                 getData.call(app, page,searchKey,true);
             },
@@ -397,6 +407,9 @@
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
                         this.loading = true;
+                        app.editedForm.province=app.selectedLocations[0];
+                        app.editedForm.city=app.selectedLocations[1];
+                        app.editedForm.county=app.selectedLocations[2]
                         post('/system/update_warehouse', app.editedForm, (data, err) => {
                             if (err) {
                                 app.$message.error('修改失败' + err.msg);
@@ -425,6 +438,9 @@
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
                         this.loading = true;
+                        app.editedForm.province=app.selectedLocations[0];
+                        app.editedForm.city=app.selectedLocations[1];
+                        app.editedForm.county=app.selectedLocations[2]
                         post('/system/add_warehouse', app.addForm, (data, err) => {
                             if (err) {
                                 app.$message.error('添加失败' + err.msg);
