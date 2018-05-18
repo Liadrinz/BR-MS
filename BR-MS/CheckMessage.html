@@ -84,9 +84,9 @@
         </el-dialog>
     </el-form>
     <template>
-        <el-table ref="multipleTable" :data="tableData" stripe style="width:100%" :default-sort="{prop:'date',order:'descending'}">
+        <el-table ref="multipleTable" :data="tableData" stripe style="width:100%" :default-sort="{prop:'date',order:'descending'}" @selection-change="handleSelectionChange">
             <!--fixed 固定了除日期外所有column-->
-            <el-table-column prop="selected" type="selection" width="40" @selection-change="handleSelectionChange">
+            <el-table-column prop="selected" type="selection" width="40">
             </el-table-column>
             <el-table-column prop="sender" sortable label="发件人" width="100"></el-table-column>
             <el-table-column prop="type" label="消息类型" width="150">
@@ -155,8 +155,14 @@
                 }
                 if(app.checked===4){
                     searchKey["sender"]=localStorage.getItem('username');
-                }else{
-                    delete searchKey.sender;
+                }
+                if(searchKey['sender']===localStorage.getItem('username')){
+                    app.checked=4;
+                    searchKey={
+                        pageSize:pageSize,
+                        pageNum:pageNum,
+                        sender:localStorage.getItem('username')
+                    }
                 }
             }else{
                 delete searchKey.sender;
@@ -168,9 +174,9 @@
         }, (data, err) => {
             app.pageNum = page;
             app.initializing = false;
-            console.log(data);
+            console.log(data,err);
             if (err) {
-                if (err.id !== 4003) {
+                if (err.id !== 4003 && err.id !== 5005) {
                     app.$message.error(err.msg);
                     app.initializing = false;
                 }
@@ -185,10 +191,20 @@
             }
             var msg = data.SysMessage
             console.log(msg);
-            for (var i in msg) {
-                msg[i]['dialog2Visible'] = false;
-                msg[i]['selected'] = false;
-                items.push(msg[i]);
+            if(app.checked===4){
+                for (var i in msg) {
+                    msg[i]['dialog2Visible'] = false;
+                    msg[i]['selected'] = false;
+                    items.push(msg[i]);
+                }
+            }else{
+                for (var i in msg) {
+                    if(msg[i].sender!==localStorage.getItem('username')){
+                        msg[i]['dialog2Visible'] = false;
+                        msg[i]['selected'] = false;
+                        items.push(msg[i]);
+                    }
+                }
             }
         });
     }
@@ -217,8 +233,16 @@
             common2['pageNum'] = maxPage;
             post('/common/getms', searchKey ? {...needed, ...common2} : common2, (data) => {
                 var arr = [], msg = data.SysMessage;
-                for (var key in msg) {
-                    arr.push(msg[key]);
+                if(app.checked===4){
+                    for (var key in msg) {
+                        arr.push(msg[key]);
+                    }
+                }else{
+                    if(msg[key].sender!==localStorage.getItem('username')){
+                        for (var key in msg) {
+                            arr.push(msg[key]);
+                        }
+                    }
                 }
                 lastPageItems = arr.length;
                 total = pageSize * (maxPage - 1) + lastPageItems;
@@ -316,14 +340,15 @@
             getData(1, {isRead: 0});
         },
         methods: {
-            handleSelectionChange:(val)=>{
-
+            handleSelectionChange(val){
+                app.multipleSelection=val;
             },
             handleCurrentChange: (page) => {
                 getData.call(app, page, searchKey);
             },
             handleCheckedStatusesChange() {
                 app.initializing = true;
+                searchKey={};
                 if (app.checked === 1) {
                     searchKey = {};
                 } else if (app.checked === 2) {
@@ -370,15 +395,15 @@
                             if (err.id === post.NOT_LOGIN) {
 
                             }
-                            app.initializing = false;
                             return;
                         }
-                        app.initializing = true;
                         if (app.pageNum !== maxPageRef[0]) {
                             getData(maxPageRef[0], searchKey);
                         } else {
                             if (app.pageNum !== 1) {
                                 getData(maxPageRef[0] - 1, searchKey);
+                            }else{
+                                getData(maxPageRef[0], searchKey)
                             }
                         }
                     });
@@ -391,10 +416,8 @@
                     type: 'warning'
                 }).then(() => {
                     var idToDel = [];
-                    for (var key in app.tableData) {
-                        if (app.tableData[key]['selected'] === true) {
-                            idToDel.push(app.tableData[key]['msg_Id']);
-                        }
+                    for(var key in app.multipleSelection){
+                        idToDel.push(app.multipleSelection[key]['msg_Id']);
                     }
                     delList = idToDel;
                     for (let i in idToDel) {
