@@ -47,6 +47,7 @@
             <el-select
                 v-model="formInput.repo"
                 filterable
+                clearable
                 placeholder="请选择">
                 <el-option
                     v-for="repo in repos"
@@ -113,6 +114,7 @@
 <script src="lib/eleme-index.js"></script>
 <script src="res/dependencies.js"></script>
 <script>
+    //交互完成
     var post = require('/mods/backend');
 
     function getData(searchKey) {
@@ -124,30 +126,50 @@
                 validate[i] = searchKey[i];
         }
         console.log(validate);
-        post('/common/enandex', validate, (data, err) => {
-            app.lookupDateText = app.dateText;
-            if (err) {
-                console.log(err);
-                return
-            }
-            maxPage = data.allPages;
-            console.log(data);
-            var Schedule = data.transViews;
-            for (var i in Schedule) {
-                scheduleItems.push(Schedule[i]);
-            }
-        })
+        if(app.eventTypes[app.formInput.eventType]==1){
+            post('/common/enandex', validate, (data, err) => {
+                app.lookupDateText = app.dateText;
+                if (err) {
+                    console.log(err);
+                    return
+                }
+                maxPage = data.allPages;
+                console.log(data);
+                var Schedule = data.transViews;
+                for (var i in Schedule) {
+                    scheduleItems.push(Schedule[i]);
+                }
+            });
+        }else if(app.eventTypes[app.formInput.eventType]==2){
+            post('/common/allapply', validate, (data, err) => {
+                app.lookupDateText = app.dateText;
+                if (err) {
+                    console.log(err);
+                    return
+                }
+                maxPage = data.allPages;
+                console.log(data);
+                var Schedule = data.schedules;
+                for (var i in Schedule) {
+                    scheduleItems.push(Schedule[i]);
+                }
+            });
+        }else if(app.eventTypes[app.formInput.eventType]==3){
+
+        }else{
+            app.$message.error('请选择事件类型');
+        }
+
     }
 
     function clearData() {
-        for (var i in scheduleItems) {
+        while(scheduleItems[0]!==undefined){
             scheduleItems.pop();
         }
     }
 
     function totalCompute(searchKey){
         var validate={
-
         }
         var temp=searchKey['pageNum'];
         searchKey['pageNum']=1;
@@ -156,16 +178,35 @@
                 validate[i]=searchKey[i];
             }
         }
-        post('/common/enandex',validate,(data)=>{
-            var max=data.allPages;
-            validate['pageNum']=max;
+        if(app.eventTypes[app.formInput.eventType]==1){
             post('/common/enandex',validate,(data)=>{
-                var len=data.transViews.length;
-                totalRef.pop();
-                totalRef.push(len);
-                searchKey['pageNum']=temp;
-            })
-        })
+                var max=data.allPages;
+                validate['pageNum']=max;
+                post('/common/enandex',validate,(data)=>{
+                    var len=data.transViews.length;
+                    totalRef.pop();
+                    totalRef.push(len);
+                    searchKey['pageNum']=temp;
+                })
+            });
+        }else if(app.eventTypes[app.formInput.eventType]==2){
+            post('/common/allapply',validate,(data)=>{
+                var max=data.allPages;
+                validate['pageNum']=max;
+                post('/common/allapply',validate,(data)=>{
+                    var len=data.schedules.length;
+                    totalRef.pop();
+                    totalRef.push(len);
+                    searchKey['pageNum']=temp;
+                })
+            });
+        }else if(app.eventTypes[app.formInput.eventType]==3){
+
+        }else{
+            app.$message.error('请选择事件类型');
+        }
+
+
     }
 
     function getDaysBefore(days) {
@@ -274,7 +315,7 @@
         computed: {
             dateText: function () {
                 if (!this.formInput.date) {
-                    return '';
+                    return '所有时段';
                 }
 
                 var dateFormat = require('dateformat');
