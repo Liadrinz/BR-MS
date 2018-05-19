@@ -228,7 +228,7 @@
 <script src="res/dependencies.js"></script>
 <script>
     const ChinaAreaData = require('element-china-area-data').regionData;
-    const TTC=require('element-china-area-data').TextToCode;
+    const TTC = require('element-china-area-data').TextToCode;
     var items = [];
     var genralForm = {
         warehouse_id: '',
@@ -243,39 +243,31 @@
         city: '',
         county: '',
         detail_location: '',
-        selectedLocations:[]
+        selectedLocations: []
     };
-    var pageNum = 1, pageSize = 6, maxPage = 0,total=0,lastPageItems=0;
-    var maxPageRef = [],totalRef=[];
-    var searchKey={};
+    var pageNum = 1, pageSize = 6, maxPage = 0, total = 0, lastPageItems = 0;
+    var maxPageRef = [], totalRef = [];
+    var searchKey = {};
     var post = require('/mods/backend');
 
-    function totalCompute(searchKey){
-        if(searchKey){
-            var needed={
-                warehouse_id: searchKey.warehouse_id,
-                warehouse_name: searchKey.warehouse_name,
-                warehouse_code: searchKey.warehouse_code,
-                warehouse_location: searchKey.warehouse_location
-            };
-        }
-        post('/system/get_warehouse',searchKey?{...searchKey}:{pageNum:1},(data) => {
-            maxPage=data.allPages;
-            searchKey['pageNum']=maxPage;
-            post('/system/get_warehouse', searchKey?{...searchKey}:{pageNum:maxPage}, (data) => {
-                var arr=[],warehouses=data.warehouses;
-                for(var key in warehouses){
+    function totalCompute(searchKey) {
+        post('/system/get_warehouse', searchKey ? {...searchKey} : {pageNum: 1}, (data) => {
+            maxPage = data.allPages;
+            searchKey['pageNum'] = maxPage;
+            post('/system/get_warehouse', searchKey ? {...searchKey} : {pageNum: maxPage}, (data) => {
+                var arr = [], warehouses = data.warehouses;
+                for (var key in warehouses) {
                     arr.push(warehouses[key]);
                 }
-                lastPageItems=arr.length;
-                total=6*(maxPage-1)+lastPageItems;
+                lastPageItems = arr.length;
+                total = 6 * (maxPage - 1) + lastPageItems;
                 totalRef.push(total);
             });
         });
     }
 
-    function getData(page, searchKey,unchanged) {
-        clearData(unchanged);
+    function getData(page, searchKey) {
+        clearData();
         if (searchKey) {
             searchKey["pageSize"] = pageSize;
             searchKey["pageNum"] = page;
@@ -288,60 +280,55 @@
             if (err) {
                 app.$message.error(err.msg);
                 app.initializing = false;
-                if (err.id === post.NOT_LOGIN) {
-                    
-                }
                 return;
             }
-            //TODO:这个改动不确定
             totalCompute(searchKey);
             maxPageRef.push(data.allPages);
             var warehouses = data.warehouses;
             for (var item in warehouses) {
                 warehouses[item]['dialogVisible'] = false;
                 warehouses[item]['addDialogVisible'] = false;
-                warehouses[item]['selectedLocations']=[warehouses[item]['province'],warehouses[item]['city'],warehouses[item]['county']];
+                warehouses[item]['selectedLocations'] = [warehouses[item]['province'], warehouses[item]['city'], warehouses[item]['county']];
                 items.push(warehouses[item]);
             }
         });
 
     }
 
-    function clearData(unchanged) {
+    function clearData() {
         for (let i = 0; i < pageSize; i++) {
             items.pop();
         }
-        if(unchanged!==true){
-            for(let i=0;i<maxPageRef.length;i++){
-                maxPageRef.pop();
-            }
-            for(let i=0;i<totalRef.length;i++){
-                totalRef.pop();
-            }
+        for (let i = 0; i < maxPageRef.length; i++) {
+            maxPageRef.pop();
         }
+        for (let i = 0; i < totalRef.length; i++) {
+            totalRef.pop();
+        }
+        
     }
 
-    function pageControl(control,searchKey,unchanged) {
+    function pageControl(control, searchKey) {
         if (control === 'previous') {
             if (pageNum <= 1) {
                 return;
             }
             pageNum -= 1;
-            getData.call(app, pageNum,searchKey,unchanged);
+            getData.call(app, pageNum, searchKey);
         } else if (control === 'next') {
             if (pageNum >= maxPage) {
                 return;
             }
             pageNum += 1;
-            getData.call(app, pageNum,searchKey,unchanged);
+            getData.call(app, pageNum, searchKey);
         } else if (control === 'first') {
             pageNum = 1;
-            getData.call(app, pageNum,searchKey,unchanged);
+            getData.call(app, pageNum, searchKey);
         } else if (control === 'last') {
             pageNum = maxPage;
-            getData.call(app, pageNum,searchKey,unchanged);
+            getData.call(app, pageNum, searchKey);
         } else if (control === 'stay') {
-            getData.call(app, pageNum,searchKey,unchanged);
+            getData.call(app, pageNum, searchKey);
         }
     }
 
@@ -349,18 +336,17 @@
         el: '#app',
         data: function () {
             return {
-                TextToCode:TTC,
-                areaData:ChinaAreaData,
-                selectedLocations:[],
-                blank:genralForm,
-                loading: false,
+                TextToCode: TTC,
+                areaData: ChinaAreaData,
+                selectedLocations: [],
+                blank: genralForm,
                 initializing: true,
                 dialogVisible: false,
                 addDialogVisible: false,
                 pageNum: pageNum,
                 tempPageNum: null,
                 maxPage: maxPageRef,
-                total:totalRef,
+                total: totalRef,
                 repoData: {
                     repoInfo: items
                 },
@@ -381,23 +367,23 @@
         },
         mounted: function () {
             //从后端拉取数据
-            getData.call(app, pageNum,searchKey);
+            getData.call(app, pageNum, searchKey);
         },
         methods: {
-            handleEditionClick:function(row){
-                app.editedForm.country={
-                    '中国':1,
-                    '其他':2
+            handleEditionClick: function (row) {
+                app.editedForm.country = {
+                    '中国': 1,
+                    '其他': 2
                 }[row.country]
-                if(row.province==row.city){
-                    app.selectedLocations=[TTC[row.province]['code'],TTC[row.province]['市辖区']['code'],TTC[row.province]['市辖区'][row.county]['code']];
-                }else{
-                    app.selectedLocations=[TTC[row.province]['code'],TTC[row.province][row.city]['code'],TTC[row.province][row.city][row.county]['code']];
+                if (row.province == row.city) {
+                    app.selectedLocations = [TTC[row.province]['code'], TTC[row.province]['市辖区']['code'], TTC[row.province]['市辖区'][row.county]['code']];
+                } else {
+                    app.selectedLocations = [TTC[row.province]['code'], TTC[row.province][row.city]['code'], TTC[row.province][row.city][row.county]['code']];
                 }
             },
             handleCurrentChange: (page) => {
-                app.pageNum=page;
-                getData.call(app, page,searchKey,true);
+                app.pageNum = page;
+                getData.call(app, page, searchKey, true);
             },
             convertPages: (control) => {
                 pageControl.call(app, control);
@@ -405,16 +391,17 @@
             confirmEdition: function (formName) {
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
-                        this.loading = true;
-                        app.editedForm.province=app.selectedLocations[0];
-                        app.editedForm.city=app.selectedLocations[1];
-                        app.editedForm.county=app.selectedLocations[2]
+                        app.loading = true;
+                        app.editedForm.province = app.selectedLocations[0];
+                        app.editedForm.city = app.selectedLocations[1];
+                        app.editedForm.county = app.selectedLocations[2]
                         post('/system/update_warehouse', app.editedForm, (data, err) => {
+                            app.loading = false;
+                            app.initializing = false;
                             if (err) {
                                 app.$message.error('修改失败' + err.msg);
-                                app.initializing = false;
                                 if (err.id === post.NOT_LOGIN) {
-                                    
+
                                 }
                                 return;
                             }
@@ -422,9 +409,8 @@
                                 type: "success",
                                 message: '修改成功'
                             });
-                            app.initializing=true;
-                            getData(app.pageNum,searchKey);
-                            app.loading = false;
+                            app.initializing = true;
+                            getData(app.pageNum, searchKey);
                             app.dialogVisible = false;
                         });
                     } else {
@@ -436,16 +422,17 @@
             confirmAdd: function (formName) {
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
-                        this.loading = true;
-                        app.editedForm.province=app.selectedLocations[0];
-                        app.editedForm.city=app.selectedLocations[1];
-                        app.editedForm.county=app.selectedLocations[2]
+                        app.loading = true;
+                        app.editedForm.province = app.selectedLocations[0];
+                        app.editedForm.city = app.selectedLocations[1];
+                        app.editedForm.county = app.selectedLocations[2]
                         post('/system/add_warehouse', app.addForm, (data, err) => {
+                            app.loading = false;
+                            app.initializing = false;
                             if (err) {
                                 app.$message.error('添加失败' + err.msg);
-                                app.initializing = false;
                                 if (err.id === post.NOT_LOGIN) {
-                                    
+
                                 }
                                 return;
                             }
@@ -453,9 +440,7 @@
                                 type: "success",
                                 message: '添加成功'
                             });
-                            app.initializing=true;
                             pageControl.call(this, 'last');
-                            app.loading = false;
                             app.addDialogVisible = false;
                         });
                     } else {
@@ -470,14 +455,16 @@
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
+                    app.loading = true;
                     post('/system/del_warehouse', {
                         "warehouse_id": id_toDel
                     }, (data, err) => {
+                        app.loading = false;
                         if (err) {
                             app.$message.error('删除失败' + err.msg);
                             app.initializing = false;
                             if (err.id === post.NOT_LOGIN) {
-                                
+
                             }
                             return;
                         }
@@ -485,12 +472,12 @@
                             type: 'success',
                             message: '删除成功!'
                         });
-                        app.initializing=true;
-                        if(lastPageItems==1&&maxPageRef[0]!=1){
-                            getData(maxPageRef[0]-1);
-                        }else if(lastPageItems==1&&maxPageRef[0]==1){
+                        app.initializing = true;
+                        if (lastPageItems == 1 && maxPageRef[0] != 1) {
+                            getData(maxPageRef[0] - 1);
+                        } else if (lastPageItems == 1 && maxPageRef[0] == 1) {
 
-                        }else{
+                        } else {
                             getData(maxPageRef[0]);
                         }
 
@@ -498,7 +485,7 @@
                 });
             },
             search: function () {
-                app.initializing=true;
+                app.initializing = true;
                 var validate = {"pageSize": pageSize, "pageNum": pageNum};
                 for (var i in app.queryParams) {
                     if (app.queryParams[i] !== "") {
@@ -506,8 +493,8 @@
                     }
                 }
                 console.log(validate);
-                searchKey=validate;
-                pageControl.call(this, 'first',validate);
+                searchKey = validate;
+                pageControl.call(this, 'first', validate);
             }
         }
     });

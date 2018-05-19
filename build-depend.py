@@ -12,7 +12,8 @@ npm_modules = [
 # Remember to require with prefix "/mods/"
 local_modules = [    
     "roles",
-    "backend"
+    "backend",
+    "pagination"
 ]
 
 custom_components = [
