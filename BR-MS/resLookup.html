@@ -12,144 +12,163 @@
 </head>
 <body>
 <div id="app">
-    <el-container>
-        <el-form>
-            <hr>
-            <!--  查询条件 Form  -->
-            <el-form >
-                <!--  物资状态  -->
+    <el-form>
+        <el-form-item label="物资状态：" size="mini">
+            <el-radio-group v-model="stateId">
+                <el-radio label="1" border>不限</el-radio>
+                <el-radio label="2" border>调配</el-radio>
+                <el-radio label="3" border>占用</el-radio>
+                <el-radio label="4" border>使用</el-radio>
+                <el-radio label="5" border>空闲</el-radio>
+            </el-radio-group>
+        </el-form-item>
+        <el-form-item label="物资类别：" size="mini">
+            <!--  TODO: Waiting for 组件  -->
+        </el-form-item>
+        <el-form-item label="地理位置：" size="mini">
+            <el-radio v-model="locationRadio" label="1" border>不限</el-radio>
+            <el-cascader :options="areaData" v-model="selectedLocations"
+                         @change="handleChange"></el-cascader>
+        </el-form-item>
+        <el-form-item label="生产日期：" size="mini">
+            <el-date-picker v-model="produceTime" type="date" placeholder="选择日期" format="yyyy年MM月dd日"
+                            value-format="yyyy-MM-dd"></el-date-picker>
+            <span>后</span>
+        </el-form-item>
+        <el-form-item>
+            <el-button type="primary" @click="search">查询</el-button>
+        </el-form-item>
+    </el-form>
+
+    <!--  查询结果 Table  -->
+    <el-table
+        ref="multipleTable" :data="resultData"
+        tooltip-effect="dark" stripe
+        @selection-change="handleSelectionChange">
+        <el-table-column type="selection" width="55"></el-table-column>
+        <el-table-column type="index" :index="indexMethod"></el-table-column>
+        <el-table-column prop="localId" label="物资编号"></el-table-column>
+        <el-table-column prop="goodsName" label="物资名称"></el-table-column>
+        <el-table-column prop="producerName" label="生产厂商"></el-table-column><!--无接口名-->
+        <el-table-column prop="norms" label="规格"></el-table-column>            <!--无接口名-->
+        <el-table-column prop="warehouseId" label="所在仓库"></el-table-column>
+        <el-table-column prop="quantity" label="库存数量"></el-table-column>   <!--无接口名-->
+        <el-table-column prop="address" label="仓库地址"></el-table-column>     <!--无接口名-->
+        <el-table-column prop="state" label="状态"></el-table-column>          <!--无接口名-->
+        <el-table-column label="" width="200">
+            <template slot-scope="scope">
+                <el-button size="mini" type="text" @click="dialogs.detail=true">详情</el-button>
+                <el-button size="mini" type="text" @click="dialogs.allocate=true">申请调配</el-button>
+            </template>
+        </el-table-column>
+    </el-table>
+
+    <div>
+        <el-button size="mini">申请调配所选项</el-button>
+        <el-button size="mini">查看申请表单</el-button>
+    </div>
+
+    <!-- 与物资详情、申请物资有关的对话框 -->
+    <el-dialog title="物资详情" :visible="dialogs.detail" width="40%"
+               :before-close="handleClose">
+        <span>由数据库数据生成的表格</span>
+        <span slot="footer" class="dialog-footer">
+            <el-button @click="dialogs.detail=false" size="mini">关闭</el-button>
+        </span>
+    </el-dialog>
+    <el-dialog title="申请信息" :visible="dialogs.allocate" width="70%"
+               :before-close="handleClose">
+        <!--申请信息表单-->
+        <el-form :model="applicationForm">
+            <el-form :inline="true">
+                <el-form-item label="申请人" size="mini">
+                    <el-input v-model="applicationForm.userRealName" :disabled="true"></el-input>
+                </el-form-item>
+                <el-form-item label="申请单位" size="mini">
+                    <el-input v-model="applicationForm.companyName" :disabled="true"></el-input>
+                </el-form-item>
+            </el-form>
+
+            <!--可删除表单-->  <!--?如何多选时生成相应数量的此表单-->
+            <el-form>
+                <el-form :inline="true"><!--从后台生成-->
+                    <el-form-item label="申请物资名称" size="mini">
+                        <el-input v-model="applicationForm.goodName" :disabled="true"></el-input>
+                    </el-form-item>
+                    <el-form-item label="申请物资编号" size="mini">
+                        <el-input v-model="applicationForm.goodId" :disabled="true"></el-input>
+                    </el-form-item>
+                    <el-form-item label="所在仓库" size="mini">
+                        <el-input v-model="applicationForm.startWarehouseName"
+                                  :disabled="true"></el-input>
+                    </el-form-item>
+                </el-form>
+                <el-form :inline="true"><!--可清空Input输入框-->
+                    <el-form-item label="用途说明" size="mini">
+                        <el-input v-model="applicationForm.description" clearable></el-input>
+                    </el-form-item>
+                </el-form>
                 <el-form :inline="true">
-                    <el-form-item label="物资状态：" size="mini">
-                        <el-radio-group v-model="stateId">
-                            <el-radio label="1" border>不限</el-radio>
-                            <el-radio label="2" border>调配</el-radio>
-                            <el-radio label="3" border>占用</el-radio>
-                            <el-radio label="4" border>使用</el-radio>
-                            <el-radio label="5" border>空闲</el-radio>
-                        </el-radio-group>
+                    <el-form-item label="调配数量" size="mini">
+                        <el-input v-model="applicationForm.amount" clearable></el-input>
+                    </el-form-item>
+                    <el-form-item label="单位" size="mini"><!--无对应接口名-->
+                        <el-input v-model="applicationForm.unit" :disabled="true"></el-input>
                     </el-form-item>
                 </el-form>
-                <!--  物资类别  -->
                 <el-form :inline="true">
-                    <el-form-item label="物资类别：" size="mini">
-                        <!--  Waiting for 组件  -->
+                    <el-form-item label="调配时间" size="mini"><!--无对应接口名-->
+                        <el-input v-model="applicationForm.time" clearable></el-input>
+                    </el-form-item>
+                    <el-form-item label="运输方式" size="mini"><!--无对应接口名-->
+                        <el-select v-model="applicationForm.transport"></el-select>
                     </el-form-item>
                 </el-form>
-                <!--  地理位置  -->
-                <el-form>
-                    <el-form-item label="地理位置：" size="mini">
-                        <el-radio v-model="locationRadio" label="1" border>不限</el-radio>
-                        <el-cascader :options="areaData" v-model="selectedLocations"
-                                     @change="handleChange"></el-cascader>
-                    </el-form-item>
-                </el-form>
-                <!--  生产日期  -->
-                <el-form>
-                    <el-form-item label="生产日期：" size="mini">
-                        <el-date-picker v-model="produceTime" type="date" placeholder="选择日期" format="yyyy年MM月dd日"
-                                        value-format="yyyy-MM-dd"></el-date-picker>
-                        <span>后</span>
-                    </el-form-item>
-                </el-form>
-                <el-form-item>
-                    <el-button size="mini" @click="search">查询</el-button>
+            </el-form>
+
+            <!--目的地地址 目的仓库-->
+            <el-form :inline="true">
+                <el-form-item label="目的地地址：" size="mini">
+                    <el-cascader :options="areaData" v-model="selectedLocations"
+                                 @change="handleChange"></el-cascader>
+                </el-form-item>
+                <el-form-item size="mini">
+                    <el-input v-model="applicationForm.destinationAddress"></el-input>
+                </el-form-item>
+            </el-form>
+            <el-form :inline="true">
+                <el-form-item label="目的仓库" size="mini">
+                    <el-input v-model="applicationForm.endWarehouseName" clearable></el-input>
                 </el-form-item>
             </el-form>
             <hr>
-            <template>
-                <!--  查询结果 Table  -->
-                <el-table ref="multipleTable" :data="resultData" tooltip-effect="dark" style="width: 100%" stripe
-                          @selection-change="handleSelectionChange">
-                    <el-table-column type="selection" width="55"></el-table-column>
-                    <el-table-column type="index" :index="indexMethod"></el-table-column>
-                    <el-table-column prop="localId" label="物资编号"></el-table-column>
-                    <el-table-column prop="goodsName" label="物资名称"></el-table-column>
-                    <el-table-column prop="producerName" label="生产厂商"></el-table-column><!--无接口名-->
-                    <el-table-column prop="norms" label="规格"></el-table-column>   <!--无接口名-->
-                    <el-table-column prop="warehouseId" label="所在仓库"></el-table-column>
-                    <el-table-column prop="quantity" label="库存数量"></el-table-column>   <!--无接口名-->
-                    <el-table-column prop="address" label="仓库地址"></el-table-column>     <!--无接口名-->
-                    <el-table-column prop="state" label="状态"></el-table-column>          <!--无接口名-->
-                    <el-table-column label="" width="200">
-                        <template slot-scope="scope">
-                            <el-button size="mini" type="text" @click="dialogMoreVisible=true">详情</el-button>
-                            <el-dialog title="物资详情" :visible.sync="dialogMoreVisible" width="40%" :before-close="handleClose">
-                                <span>由数据库数据生成的表格</span>
-                                <span slot="footer" class="dialog-footer">
-                                    <el-button @click="dialogMoreVisible=false" size="mini">关闭</el-button>
-                                </span>
-                            </el-dialog>
-                            <el-button size="mini" type="text" @click="dialogAllocateVisible=true">申请调配</el-button>
-                            <el-dialog title="申请信息" :visible.sync="dialogAllocateVisible" width="70%" :before-close="handleClose">
 
-                                <el-form :model="applicationForm"><!--申请信息表单-->
-                                    <el-form :inline="true">
-                                        <el-form-item label="申请人"size="mini"><el-input v-model="applicationForm.userRealName" :disabled="true"></el-input></el-form-item>
-                                        <el-form-item label="申请单位" size="mini"><el-input v-model="applicationForm.companyName" :disabled="true"></el-input></el-form-item>
-                                    </el-form>
-                                    <hr>
-                                    <el-form><!--可删除表单-->  <!--?如何多选时生成相应数量的此表单-->
-                                        <el-form :inline="true"><!--从后台生成-->
-                                            <el-form-item label="申请物资名称" size="mini"><el-input v-model="applicationForm.goodName" :disabled="true"></el-input></el-form-item>
-                                            <el-form-item label="申请物资编号" size="mini"><el-input v-model="applicationForm.goodId" :disabled="true"></el-input></el-form-item>
-                                            <el-form-item label="所在仓库" size="mini"><el-input v-model="applicationForm.startWarehouseName" :disabled="true"></el-input></el-form-item>
-                                        </el-form>
-                                        <el-form :inline="true"><!--可清空Input输入框-->
-                                            <el-form-item label="用途说明" size="mini"><el-input v-model="applicationForm.description" clearable></el-input></el-form-item>
-                                        </el-form>
-                                        <el-form :inline="true">
-                                            <el-form-item label="调配数量" size="mini"><el-input v-model="applicationForm.amount" clearable></el-input></el-form-item>
-                                            <el-form-item label="单位" size="mini"><!--无对应接口名--><el-input v-model="applicationForm.unit" :disabled="true"></el-input></el-form-item>
-                                        </el-form>
-                                        <el-form :inline="true">
-                                            <el-form-item label="调配时间" size="mini"><!--无对应接口名--><el-input v-model="applicationForm.time" clearable></el-input></el-form-item>
-                                            <el-form-item label="运输方式" size="mini"><!--无对应接口名--><el-select v-model="applicationForm.transport"></el-select></el-form-item>
-                                        </el-form>
-                                    </el-form>
-                                    <hr>
-                                    <!--目的地地址 目的仓库-->
-                                    <el-form :inline="true">
-                                        <el-form-item label="目的地地址：" size="mini">
-                                            <el-cascader :options="areaData" v-model="selectedLocations"
-                                                         @change="handleChange"></el-cascader>
-                                        </el-form-item>
-                                        <el-form-item size="mini"><el-input v-model="applicationForm.destinationAddress"></el-input></el-form-item>
-                                    </el-form>
-                                    <el-form :inline="true">
-                                        <el-form-item  label="目的仓库" size="mini"><el-input v-model="applicationForm.endWarehouseName" clearable></el-input></el-form-item>
-                                    </el-form>
-                                    <hr>
-                                    <!--联系人 电话 备注-->
-                                    <el-form :inline="true"><!--如果联系人就是申请人的话 否则没有接口名-->
-                                        <el-form-item  label="联系人" size="mini"><el-input v-model="applicationForm.userRealName" clearable></el-input></el-form-item>
-                                    </el-form>
-                                    <el-form :inline="true"><!--无对应接口名-->
-                                        <el-form-item  label="电话" size="mini"><el-input v-model="applicationForm.tel" clearable></el-input></el-form-item>
-                                    </el-form>
-                                    <el-form :inline="true"><!--无对应接口名-->
-                                        <el-form-item  label="备注" size="mini"><el-input v-model="applicationForm.ps" :rows="3" placeholder="请输入备注" clearable></el-input></el-form-item>
-                                    </el-form>
-                                </el-form>
-
-                                <span slot="footer" class="dialog-footer">
-                                    <el-button size="mini">暂存</el-button>
-                                    <el-button size="mini">提交</el-button>
-                                    <el-button @click="dialogAllocateVisible=false" size="mini">返回</el-button>
-                                </span>
-                            </el-dialog>
-                        </template>
-                    </el-table-column>
-                </el-table>
-                <pagination
-                <hr>
-                <div style="margin-top:10px">
-                    <el-button size="mini">申请调配所选项</el-button>
-                    <el-button size="mini">查看申请表单</el-button>
-                </div>
-                <hr>
-            </template>
+            <!--联系人 电话 备注-->
+            <el-form :inline="true">
+                <!--如果联系人就是申请人的话 否则没有接口名-->
+                <el-form-item label="联系人" size="mini">
+                    <el-input v-model="applicationForm.userRealName" clearable></el-input>
+                </el-form-item>
+            </el-form>
+            <el-form :inline="true"><!--无对应接口名-->
+                <el-form-item label="电话" size="mini">
+                    <el-input v-model="applicationForm.tel" clearable></el-input>
+                </el-form-item>
+            </el-form>
+            <el-form :inline="true"><!--无对应接口名-->
+                <el-form-item label="备注" size="mini">
+                    <el-input v-model="applicationForm.ps" :rows="3" placeholder="请输入备注"
+                              clearable></el-input>
+                </el-form-item>
+            </el-form>
         </el-form>
-    </el-container>
+
+        <span slot="footer" class="dialog-footer">
+            <el-button size="mini">暂存</el-button>
+            <el-button size="mini">提交</el-button>
+            <el-button @click="dialogs.allocate=false" size="mini">返回</el-button>
+        </span>
+    </el-dialog>
 </div>
 </body>
 <script src="lib/vue.js"></script>
@@ -157,31 +176,30 @@
 <script src="res/dependencies.js"></script>
 <script>
     //交互没写
-    var post=require('/mods/backend');
-    var searchKey={};
-    var items=[];
-    var pageNum=1,pageSize=6,maxPage=0;
+    var post = require('/mods/backend');
+    var searchKey = {};
+    var items = [];
+    var pageNum = 1, pageSize = 6, maxPage = 0;
 
-    const ChinaAreaData = require('element-china-area-data').
-        provinceAndCityData;
+    const ChinaAreaData = require('element-china-area-data').provinceAndCityData;
 
-    function getData(searchKey){
+    function getData(searchKey) {
         clearData();
-        post('/common/user_goods/query',searchKey,(data,err)=>{
+        post('/common/user_goods/query', searchKey, (data, err) => {
             console.log(data);
-            if(err){
+            if (err) {
                 app.$message.error(err.msg);
                 return;
             }
             //TODO
-            for(var i in data.overview){
+            for (var i in data.overview) {
                 items.push(data.overview[i]);
             }
         })
     }
 
-    function clearData(){
-        while(items[0]!==undefined){
+    function clearData() {
+        while (items[0] !== undefined) {
             items.pop();
         }
     }
@@ -190,29 +208,31 @@
         el: '#app',
         data: {
             stateId: '',
-            locationRadio: '',  /* 3.地理位置不限locationRadio */
+            locationRadio: '', /* 3.地理位置不限locationRadio */
             produceTime: '',
             selectedLocations: [],
             multiplySelection: [],
             areaData: ChinaAreaData,
-            dialogMoreVisible:false,
-            dialogAllocateVisible:false,
-            resultData:items,
-            applicationForm:[{
-                userRealName:'',
-                companyName:'',
-                goodName:'',
-                goodId:'',
-                startWarehouseName:'',
-                description:'',
-                amount:'',
-                unit:'',/*单位 无对应接口名*/
-                time:'',/*调配时间 无对应接口名*/
-                transport:'',/*运输方式 无对应接口名*/
-                destinationAddress:'',
-                endWarehouseName:'',
-                tel:'',/*联系人电话 无对应接口名*/
-                ps:''/*备注 无对应接口名*/
+            dialogs: {
+                detail: false,
+                allocate: false
+            },
+            resultData: items,
+            applicationForm: [{
+                userRealName: '',
+                companyName: '',
+                goodName: '',
+                goodId: '',
+                startWarehouseName: '',
+                description: '',
+                amount: '',
+                unit: '', /*单位 无对应接口名*/
+                time: '', /*调配时间 无对应接口名*/
+                transport: '', /*运输方式 无对应接口名*/
+                destinationAddress: '',
+                endWarehouseName: '',
+                tel: '', /*联系人电话 无对应接口名*/
+                ps: ''/*备注 无对应接口名*/
             }]
         },
         methods: {
@@ -225,24 +245,25 @@
             handleSelectionChange(val) {
                 this.multipleSelection = val;
             },
-            handleClose(done){
+            handleClose(done) {
                 this.$confirm('确认关闭？')
-                    .then(_=>{
+                    .then(_ => {
                         done();
                     })
-                    .catch(_=>{})
+                    .catch(_ => {
+                    })
             },
-            search:function(){
-                var data={
-                    stateId:app.stateId,
-                    type:null,
-                    province:app.selectedLocations[0],
-                    city:app.selectedLocations[1],
-                    produceTime:app.produceTime
+            search: function () {
+                var data = {
+                    stateId: app.stateId,
+                    type: null,
+                    province: app.selectedLocations[0],
+                    city: app.selectedLocations[1],
+                    produceTime: app.produceTime
                 };
-                for(var i in data){
-                    if(data[i]!==null&&data[i]!==""){
-                        searchKey[i]=data[i];
+                for (var i in data) {
+                    if (data[i] !== null && data[i] !== "") {
+                        searchKey[i] = data[i];
                     }
                 }
                 getData(searchKey);
