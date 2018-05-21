@@ -56,28 +56,32 @@
         <el-table-column prop="address" label="仓库地址"></el-table-column>     <!--无接口名-->
         <el-table-column prop="state" label="状态"></el-table-column>          <!--无接口名-->
         <el-table-column label="" width="200">
-            <template slot-scope="scope">
-                <el-button size="mini" type="text" @click="dialogs.detail=true">详情</el-button>
+            <template slot-scope="props">
+                <el-button size="mini" type="text" @click="()=>{detail(props.row)}">详情</el-button>
                 <el-button size="mini" type="text" @click="dialogs.allocate=true">申请调配</el-button>
             </template>
         </el-table-column>
     </el-table>
-
+    <p style="text-align: center">
+        <el-pagination @current-change="handleCurrentChange" :current-page="pageNum"
+                       :page-size="6" layout="total,prev,pager,next,jumper" :total="totalNum"></el-pagination>
+    </p>
     <div>
         <el-button size="mini">申请调配所选项</el-button>
         <el-button size="mini">查看申请表单</el-button>
     </div>
 
     <!-- 与物资详情、申请物资有关的对话框 -->
-    <el-dialog title="物资详情" :visible="dialogs.detail" width="40%"
-               :before-close="handleClose">
-        <span>由数据库数据生成的表格</span>
+    <el-dialog title="物资详情" :visible.sync="dialogs.detail" width="40%">
+        <el-table :data="applicationForm">
+            <el-table-column prop="key"></el-table-column>
+            <el-table-column prop="val"></el-table-column>
+        </el-table>
         <span slot="footer" class="dialog-footer">
             <el-button @click="dialogs.detail=false" size="mini">关闭</el-button>
         </span>
     </el-dialog>
-    <el-dialog title="申请信息" :visible="dialogs.allocate" width="70%"
-               :before-close="handleClose">
+    <el-dialog title="申请信息" :visible.sync="dialogs.allocate" width="70%">
         <!--申请信息表单-->
         <el-form :model="applicationForm">
             <el-form :inline="true">
@@ -192,6 +196,7 @@
                 return;
             }
             //TODO
+            app.totalNum = data.totalNum;
             for (var i in data.overview) {
                 items.push(data.overview[i]);
             }
@@ -207,6 +212,8 @@
     var app = new Vue({
         el: '#app',
         data: {
+            pageNum: 1,
+            totalNum: 0,
             stateId: '',
             locationRadio: '', /* 3.地理位置不限locationRadio */
             produceTime: '',
@@ -218,24 +225,71 @@
                 allocate: false
             },
             resultData: items,
-            applicationForm: [{
-                userRealName: '',
-                companyName: '',
-                goodName: '',
-                goodId: '',
-                startWarehouseName: '',
-                description: '',
-                amount: '',
-                unit: '', /*单位 无对应接口名*/
-                time: '', /*调配时间 无对应接口名*/
-                transport: '', /*运输方式 无对应接口名*/
-                destinationAddress: '',
-                endWarehouseName: '',
-                tel: '', /*联系人电话 无对应接口名*/
-                ps: ''/*备注 无对应接口名*/
-            }]
+            applicationForm:[],
+            transfer:{
+                goods_id:'物资ID',
+                goods_name:'物资名称',
+                local_id:'编号',
+                type:'物资类型',
+                keywords:'关键字',
+                norms:'规格',
+                appearance:'外观',
+                time_feature:'时间特征',
+                safety_condition:'安全条件',
+                carrier_size:'运载尺寸',
+                temperature:'温度条件',
+                humidity:'湿度条件',
+                other_conditions:'其他条件',
+                producer_name:'生产商',
+                produce_time:'生产时间',
+                produce_valid_time:'过期时间',
+                ip_address:'描述文件地址',
+                warehouse_id:'所在仓库',
+                longitude:'经度',
+                latitude:'纬度',
+                altitude:'海拔',
+                country_id:'国家ID',
+                area:'战区ID',
+                province_id:'省份ID',
+                city_id:'城市ID',
+                county_id:'区县ID',
+                detail_location:'详细地址',
+                is_managed:'过程管理',
+                register_time:'最后一次修改时间',
+                state_id:'状态ID',
+                state_type:'状态类型',
+                state_value:'状态值',
+                quantity:'数量'
+            }
         },
         methods: {
+            detail(row){
+                app.dialogs.detail=true;
+                post('/common/user_goods/get_detail',{
+                    goodsId:row.goodsId
+                },(data,err)=>{
+                    if(err){
+                        app.$message.error(err.msg);
+                    }
+                    console.log(data);
+                    for(var key in data){
+                        var obj={};
+                        obj['key']=app.transfer[key];
+                        if(key==='is_managed'){
+                            obj['val']=['不受监管','受监管'][parseInt(data[key])]
+                        }else{
+                            obj['val']=data[key];
+                        }
+                        app.applicationForm.push(obj);
+                    }
+                    console.log(app.applicationForm);
+                })
+            },
+            handleCurrentChange(page) {
+                app.pageNum = page;
+                searchKey['pageNum'] = app.pageNum;
+                getData(searchKey);
+            },
             handleChange(value) {
                 console.log(value);
             },
@@ -245,14 +299,6 @@
             handleSelectionChange(val) {
                 this.multipleSelection = val;
             },
-            handleClose(done) {
-                this.$confirm('确认关闭？')
-                    .then(_ => {
-                        done();
-                    })
-                    .catch(_ => {
-                    })
-            },
             search: function () {
                 var data = {
                     stateId: app.stateId,
@@ -261,6 +307,7 @@
                     city: app.selectedLocations[1],
                     produceTime: app.produceTime
                 };
+                searchKey['pageNum'] = app.pageNum;
                 for (var i in data) {
                     if (data[i] !== null && data[i] !== "") {
                         searchKey[i] = data[i];
