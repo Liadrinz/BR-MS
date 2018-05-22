@@ -31,7 +31,13 @@
             <el-input v-model="type" placeholder="请输入" style="width: 200px"></el-input>
         </el-form-item>
         <el-form-item label="地理位置：" size="mini">
-            <el-radio v-model="locationRadio" label="1" border>不限</el-radio>
+            <el-radio v-model="locationRadio" label="1" @change="(val)=>{
+                if(val==='1'){
+                    while(selectedLocations[0]!==undefined){
+                        selectedLocations.pop();
+                    }
+                }
+            }" border>不限</el-radio>
             <el-cascader :options="areaData" v-model="selectedLocations"
                          @change="handleChange"></el-cascader>
         </el-form-item>
@@ -52,12 +58,12 @@
         tooltip-effect="dark" stripe
         @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55"></el-table-column>
-        <el-table-column type="index" :index="indexMethod"></el-table-column>
+        <el-table-column type="index" :index="indexMethod" label="序号"></el-table-column>
         <el-table-column prop="localId" label="物资编号"></el-table-column>
         <el-table-column prop="goodsName" label="物资名称"></el-table-column>
         <el-table-column prop="producerName" label="生产厂商"></el-table-column><!--无接口名-->
         <el-table-column prop="norms" label="规格"></el-table-column>            <!--无接口名-->
-        <el-table-column prop="warehouseId" label="所在仓库"></el-table-column>
+        <el-table-column prop="warehouseName" label="所在仓库"></el-table-column>
         <el-table-column prop="quantity" label="库存数量"></el-table-column>   <!--无接口名-->
         <el-table-column prop="address" label="仓库地址"></el-table-column>     <!--无接口名-->
         <el-table-column prop="state" label="状态"></el-table-column>          <!--无接口名-->
@@ -78,7 +84,7 @@
 
     <!-- 与物资详情、申请物资有关的对话框 -->
     <el-dialog title="物资详情" :visible.sync="dialogs.detail" width="40%">
-        <el-table :data="applicationForm">
+        <el-table :data="detailForm">
             <el-table-column prop="key"></el-table-column>
             <el-table-column prop="val"></el-table-column>
         </el-table>
@@ -446,7 +452,6 @@
                 while (app.detailForm[0] !== undefined) {
                     app.detailForm.pop();
                 }
-                console.log(app.detailForm);
                 post('/common/user_goods/get_detail', {
                     goodsId: row.goodsId
                 }, (data, err) => {
@@ -480,7 +485,7 @@
                 app.singleForm.companyName = userInfo.companyName;
                 app.singleForm.goodId = row.goodsId;
                 app.singleForm.goodName = row.goodsName;
-                app.singleForm.startWarehouseName = row.warehouseId;
+                app.singleForm.startWarehouseName = row.warehouseName;
                 app.singleForm.unit = "个";
             },
             allocateAll() {
@@ -492,7 +497,7 @@
                     app.applicationForm[choice] = {...generalApplicationForm};
                     app.applicationForm[choice].goodId = app.multipleSelection[choice].goodsId;
                     app.applicationForm[choice].goodName = app.multipleSelection[choice].goodsName;
-                    app.applicationForm[choice].startWarehouseName = app.multipleSelection[choice].warehouseId;
+                    app.applicationForm[choice].startWarehouseName = app.multipleSelection[choice].warehouseName;
                     app.applicationForm[choice].unit = "个";
                 }
             },
@@ -502,6 +507,7 @@
                 getData(searchKey);
             },
             handleChange(value) {
+                app.locationRadio="";
                 console.log(value);
             },
             indexMethod(index) {
