@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>待审核事项</title>
+    <link rel="stylesheet" href="lib/eleme-index.css">
+    <style>
+
+    </style>
+</head>
+<body>
+<div id="app">
+    <el-table
+        :data="items">
+
+    </el-table>
+</div>
+</body>
+<script src="lib/vue.js"></script>
+<script src="lib/eleme-index.js"></script>
+<script src="res/dependencies.js"></script>
+<script>
+    var post = require('/mods/backend');
+
+    var app = new Vue({
+        el: '#app',
+        data: {
+            items:[]
+        },
+        methods: {}
+    });
+</script>
+</html>
