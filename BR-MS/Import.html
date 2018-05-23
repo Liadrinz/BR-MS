@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>入库登记</title>
+    <link rel="stylesheet" href="lib/eleme-index.css">
+    <style>
+    </style>
+</head>
+<body>
+<div id="app">
+    <div id="above">
+        <el-form id="above-form">
+            <el-form :inline="true" label-width="200px">
+                <el-form-item label="入库单号" v-model="importInfo.importId">
+                    <el-input size="medium"></el-input>
+                </el-form-item>
+                <el-form-item label="入库单上传">
+                    <el-upload action="#">
+                        <el-button type="primary" size="medium">点击上传</el-button>
+                    </el-upload>
+                </el-form-item>
+            </el-form>
+            <el-form :inline="true" label-width="200px">
+                <el-form-item label="建单人" v-model="importInfo.createdMan">
+                    <el-input size="medium"></el-input>
+                </el-form-item>
+                <el-form-item label="建单日期">
+                    <el-date-picker v-model="importInfo.createdDate" type="date" placeholder="选择日期" format="yyyy年MM月dd日"
+                                    value-format="yyyy-MM-dd" size="medium"></el-date-picker>
+                </el-form-item>
+            </el-form>
+            <el-form :inline="true" label-width="200px">
+                <el-form-item label="供应商">
+                    <el-input size="medium"></el-input>
+                </el-form-item>
+                <el-form-item label="入库类别">
+                    <el-select size="medium" v-model="importInfo.type">
+                        <el-option label="正常入库" :value="1">正常入库</el-option>
+                        <el-option label="非正常入库" :value="0">非正常入库</el-option>
+                    </el-select>
+                </el-form-item>
+            </el-form>
+        </el-form>
+    </div>
+    <div id="below">
+        <el-table :data="resInfo" ref="multipleTable" tooltip-effect="dark" stripe>
+            <el-table-column type="index" :index="indexMethod" label="序号" :width="75"></el-table-column>
+            <el-table-column label="货品信息" :width="125">
+                <template slot-scope="props">
+                    <el-button size="mini" type="primary">填写</el-button><!--跳转到那个写好的页面-->
+                </template>
+            </el-table-column>
+            <el-table-column label="数量" prop="amount" :width="125"></el-table-column>
+            <el-table-column label="单位" prop="unit" :width="125"></el-table-column>
+            <!--未定变量名-->
+            <el-table-column label="存放库位" prop="storedPosition" :width="175"></el-table-column>
+            <el-table-column label="责任人" prop="principal" :width="175"></el-table-column>
+            <el-table-column label="联系电话" prop="tel" :width="200"></el-table-column>
+            <el-table-column label="备注" prop="ps"></el-table-column>
+
+            <el-table-column label="操作">
+                <template slot-scope="props">
+                    <el-button size="mini" type="danger" @click="()=>{performDelete(props.$index,resInfo)}">删除</el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+        <p style="text-align: center">
+            <el-button size="medium" type="primary" @click="handleAdd">+ 添加货品</el-button>
+        </p>
+        <el-dialog :visible.sync="addFormVisible" title="货品简单信息" width="600px">
+
+            <el-form label-width="120px" label-position="left">
+                <el-form-item label="数量">
+                    <el-input v-model="singleResInfo.amount" placeholder="请输入货品的数量"></el-input>
+                </el-form-item>
+                <el-form-item label="单位">
+                    <el-input v-model="singleResInfo.unit" placeholder="请输入货品数量的单位"></el-input>
+                </el-form-item>
+
+                <el-form-item label="存放库位">
+                    <el-input v-model="singleResInfo.storedPosition" placeholder="请输入货品存放的库位"></el-input>
+                </el-form-item>
+
+                <el-form-item label="责任人">
+                    <el-input v-model="singleResInfo.principal" placeholder="请输入货品负责人的姓名"></el-input>
+                </el-form-item>
+                <el-form-item label="联系电话">
+                    <el-input v-model="singleResInfo.tel" placeholder="请输入货品负责人的联系电话"></el-input>
+                </el-form-item>
+
+                <p style="text-align: right">
+                    <el-button type="primary" @click="performAdd">添加</el-button>
+                    <el-button @click="addFormVisible=false">取消</el-button>
+                </p>
+            </el-form>
+        </el-dialog>
+    </div>
+    <p style="text-align: right">
+        <el-button type="primary" @click="save">保存</el-button>
+        <el-button @click="print">生成货品清单</el-button>
+    </p>
+</div>
+</body>
+<!-- 这是 JS 代码，一定要放在 <body> 后面 -->
+<script src="lib/vue.js"></script>
+<script src="lib/eleme-index.js"></script>
+<script src="res/dependencies.js"></script>
+<script>
+    var post = require('/mods/backend');
+    function generalSingle(){
+        this.unit="";
+        this.amount="";
+        this.storedPosition="";
+        this.principal="";
+        this.tel="";
+    }
+    var app = new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                addFormVisible: false,
+                importInfo: {
+                    //入库单号
+                    importId: "",
+                    //建单人
+                    createdMan: "",
+                    //建单日期
+                    createdDate: "",
+                    //供应商
+                    supplier: "",
+                    //入库类别
+                    type: ""
+                },
+                singleResInfo:{
+                    unit:"",
+                    amount: "",
+                    storedPosition: "",
+                    principal: "",
+                    tel: ""
+                },
+                resInfo: [
+                    //fake
+                    {
+                        unit: "台",
+                        amount: 20,
+                        storedPosition: "东南",
+                        principal: "我",
+                        tel: "18888888888"
+                    },
+                ]
+            }
+        },
+        methods: {
+            indexMethod(index) {
+                return index + 1;
+            },
+            handleAdd() {
+                app.addFormVisible = true;
+            },
+            performAdd(){
+                app.resInfo.push(app.singleResInfo);
+                app.addFormVisible=false;
+                app.singleResInfo=new generalSingle();
+            },
+            performDelete(index,rows){
+                rows.splice(index,1);
+            },
+            save(){
+                //交互
+            },
+            print(){
+                //打印机
+            }
+        }
+    });
+</script>
+</html>
