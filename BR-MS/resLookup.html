@@ -92,7 +92,7 @@
             <el-button @click="dialogs.detail=false" size="mini">关闭</el-button>
         </span>
     </el-dialog>
-    <el-dialog title="申请信息" :visible.sync="dialogs.allocate" width="70%">
+    <el-dialog title="申请信息" :visible.sync="dialogs.allocate" width="70%" :before-close="()=>{clearFilledForm();dialogs.allocate=false}">
         <!--申请信息表单-->
         <el-form :model="singleForm">
             <el-form :inline="true">
