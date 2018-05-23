@@ -187,8 +187,10 @@
         post('/common/getms',{
             pageNum:1
         },(data,err)=>{
-            if(err.id===post.NOT_LOGIN){
-                window.location.href='login.html';
+            if(err){
+                if(err.id===post.NOT_LOGIN){
+                    window.location.href='login.html';
+                }
             }
         })
     }

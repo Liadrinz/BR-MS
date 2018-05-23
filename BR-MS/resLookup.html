@@ -8,6 +8,11 @@
         .el-form-item {
             margin: 0;
         }
+
+        .postfix {
+            color: #8c939d;
+            font-size: 13px;
+        }
     </style>
 </head>
 <body>
@@ -15,15 +20,15 @@
     <el-form>
         <el-form-item label="物资状态：" size="mini">
             <el-radio-group v-model="stateId">
-                <el-radio label="1" border>不限</el-radio>
-                <el-radio label="2" border>调配</el-radio>
-                <el-radio label="3" border>占用</el-radio>
-                <el-radio label="4" border>使用</el-radio>
-                <el-radio label="5" border>空闲</el-radio>
+                <el-radio :label="null" border>不限</el-radio>
+                <el-radio :label="1" border>调配</el-radio>
+                <el-radio :label="2" border>占用</el-radio>
+                <el-radio :label="3" border>使用</el-radio>
+                <el-radio :label="4" border>空闲</el-radio>
             </el-radio-group>
         </el-form-item>
         <el-form-item label="物资类别：" size="mini">
-            <!--  TODO: Waiting for 组件  -->
+            <el-input v-model="type" placeholder="请输入" style="width: 200px"></el-input>
         </el-form-item>
         <el-form-item label="地理位置：" size="mini">
             <el-radio v-model="locationRadio" label="1" border>不限</el-radio>
@@ -37,6 +42,7 @@
         </el-form-item>
         <el-form-item>
             <el-button type="primary" @click="search">查询</el-button>
+            <el-button @click="reset">重置</el-button>
         </el-form-item>
     </el-form>
 
@@ -58,7 +64,7 @@
         <el-table-column label="" width="200">
             <template slot-scope="props">
                 <el-button size="mini" type="text" @click="()=>{detail(props.row)}">详情</el-button>
-                <el-button size="mini" type="text" @click="dialogs.allocate=true">申请调配</el-button>
+                <el-button size="mini" type="text" @click="()=>{allocate(props.row)}">申请调配</el-button>
             </template>
         </el-table-column>
     </el-table>
@@ -67,8 +73,7 @@
                        :page-size="6" layout="total,prev,pager,next,jumper" :total="totalNum"></el-pagination>
     </p>
     <div>
-        <el-button size="mini">申请调配所选项</el-button>
-        <el-button size="mini">查看申请表单</el-button>
+        <el-button size="mini" @click="allocateAll">申请调配所选项</el-button>
     </div>
 
     <!-- 与物资详情、申请物资有关的对话框 -->
@@ -83,13 +88,13 @@
     </el-dialog>
     <el-dialog title="申请信息" :visible.sync="dialogs.allocate" width="70%">
         <!--申请信息表单-->
-        <el-form :model="applicationForm">
+        <el-form :model="singleForm">
             <el-form :inline="true">
                 <el-form-item label="申请人" size="mini">
-                    <el-input v-model="applicationForm.userRealName" :disabled="true"></el-input>
+                    <el-input v-model="singleForm.userRealName" :disabled="true"></el-input>
                 </el-form-item>
                 <el-form-item label="申请单位" size="mini">
-                    <el-input v-model="applicationForm.companyName" :disabled="true"></el-input>
+                    <el-input v-model="singleForm.companyName" :disabled="true"></el-input>
                 </el-form-item>
             </el-form>
 
@@ -97,35 +102,48 @@
             <el-form>
                 <el-form :inline="true"><!--从后台生成-->
                     <el-form-item label="申请物资名称" size="mini">
-                        <el-input v-model="applicationForm.goodName" :disabled="true"></el-input>
+                        <el-input v-model="singleForm.goodName" :disabled="true"></el-input>
                     </el-form-item>
                     <el-form-item label="申请物资编号" size="mini">
-                        <el-input v-model="applicationForm.goodId" :disabled="true"></el-input>
+                        <el-input v-model="singleForm.goodId" :disabled="true"></el-input>
                     </el-form-item>
                     <el-form-item label="所在仓库" size="mini">
-                        <el-input v-model="applicationForm.startWarehouseName"
+                        <el-input v-model="singleForm.startWarehouseName"
                                   :disabled="true"></el-input>
                     </el-form-item>
                 </el-form>
                 <el-form :inline="true"><!--可清空Input输入框-->
                     <el-form-item label="用途说明" size="mini">
-                        <el-input v-model="applicationForm.description" clearable></el-input>
+                        <el-input v-model="singleForm.description" clearable></el-input>
                     </el-form-item>
                 </el-form>
                 <el-form :inline="true">
                     <el-form-item label="调配数量" size="mini">
-                        <el-input v-model="applicationForm.amount" clearable></el-input>
+                        <el-input v-model="singleForm.amount" clearable></el-input>
                     </el-form-item>
                     <el-form-item label="单位" size="mini"><!--无对应接口名-->
-                        <el-input v-model="applicationForm.unit" :disabled="true"></el-input>
+                        <el-input v-model="singleForm.unit" :disabled="true"></el-input>
                     </el-form-item>
                 </el-form>
                 <el-form :inline="true">
                     <el-form-item label="调配时间" size="mini"><!--无对应接口名-->
-                        <el-input v-model="applicationForm.time" clearable></el-input>
+                        <el-input v-model="singleForm.time" :disabled="true" style="width: 150px"></el-input>
+                        <span class="postfix">小时</span>
+                    </el-form-item>
+                    <el-form-item label="费用" size="mini"><!--无对应接口名-->
+                        <el-input v-model="singleForm.price" :disabled="true" style="width: 150px"></el-input>
+                        <span class="postfix">元</span>
                     </el-form-item>
                     <el-form-item label="运输方式" size="mini"><!--无对应接口名-->
-                        <el-select v-model="applicationForm.transport"></el-select>
+                        <el-select v-model="singleForm.transport" @change="()=>{
+                        singleForm.price=singleForm.transport==0?'':singleForm.transport*1.9;
+                        singleForm.time=singleForm.transport==0?'':360/singleForm.transport;
+                        }">
+                            <el-option label="航运" :value="30"></el-option>
+                            <el-option label="海运" :value="2"></el-option>
+                            <el-option label="高铁" :value="10"></el-option>
+                            <el-option label="普通铁路" :value="5"></el-option>
+                        </el-select>
                     </el-form-item>
                 </el-form>
             </el-form>
@@ -137,12 +155,12 @@
                                  @change="handleChange"></el-cascader>
                 </el-form-item>
                 <el-form-item size="mini">
-                    <el-input v-model="applicationForm.destinationAddress"></el-input>
+                    <el-input v-model="singleForm.destinationAddress"></el-input>
                 </el-form-item>
             </el-form>
             <el-form :inline="true">
                 <el-form-item label="目的仓库" size="mini">
-                    <el-input v-model="applicationForm.endWarehouseName" clearable></el-input>
+                    <el-input v-model="singleForm.endWarehouseName" clearable></el-input>
                 </el-form-item>
             </el-form>
             <hr>
@@ -151,17 +169,17 @@
             <el-form :inline="true">
                 <!--如果联系人就是申请人的话 否则没有接口名-->
                 <el-form-item label="联系人" size="mini">
-                    <el-input v-model="applicationForm.userRealName" clearable></el-input>
+                    <el-input v-model="singleForm.userRealName" clearable></el-input>
                 </el-form-item>
             </el-form>
             <el-form :inline="true"><!--无对应接口名-->
                 <el-form-item label="电话" size="mini">
-                    <el-input v-model="applicationForm.tel" clearable></el-input>
+                    <el-input v-model="singleForm.tel" clearable></el-input>
                 </el-form-item>
             </el-form>
             <el-form :inline="true"><!--无对应接口名-->
                 <el-form-item label="备注" size="mini">
-                    <el-input v-model="applicationForm.ps" :rows="3" placeholder="请输入备注"
+                    <el-input v-model="singleForm.ps" :rows="3" placeholder="请输入备注"
                               clearable></el-input>
                 </el-form-item>
             </el-form>
@@ -169,8 +187,117 @@
 
         <span slot="footer" class="dialog-footer">
             <el-button size="mini">暂存</el-button>
-            <el-button size="mini">提交</el-button>
-            <el-button @click="dialogs.allocate=false" size="mini">返回</el-button>
+            <el-button size="mini" @click="submitSingle">提交</el-button>
+            <el-button @click="()=>{dialogs.allocate=false;clearFilledForm();}" size="mini">返回</el-button>
+        </span>
+    </el-dialog>
+    <el-dialog title="申请信息" :visible.sync="dialogs.allocateAll" width="70%">
+        <!--申请信息表单-->
+        <div v-for="i in [...multipleSelection.keys()]">
+            <el-form>
+                <el-form :inline="true">
+                    <el-form-item label="申请人" size="mini">
+                        <el-input v-model="singleForm.userRealName" :disabled="true"></el-input>
+                    </el-form-item>
+                    <el-form-item label="申请单位" size="mini">
+                        <el-input v-model="singleForm.companyName" :disabled="true"></el-input>
+                    </el-form-item>
+                </el-form>
+
+                <!--可删除表单-->  <!--?如何多选时生成相应数量的此表单-->
+                <el-form>
+                    <el-form :inline="true"><!--从后台生成-->
+                        <el-form-item label="申请物资名称" size="mini">
+                            <el-input v-model="applicationForm[i].goodName" :disabled="true"></el-input>
+                        </el-form-item>
+                        <el-form-item label="申请物资编号" size="mini">
+                            <el-input v-model="applicationForm[i].goodId" :disabled="true"></el-input>
+                        </el-form-item>
+                        <el-form-item label="所在仓库" size="mini">
+                            <el-input v-model="applicationForm[i].startWarehouseName"
+                                      :disabled="true"></el-input>
+                        </el-form-item>
+                    </el-form>
+                    <el-form :inline="true"><!--可清空Input输入框-->
+                        <el-form-item label="用途说明" size="mini">
+                            <el-input v-model="applicationForm[i].description" clearable></el-input>
+                        </el-form-item>
+                    </el-form>
+                    <el-form :inline="true">
+                        <el-form-item label="调配数量" size="mini">
+                            <el-input v-model="applicationForm[i].amount" clearable></el-input>
+                        </el-form-item>
+                        <el-form-item label="单位" size="mini"><!--无对应接口名-->
+                            <el-input v-model="applicationForm[i].unit" :disabled="true"></el-input>
+                        </el-form-item>
+                    </el-form>
+                    <el-form :inline="true">
+                        <el-form-item label="调配时间" size="mini"><!--无对应接口名-->
+                            <el-input v-model="applicationForm[i].time" :disabled="true"
+                                      style="width: 150px"></el-input>
+                            <span class="postfix">小时</span>
+                        </el-form-item>
+                        <el-form-item label="费用" size="mini"><!--无对应接口名-->
+                            <el-input v-model="applicationForm[i].price" :disabled="true"
+                                      style="width: 150px"></el-input>
+                            <span class="postfix">元</span>
+                        </el-form-item>
+                        <el-form-item label="运输方式" size="mini"><!--无对应接口名-->
+                            <el-select v-model="selectedTransport[i]" @change="()=>{
+                            applicationForm[i].time=360/selectedTransport[i];
+                            applicationForm[i].price=selectedTransport[i]*1.9;
+                            }">
+                                <el-option label="航运" :value="30"></el-option>
+                                <el-option label="海运" :value="2"></el-option>
+                                <el-option label="高铁" :value="10"></el-option>
+                                <el-option label="普通铁路" :value="5"></el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-form>
+                </el-form>
+
+                <!--目的地地址 目的仓库-->
+                <el-form :inline="true">
+                    <el-form-item label="目的地地址：" size="mini">
+                        <el-cascader :options="areaData" v-model="selectedLocationsList[i]"
+                                     @change="handleChange"></el-cascader>
+                    </el-form-item>
+                    <el-form-item size="mini">
+                        <el-input v-model="applicationForm[i].destinationAddress"></el-input>
+                    </el-form-item>
+                </el-form>
+                <el-form :inline="true">
+                    <el-form-item label="目的仓库" size="mini">
+                        <el-input v-model="applicationForm[i].endWarehouseName" clearable></el-input>
+                    </el-form-item>
+                </el-form>
+                <hr>
+            </el-form>
+        </div>
+        <el-form>
+            <!--联系人 电话 备注-->
+            <el-form :inline="true">
+                <!--如果联系人就是申请人的话 否则没有接口名-->
+                <el-form-item label="联系人" size="mini">
+                    <el-input v-model="singleForm.userRealName" clearable></el-input>
+                </el-form-item>
+            </el-form>
+            <el-form :inline="true"><!--无对应接口名-->
+                <el-form-item label="电话" size="mini">
+                    <el-input v-model="singleForm.tel" clearable></el-input>
+                </el-form-item>
+            </el-form>
+            <el-form :inline="true"><!--无对应接口名-->
+                <el-form-item label="备注" size="mini">
+                    <el-input v-model="singleForm.ps" :rows="3" placeholder="请输入备注"
+                              clearable></el-input>
+                </el-form-item>
+            </el-form>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+            <el-button size="mini">暂存</el-button>
+            <el-button size="mini" @click="submitAll">提交</el-button>
+            <el-button @click="()=>{dialogs.allocateAll=false;clearFilledForm();}" size="mini">返回</el-button>
         </span>
     </el-dialog>
 </div>
@@ -181,11 +308,13 @@
 <script>
     //交互没写
     var post = require('/mods/backend');
+    var CTT = require('element-china-area-data').CodeToText;
     var searchKey = {};
     var items = [];
     var pageNum = 1, pageSize = 6, maxPage = 0;
+    var userInfo;
 
-    const ChinaAreaData = require('element-china-area-data').provinceAndCityData;
+    const ChinaAreaData = require('element-china-area-data').regionData;
 
     function getData(searchKey) {
         clearData();
@@ -209,6 +338,32 @@
         }
     }
 
+
+
+    var generalApplicationForm = {
+        userRealName: "",
+        companyName: "",
+        goodName: "",
+        goodId: "",
+        startWarehouseName: "",
+        description: "",
+        amount: "",
+        unit: "",
+        time: "",
+        price: "",
+        transport: "",
+        province: "",
+        city: "",
+        county: "",
+        destinationAddress: "",
+        endWarehouseName: "",
+        tel: "",
+        ps: ""
+    }
+
+    var generalList = [{...generalApplicationForm}, {...generalApplicationForm}, {...generalApplicationForm},
+        {...generalApplicationForm}, {...generalApplicationForm}, {...generalApplicationForm}];
+
     var app = new Vue({
         el: '#app',
         data: {
@@ -216,74 +371,130 @@
             totalNum: 0,
             stateId: '',
             locationRadio: '', /* 3.地理位置不限locationRadio */
+            type: '',
             produceTime: '',
             selectedLocations: [],
-            multiplySelection: [],
+            selectedLocationsList:[
+                [],[],[],[],[],[]
+            ],
+            selectedTransport:[],
+            multipleSelection: [],
             areaData: ChinaAreaData,
             dialogs: {
                 detail: false,
-                allocate: false
+                allocate: false,
+                allocateAll: false
             },
             resultData: items,
-            applicationForm:[],
-            transfer:{
-                goods_id:'物资ID',
-                goods_name:'物资名称',
-                local_id:'编号',
-                type:'物资类型',
-                keywords:'关键字',
-                norms:'规格',
-                appearance:'外观',
-                time_feature:'时间特征',
-                safety_condition:'安全条件',
-                carrier_size:'运载尺寸',
-                temperature:'温度条件',
-                humidity:'湿度条件',
-                other_conditions:'其他条件',
-                producer_name:'生产商',
-                produce_time:'生产时间',
-                produce_valid_time:'过期时间',
-                ip_address:'描述文件地址',
-                warehouse_id:'所在仓库',
-                longitude:'经度',
-                latitude:'纬度',
-                altitude:'海拔',
-                country_id:'国家ID',
-                area:'战区ID',
-                province_id:'省份ID',
-                city_id:'城市ID',
-                county_id:'区县ID',
-                detail_location:'详细地址',
-                is_managed:'过程管理',
-                register_time:'最后一次修改时间',
-                state_id:'状态ID',
-                state_type:'状态类型',
-                state_value:'状态值',
-                quantity:'数量'
+            detailForm: [],
+            applicationForm: generalList,
+            singleForm: generalApplicationForm,
+            transfer: {
+                goods_id: '物资ID',
+                goods_name: '物资名称',
+                local_id: '编号',
+                type: '物资类型',
+                keywords: '关键字',
+                norms: '规格',
+                appearance: '外观',
+                time_feature: '时间特征',
+                safety_condition: '安全条件',
+                carrier_size: '运载尺寸',
+                temperature: '温度条件',
+                humidity: '湿度条件',
+                other_conditions: '其他条件',
+                producer_name: '生产商',
+                produce_time: '生产时间',
+                produce_valid_time: '过期时间',
+                ip_address: '描述文件地址',
+                warehouse_id: '所在仓库',
+                longitude: '经度',
+                latitude: '纬度',
+                altitude: '海拔',
+                country_id: '国家',
+                area: '战区',
+                province_id: '省份',
+                city_id: '城市',
+                county_id: '区县',
+                detail_location: '详细地址',
+                is_managed: '过程管理',
+                register_time: '最后一次修改时间',
+                state_id: '状态',
+                state_type: '状态类型',
+                state_value: '状态值',
+                quantity: '数量'
             }
         },
+        mounted: function () {
+            post('/common/get_my_info', {}, (data) => {
+                userInfo = data[0];
+            });
+        },
         methods: {
-            detail(row){
-                app.dialogs.detail=true;
-                post('/common/user_goods/get_detail',{
-                    goodsId:row.goodsId
-                },(data,err)=>{
-                    if(err){
+            clearFilledForm(){
+                while(app.selectedLocations[0]!=undefined){
+                    app.selectedLocations.pop();
+                }
+                for(var i in app.selectedLocationsList){
+                    app.selectedLocationsList[i]=[];
+                }
+                while(app.selectedTransport[0]!=undefined){
+                    app.selectedTransport.pop();
+                }
+            },
+            detail(row) {
+                while (app.detailForm[0] !== undefined) {
+                    app.detailForm.pop();
+                }
+                console.log(app.detailForm);
+                post('/common/user_goods/get_detail', {
+                    goodsId: row.goodsId
+                }, (data, err) => {
+                    if (err) {
                         app.$message.error(err.msg);
                     }
                     console.log(data);
-                    for(var key in data){
-                        var obj={};
-                        obj['key']=app.transfer[key];
-                        if(key==='is_managed'){
-                            obj['val']=['不受监管','受监管'][parseInt(data[key])]
-                        }else{
-                            obj['val']=data[key];
+                    for (var key in data) {
+                        var obj = {};
+                        obj['key'] = app.transfer[key];
+                        if (key === 'is_managed') {
+                            obj['val'] = ['不受监管', '受监管'][parseInt(data[key])];
+                        } else if (key === 'state_id') {
+                            obj['val'] = ["", '调配', '占用', '使用', '空闲'][parseInt(data[key])];
+                        } else if (key === 'province_id' || key === 'city_id' || key === 'county_id') {
+                            obj['val'] = CTT[parseInt(data[key])];
+                        } else if (key === 'country_id') {
+                            obj['val'] = ["其他", "中国", "其他"][parseInt(data[key])];
+                        } else {
+                            obj['val'] = data[key];
                         }
-                        app.applicationForm.push(obj);
+                        app.detailForm.push(obj);
                     }
-                    console.log(app.applicationForm);
-                })
+                });
+                app.dialogs.detail = true;
+            },
+            allocate(row) {
+                app.dialogs.allocate = true;
+                app.singleForm = {...generalApplicationForm};
+                app.singleForm.userRealName = userInfo.realName;
+                app.singleForm.companyName = userInfo.companyName;
+                app.singleForm.goodId = row.goodsId;
+                app.singleForm.goodName = row.goodsName;
+                app.singleForm.startWarehouseName = row.warehouseId;
+                app.singleForm.unit = "个";
+            },
+            allocateAll() {
+                app.dialogs.allocateAll = true;
+                app.singleForm = {...generalApplicationForm};
+                app.singleForm.userRealName = userInfo.realName;
+                app.singleForm.companyName = userInfo.companyName;
+                for (var choice in app.multipleSelection) {
+                    app.applicationForm[choice] = {...generalApplicationForm};
+                    app.applicationForm[choice].goodId = app.multipleSelection[choice].goodsId;
+                    app.applicationForm[choice].goodName = app.multipleSelection[choice].goodsName;
+                    app.applicationForm[choice].startWarehouseName = app.multipleSelection[choice].warehouseId;
+                    app.applicationForm[choice].unit = "个";
+                }
             },
             handleCurrentChange(page) {
                 app.pageNum = page;
@@ -297,12 +508,12 @@
                 return index + 1;
             },
             handleSelectionChange(val) {
-                this.multipleSelection = val;
+                app.multipleSelection = val;
             },
             search: function () {
                 var data = {
                     stateId: app.stateId,
-                    type: null,
+                    type: app.type,
                     province: app.selectedLocations[0],
                     city: app.selectedLocations[1],
                     produceTime: app.produceTime
@@ -310,13 +521,48 @@
                 searchKey['pageNum'] = app.pageNum;
                 for (var i in data) {
                     if (data[i] !== null && data[i] !== "") {
+                        if (i === 'produceTime') {
+                            searchKey[i] = data[i] + " 00:00:00";
+                        }
                         searchKey[i] = data[i];
                     }
                 }
                 getData(searchKey);
+            },
+            reset: function () {
+                searchKey = {pageNum: app.pageNum};
+                app.stateId = "";
+                app.type = "";
+                app.selectedLocations = [];
+                app.locationRadio = "";
+                app.produceTime = "";
+                getData(searchKey);
+            },
+            submitSingle: function () {
+                var toPost = {};
+                Object.assign(toPost, app.singleForm);
+                toPost['province']=app.selectedLocations[0];
+                toPost['city']=app.selectedLocations[1];
+                toPost['county']=app.selectedLocations[2];
+            },
+            submitAll:function(){
+                var toPost={};
+                var postList=[];
+                for(var form in app.applicationForm){
+                    Object.assign(toPost,app.applicationForm[form]);
+                    toPost['province']=app.selectedLocationsList[form][0];
+                    toPost['city']=app.selectedLocationsList[form][1];
+                    toPost['county']=app.selectedLocationsList[form][2];
+                    toPost['companyName']=app.singleForm['companyName'];
+                    toPost['ps']=app.singleForm['ps'];
+                    toPost['transport']=app.selectedTransport[form];
+                    toPost['userRealName']=app.singleForm['userRealName'];
+                    toPost['tel']=app.singleForm['tel'];
+                    postList.push({...toPost});
+                }
+                console.log(postList);
             }
         }
     });
 </script>
-
 </html>

@@ -109,6 +109,9 @@
                                     <el-form-item label="发件人:">
                                         <span>{{props.row.sender}}</span>
                                     </el-form-item>
+                                    <el-form-item label="收件人:">
+                                        <span>{{props.row.recipient}}</span>
+                                    </el-form-item>
                                     <el-form-item label="主题:">
                                         <span>{{props.row.theme}}</span>
                                     </el-form-item>
@@ -189,10 +192,8 @@
                 }
                 return;
             }
-            if (unchanged !== true) {
-                totalCompute(searchKey);
-                maxPageRef.push(data.allPages);
-            }
+            totalCompute(searchKey);
+            maxPageRef.push(data.allPages);
             var msg = data.SysMessage
             console.log(msg);
             if(app.checked===4){
@@ -414,6 +415,9 @@
                 })
             },
             delSelected: function () {
+                if(app.multipleSelection[0]===undefined){
+                    return;
+                }
                 this.$confirm('确认删除所选消息？', null, {
                     confirmButtonText: '确定',
                     cancelButtonText: '取消',
@@ -481,24 +485,27 @@
             },
             hasRead: function (row) {
                 row.dialog2Visible = true;
-                post('/common/readedms', {
-                    msg_Id: row.msg_Id,
-                    isDel: 0
-                }, (data, err) => {
-                    if (err) {
-                        app.$message.error(err.msg);
-                        app.initializing = false;
-                        if (err.id === post.NOT_LOGIN) {
+                if(app.checked!==4){
+                    post('/common/readedms', {
+                        msg_Id: row.msg_Id,
+                        isDel: 0
+                    }, (data, err) => {
+                        if (err) {
+                            app.$message.error(err.msg);
+                            app.initializing = false;
+                            if (err.id === post.NOT_LOGIN) {
 
+                            }
+                            app.initializing = false;
+                            return;
                         }
+                        pageControl('stay', searchKey);
+                        console.log(data);
+                        console.log(err);
                         app.initializing = false;
-                        return;
-                    }
-                    pageControl('stay', searchKey);
-                    console.log(data);
-                    console.log(err);
-                    app.initializing = false;
-                });
+                    });
+                }
+                pageControl('stay', searchKey);
             },
             search: function () {
                 app.initializing = true;
@@ -523,5 +530,4 @@
         }
     })
 </script>
-
 </html>
