@@ -41,13 +41,21 @@
                 <el-table-column prop="rukushijian" label="入库时间"></el-table-column>
                 <el-table-column prop="gongyingshang" label="供应商"></el-table-column>
                 <el-table-column prop="xiangxixinxi" label="详细信息" width="80">
+                    <!--点击查看当前物资详细信息-->
                     <template slot-scope="scope">
-                        <el-button size="mini"style="background-color: #ececec">查看</el-button>
+                        <el-button size="mini"style="background-color: #ececec" @click="dialogVisible=true">查看</el-button>
+                        <el-dialog title="货品详细信息" :visible.sync="dialogVisible" width="50%" :before-close="handleClose">
+                            <span>这里应该是所选货品的详细信息</span>
+                            <span slot="footer" class="dialog-footer">
+                                <el-button @click="dialogVisible = false" size="mini" style="background-color: #ececec">关闭</el-button>
+                            </span>
+                        </el-dialog>
                     </template>
                 </el-table-column>
                 <el-table-column prop="zerenren" label="责任人"></el-table-column>
                 <el-table-column prop="lianxidianhua" label="联系电话"></el-table-column>
                 <el-table-column prop="chuku" label="">
+                    <!--点击出库 复制转移所有当前货品编号至 outResult-->
                     <template slot-scope="scope">
                         <el-button size="mini" style="background-color: #ececec">出库</el-button>
                     </template>
@@ -58,8 +66,8 @@
         <!--出库业务-->
         <el-form :model="outGoing">
             <el-form :inline="true">
-                <el-form-item label="操作员：" size="mini"><el-input v-model="outGoing.caozuoyuan"></el-input></el-form-item>
-                <el-form-item label="仓库：" size="mini"><el-input v-model="outGoing.cangku"></el-input></el-form-item>
+                <el-form-item label="操作员：" size="mini"><el-input v-model="outGoing.caozuoyuan" :disabled="true"></el-input></el-form-item>
+                <el-form-item label="仓库：" size="mini"><el-input v-model="outGoing.cangku" :disabled="true"></el-input></el-form-item>
             </el-form>
             <el-form :inline="true">
                 <el-form-item label="建单人：" size="mini"><el-input v-model="outGoing.jiandanren"></el-input></el-form-item>
@@ -73,6 +81,7 @@
                     </el-select>
                 </el-form-item>
             </el-form>
+            <!--点击上传文件-->
             <el-form :inline="true">
                 <el-form-item label="出库单上传：" size="mini" :inline="true">
                     <el-upload action="https://jsonplaceholder.typicode.com/posts/" :on-preview="handlePreview" :on-remove="handleRemove" :before-remove="beforeRemove" multiple :limit="3" :on-exceed="handleExceed" :file-list="fileList">
@@ -95,6 +104,7 @@
                 <el-table-column prop="lianxidianhua" label="联系电话"></el-table-column>
                 <el-table-column prop="beizhu" label="备注"></el-table-column>
                 <el-table-column prop="shanchu" label="">
+                    <!--点击删除当前已选中货品-->
                     <template slot-scope="scope">
                         <el-button size="mini" style="background-color: #ececec">删除</el-button>
                     </template>
@@ -104,6 +114,7 @@
             <el-form>
                 <el-form-item size="medium">
                     <el-button style="background-color: #ececec">保存</el-button>
+                    <!--点击调用打印机 打印outResult表格清单-->
                     <el-button style="background-color: #ececec">生成货品清单</el-button>
                 </el-form-item>
             </el-form>
@@ -157,9 +168,10 @@
                     beizhu:''
                 }],
                 fileList: [{/* 出库业务 —— 出库单上传 */
-                    name: '',
+                    name: '默认文件',
                     url: ''
-                }]
+                }],
+                dialogVisible:false  /*查看当前货品详细信息 查看 button*/
 
             }
         },
