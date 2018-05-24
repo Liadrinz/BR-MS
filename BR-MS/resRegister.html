@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>ElementUI + Vue 模板</title>
+    <title>物资注册</title>
     <link rel="stylesheet" href="lib/eleme-index.css">
     <style>
+
         .el-collapse-item__header {
             font-size: 18px;
             font-weight: bolder;
@@ -51,10 +52,19 @@
             overflow: hidden;
         }
 
-        a{
-            color:black;
+        a {
+            color: black;
             text-decoration: none;
         }
+
+        el-main{
+            overflow: fragments;
+        }
+
+        .anchor:target{
+            padding-top:140px;
+        }
+
     </style>
 </head>
 <body>
@@ -67,11 +77,13 @@
                     <div class="header" style="margin:0;border:none;">
                         <span style="margin:0 5px 5px 5px;padding-top:35px;">物资信息</span>
                     </div>
-                    <div class="anchor">
+                    <div>
                         <el-table :data="menu">
                             <el-table-column prop="val">
                                 <template slot-scope="props">
-                                    <a href="#"><div>{{props.row.val}}</div></a>
+                                    <a :href="'#'+props.row.id">
+                                        <div>{{props.row.val}}</div>
+                                    </a>
                                 </template>
                             </el-table-column>
                         </el-table>
@@ -81,166 +93,172 @@
             <el-main>
                 <el-collapse id="collapse-container" v-model="activeNames" @change="handleCollapse"
                              style="margin-top: 45px">
-                    <el-collapse-item title="属性" name="1">
-                        <div>
-                            <div class="header">
-                                <span>标识</span>
-                            </div>
-                            <el-form label-position="right" label-width="250px">
-                                <el-form-item label="物资名称">
-                                    <el-input v-model="resGeneralForm.resGeneralFormwzmc" placeholder="物资名称"></el-input>
-                                </el-form-item>
-                                <el-form-item label="身份识别码">
-                                    <el-input v-model="resGeneralForm.sfsbm" placeholder="身份识别码"></el-input>
-                                </el-form-item>
-                                <el-form-item label="物资类型">
-                                    <el-select v-model="resGeneralForm.wzlx" placeholder="物资类型">
-                                        <el-option value="电脑整机">电脑整机</el-option>
-                                        <el-option value="大型家电">大型家电</el-option>
-                                        <el-option value="网络产品">网络产品</el-option>
-                                        <el-option value="厨房电器">厨房电器</el-option>
-                                        <el-option value="电脑配件">电脑配件</el-option>
-                                        <el-option value="五金装饰">五金装饰</el-option>
-                                        <el-option value="摄影摄像">摄影摄像</el-option>
-                                        <el-option value="健康卫生">健康卫生</el-option>
-                                        <el-option value="数码配件">数码配件</el-option>
-                                        <el-option value="通信器材 ">通信器材</el-option>
-                                        <el-option value="办公设备">办公设备</el-option>
-                                        <el-option value="家具">家具</el-option>
-                                        <el-option value="文具耗材">文具耗材</el-option>
-                                        <el-option value="生活电器 ">生活电器</el-option>
-                                        <el-option value="生活用品">生活用品</el-option>
-                                        <el-option value="汽车用品">汽车用品</el-option>
-                                        <el-option value="文体器材 ">文体器材</el-option>
-                                        <el-option value="学习书籍">学习书籍</el-option>
-                                        <el-option value="粮油食品 ">粮油食品</el-option>
-                                        <el-option value="工程建材">工程建材</el-option>
-                                        <el-option value="医疗卫生">医疗卫生</el-option>
-                                        <el-option value="油品">油品</el-option>
-                                        <el-option value="军队服装">军队服装</el-option>
-                                        <el-option value="交通工具">交通工具</el-option>
-                                        <el-option value="其他">其他</el-option>
-                                    </el-select>
-                                </el-form-item>
-                                <el-form-item label="关键字">
-                                    <el-input v-model="resGeneralForm.gjz" placeholder="关键字"></el-input>
-                                </el-form-item>
-                            </el-form>
-                        </div>
-                        <div>
-                            <div class="header">
-                                <span>特征</span>
-                            </div>
-                            <el-form label-position="right" label-width="250px">
-                                <el-form-item label="物资规格">
-                                    <el-input v-model="resGeneralForm.wzgg" placeholder="物资规格"></el-input>
-                                </el-form-item>
-                                <el-form-item label="外观">
-                                    <el-input v-model="resGeneralForm.wg" placeholder="外观"></el-input>
-                                </el-form-item>
-                                <el-form-item label="生产商名称">
-                                    <el-input v-model="resGeneralForm.scsmc" placeholder="生产商名称"></el-input>
-                                </el-form-item>
-                                <el-form-item label="生产日期">
-                                    <el-date-picker v-model="resGeneralForm.produceTime" type="date"
-                                                    placeholder="选择生产日期"
-                                                    format="yyyy年MM月dd日"
-                                                    value-format="yyyy-MM-dd"></el-date-picker>
-                                </el-form-item>
-                                <el-form-item label="失效日期">
-                                    <el-date-picker v-model="resGeneralForm.sxrq" type="date" placeholder="选择失效日期"
-                                                    format="yyyy年MM月dd日"
-                                                    value-format="yyyy-MM-dd"></el-date-picker>
-                                </el-form-item>
-                                <div class="sub-form">
-                                    <div class="header">
-                                        <span>环境特征</span>
-                                    </div>
-                                    <el-form label-position="right" label-width="250px">
-                                        <el-form-item label="安全条件">
-                                            <el-input v-model="resGeneralForm.aqtj" placeholder="安全条件"></el-input>
-                                        </el-form-item>
-                                        <el-form-item label="运载尺寸">
-                                            <el-input v-model="resGeneralForm.yzcc" placeholder="运载尺寸"></el-input>
-                                        </el-form-item>
-                                        <el-form-item label="温度条件">
-                                            <el-input v-model="resGeneralForm.wdtj" placeholder="温度条件"></el-input>
-                                        </el-form-item>
-                                        <el-form-item label="湿度条件">
-                                            <el-input v-model="resGeneralForm.sdtj" placeholder="湿度条件"></el-input>
-                                        </el-form-item>
-                                        <el-form-item label="其他条件">
-                                            <el-input v-model="resGeneralForm.qttj" placeholder="其他条件"></el-input>
-                                        </el-form-item>
-                                    </el-form>
-                                </div>
-                            </el-form>
-
-                        </div>
-
-                    </el-collapse-item>
-
-                    <el-collapse-item title="位置" name="2">
-                        <div>
-                            <div class="header">
-                                <span>绝对位置</span>
-                            </div>
-                            <el-form label-position="right" label-width="250px">
-                                <el-form-item label="经度">
-                                    <el-input v-model="resGeneralForm.longitude" placeholder="经度"></el-input>
-                                </el-form-item>
-                                <el-form-item label="纬度">
-                                    <el-input v-model="resGeneralForm.latitude" placeholder="纬度"></el-input>
-                                </el-form-item>
-                                <el-form-item label="海拔">
-                                    <el-input v-model="resGeneralForm.altitude" placeholder="海拔"></el-input>
-                                </el-form-item>
-                            </el-form>
-                        </div>
-                        <div>
-                            <div class="header">
-                                <span>相对位置</span>
-                            </div>
-                            <el-form label-position="right" label-width="250px">
-                                <el-form-item label="所在仓库">
-                                    <el-select v-model="resGeneralForm.szck" placeholder="所在仓库">
-                                    </el-select>
-                                </el-form-item>
-                            </el-form>
-                            <div class="sub-form">
+                    <div id="Attr" class="anchor">
+                        <el-collapse-item title="属性" name="1">
+                            <div>
                                 <div class="header">
-                                    <span>行政位置</span>
+                                    <span>标识</span>
                                 </div>
                                 <el-form label-position="right" label-width="250px">
-                                    <el-form-item label="国家">
-                                        <el-select placeholder="国家" v-model="resGeneralForm.gj">
-                                            <el-option label="中国" :value="1">中国</el-option>
-                                            <el-option label="其他" :value="2">其他</el-option>
+                                    <el-form-item label="物资名称">
+                                        <el-input v-model="resGeneralForm.resGeneralFormgoodName"
+                                                  placeholder="物资名称"></el-input>
+                                    </el-form-item>
+                                    <el-form-item label="身份识别码">
+                                        <el-input v-model="resGeneralForm.localId" placeholder="身份识别码"></el-input>
+                                    </el-form-item>
+                                    <el-form-item label="物资类型">
+                                        <el-select v-model="resGeneralForm.type" placeholder="物资类型">
+                                            <el-option value="电脑整机">电脑整机</el-option>
+                                            <el-option value="大型家电">大型家电</el-option>
+                                            <el-option value="网络产品">网络产品</el-option>
+                                            <el-option value="厨房电器">厨房电器</el-option>
+                                            <el-option value="电脑配件">电脑配件</el-option>
+                                            <el-option value="五金装饰">五金装饰</el-option>
+                                            <el-option value="摄影摄像">摄影摄像</el-option>
+                                            <el-option value="健康卫生">健康卫生</el-option>
+                                            <el-option value="数码配件">数码配件</el-option>
+                                            <el-option value="通信器材 ">通信器材</el-option>
+                                            <el-option value="办公设备">办公设备</el-option>
+                                            <el-option value="家具">家具</el-option>
+                                            <el-option value="文具耗材">文具耗材</el-option>
+                                            <el-option value="生活电器 ">生活电器</el-option>
+                                            <el-option value="生活用品">生活用品</el-option>
+                                            <el-option value="汽车用品">汽车用品</el-option>
+                                            <el-option value="文体器材 ">文体器材</el-option>
+                                            <el-option value="学习书籍">学习书籍</el-option>
+                                            <el-option value="粮油食品 ">粮油食品</el-option>
+                                            <el-option value="工程建材">工程建材</el-option>
+                                            <el-option value="医疗卫生">医疗卫生</el-option>
+                                            <el-option value="油品">油品</el-option>
+                                            <el-option value="军队服装">军队服装</el-option>
+                                            <el-option value="交通工具">交通工具</el-option>
+                                            <el-option value="其他">其他</el-option>
                                         </el-select>
                                     </el-form-item>
-                                    <el-form-item label="战区">
-                                        <el-select placeholder="战区" v-model="resGeneralForm.zq">
-                                            <el-option label="东部" value="东部">东部</el-option>
-                                            <el-option label="西部" value="西部">西部</el-option>
-                                            <el-option label="南部" value="南部">南部</el-option>
-                                            <el-option label="北部" value="北部">北部</el-option>
-                                            <el-option label="中部" value="中部">中部</el-option>
-                                        </el-select>
-                                    </el-form-item>
-                                    <el-form-item label="省/市/区">
-                                        <el-cascader placeholder="省/市/区" :options="areaData" v-model="selectedLocations"
-                                                     size="large"></el-cascader>
-                                    </el-form-item>
-                                    <el-form-item label="详细地址">
-                                        <el-input placeholder="详细地址"></el-input>
+                                    <el-form-item label="关键字">
+                                        <el-input v-model="resGeneralForm.keywords" placeholder="关键字"></el-input>
                                     </el-form-item>
                                 </el-form>
                             </div>
-                        </div>
-                    </el-collapse-item>
-                    <el-collapse-item title="状态" name="3">
-                        <div v-for="pwrBelong in powerBelongList">
-                            <div class="header">
+                            <div>
+                                <div class="header">
+                                    <span>特征</span>
+                                </div>
+                                <el-form label-position="right" label-width="250px">
+                                    <el-form-item label="物资规格">
+                                        <el-input v-model="resGeneralForm.norms" placeholder="物资规格"></el-input>
+                                    </el-form-item>
+                                    <el-form-item label="外观">
+                                        <el-input v-model="resGeneralForm.appearance" placeholder="外观"></el-input>
+                                    </el-form-item>
+                                    <el-form-item label="生产商名称">
+                                        <el-input v-model="resGeneralForm.producerName" placeholder="生产商名称"></el-input>
+                                    </el-form-item>
+                                    <el-form-item label="生产日期">
+                                        <el-date-picker v-model="resGeneralForm.produceTime" type="date"
+                                                        placeholder="选择生产日期"
+                                                        format="yyyy年MM月dd日"
+                                                        value-format="yyyy-MM-dd"></el-date-picker>
+                                    </el-form-item>
+                                    <el-form-item label="失效日期">
+                                        <el-date-picker v-model="resGeneralForm.validTime" type="date" placeholder="选择失效日期"
+                                                        format="yyyy年MM月dd日"
+                                                        value-format="yyyy-MM-dd"></el-date-picker>
+                                    </el-form-item>
+                                    <div class="sub-form">
+                                        <div class="header">
+                                            <span>环境特征</span>
+                                        </div>
+                                        <el-form label-position="right" label-width="250px">
+                                            <el-form-item label="安全条件">
+                                                <el-input v-model="resGeneralForm.safetyCondition" placeholder="安全条件"></el-input>
+                                            </el-form-item>
+                                            <el-form-item label="运载尺寸">
+                                                <el-input v-model="resGeneralForm.carrierSize" placeholder="运载尺寸"></el-input>
+                                            </el-form-item>
+                                            <el-form-item label="温度条件">
+                                                <el-input v-model="resGeneralForm.temperature" placeholder="温度条件"></el-input>
+                                            </el-form-item>
+                                            <el-form-item label="湿度条件">
+                                                <el-input v-model="resGeneralForm.humidity" placeholder="湿度条件"></el-input>
+                                            </el-form-item>
+                                            <el-form-item label="其他条件">
+                                                <el-input v-model="resGeneralForm.otherCondition" placeholder="其他条件"></el-input>
+                                            </el-form-item>
+                                        </el-form>
+                                    </div>
+                                </el-form>
+
+                            </div>
+
+                        </el-collapse-item>
+                    </div>
+                    <div id="Pos" class="anchor">
+                        <el-collapse-item title="位置" name="2">
+                            <div name="2">
+                                <div class="header">
+                                    <span>绝对位置</span>
+                                </div>
+                                <el-form label-position="right" label-width="250px">
+                                    <el-form-item label="经度">
+                                        <el-input v-model="resGeneralForm.longitude" placeholder="经度"></el-input>
+                                    </el-form-item>
+                                    <el-form-item label="纬度">
+                                        <el-input v-model="resGeneralForm.latitude" placeholder="纬度"></el-input>
+                                    </el-form-item>
+                                    <el-form-item label="海拔">
+                                        <el-input v-model="resGeneralForm.altitude" placeholder="海拔"></el-input>
+                                    </el-form-item>
+                                </el-form>
+                            </div>
+                            <div>
+                                <div class="header">
+                                    <span>相对位置</span>
+                                </div>
+                                <el-form label-position="right" label-width="250px">
+                                    <el-form-item label="所在仓库">
+                                        <el-select v-model="resGeneralForm.warehouseId" placeholder="所在仓库">
+                                        </el-select>
+                                    </el-form-item>
+                                </el-form>
+                                <div class="sub-form">
+                                    <div class="header">
+                                        <span>行政位置</span>
+                                    </div>
+                                    <el-form label-position="right" label-width="250px">
+                                        <el-form-item label="国家">
+                                            <el-select placeholder="国家" v-model="resGeneralForm.country">
+                                                <el-option label="中国" :value="1">中国</el-option>
+                                                <el-option label="其他" :value="2">其他</el-option>
+                                            </el-select>
+                                        </el-form-item>
+                                        <el-form-item label="战区">
+                                            <el-select placeholder="战区" v-model="resGeneralForm.area">
+                                                <el-option label="东部" value="东部">东部</el-option>
+                                                <el-option label="西部" value="西部">西部</el-option>
+                                                <el-option label="南部" value="南部">南部</el-option>
+                                                <el-option label="北部" value="北部">北部</el-option>
+                                                <el-option label="中部" value="中部">中部</el-option>
+                                            </el-select>
+                                        </el-form-item>
+                                        <el-form-item label="省/市/区">
+                                            <el-cascader placeholder="省/市/区" :options="areaData"
+                                                         v-model="selectedLocations"
+                                                         size="large"></el-cascader>
+                                        </el-form-item>
+                                        <el-form-item label="详细地址">
+                                            <el-input placeholder="详细地址"></el-input>
+                                        </el-form-item>
+                                    </el-form>
+                                </div>
+                            </div>
+                        </el-collapse-item>
+                    </div>
+                    <div id="State" class="anchor">
+                        <el-collapse-item title="状态" name="3" id="State">
+                            <div v-for="pwrBelong in powerBelongList" name="3">
+                                <div class="header">
                                 <span>权属
                                 <div class="adel">
                                     <el-button type="primary" size="mini" @click="handleAddPowerBelong">+ 添加</el-button>
@@ -248,78 +266,80 @@
                                                @click="()=>{handleDeletePowerBelong(powerBelongList.indexOf(pwrBelong))}">- 删除</el-button>
                                 </div>
                                 </span>
-                            </div>
-                            <el-form label-position="right" label-width="250px">
-                                <el-form-item label="所属部门">
-                                    <el-select placeholder="所属部门" v-model="pwrBelong.ssbm">
-                                        <el-option value="">不限</el-option>
-                                        <el-option value="陆军部001部队后勤保障中心">陆军部001部队后勤保障中心</el-option>
-                                        <el-option value="海军部054部队后勤保障中心">海军部054部队后勤保障中心</el-option>
-                                        <el-option value="空军部003部队后勤保障中心">空军部003部队后勤保障中心</el-option>
-                                        <el-option value="火箭军部015部队后勤保障中心">火箭军部015部队后勤保障中心</el-option>
-                                        <el-option value="战略支援部队总部后勤保障中心">战略支援部队总部后勤保障中心</el-option>
-                                        <el-option value="陆军部028部队后勤保障中心">陆军部028部队后勤保障中心</el-option>
-                                        <el-option value="DKY商厦集团货品部">DKY商厦集团货品部</el-option>
-                                        <el-option value="XKY医院材料管理处">XKY医院材料管理处</el-option>
-                                        <el-option value="HKWS集团产品部">HKWS集团产品部</el-option>
-                                        <el-option value="JSKJ有限公司保障部">JSKJ有限公司保障部</el-option>
-                                        <el-option value="HDDN厂货品部">HDDN厂货品部</el-option>
-                                        <el-option value="SCDZ油品有限公司仓储部">SCDZ油品有限公司仓储部</el-option>
-                                    </el-select>
-                                </el-form-item>
-                                <el-form-item label="所属期限">
-                                    <el-input placeholder="所属期限" v-model="pwrBelong.ssqx"></el-input>
-                                </el-form-item>
-                                <el-form-item label="负责人员">
-                                    <el-input placeholder="负责人员" v-model="pwrBelong.fzry"></el-input>
-                                </el-form-item>
-                                <el-form-item label="联系电话">
-                                    <el-input placeholder="联系电话" v-model="pwrBelong.lxdh"></el-input>
-                                </el-form-item>
-                            </el-form>
-                        </div>
-                        <div>
-                            <div class="header">
-                                <span>过程</span>
-                            </div>
-                            <el-form label-position="right" label-width="250px">
-                                <el-form-item label="管理">
-                                    <el-select v-model="resGeneralForm.gl" placeholder="请选择是否在监控中">
-                                        <el-option label="在监控中" :value="1">在监控中</el-option>
-                                        <el-option label="不在监控中" :value="0">不在监控中</el-option>
-                                    </el-select>
-                                </el-form-item>
-                            </el-form>
-                            <div class="sub-form">
-                                <div class="header">
-                                    <span>状态&途径</span>
                                 </div>
-
                                 <el-form label-position="right" label-width="250px">
-                                    <el-form-item label="状态名称">
-                                        <el-select v-model="resGeneralForm.ztmc" placeholder="请选择状态名称">
-                                            <el-option label="调配" :value="1">调配</el-option>
-                                            <el-option label="使用" :value="2">使用</el-option>
-                                            <el-option label="占用" :value="3">占用</el-option>
-                                            <el-option label="空闲" :value="4">空闲</el-option>
+                                    <el-form-item label="所属部门">
+                                        <el-select placeholder="所属部门" v-model="pwrBelong.department">
+                                            <el-option value="">不限</el-option>
+                                            <el-option value="陆军部001部队后勤保障中心">陆军部001部队后勤保障中心</el-option>
+                                            <el-option value="海军部054部队后勤保障中心">海军部054部队后勤保障中心</el-option>
+                                            <el-option value="空军部003部队后勤保障中心">空军部003部队后勤保障中心</el-option>
+                                            <el-option value="火箭军部015部队后勤保障中心">火箭军部015部队后勤保障中心</el-option>
+                                            <el-option value="战略支援部队总部后勤保障中心">战略支援部队总部后勤保障中心</el-option>
+                                            <el-option value="陆军部028部队后勤保障中心">陆军部028部队后勤保障中心</el-option>
+                                            <el-option value="DKY商厦集团货品部">DKY商厦集团货品部</el-option>
+                                            <el-option value="XKY医院材料管理处">XKY医院材料管理处</el-option>
+                                            <el-option value="HKWS集团产品部">HKWS集团产品部</el-option>
+                                            <el-option value="JSKJ有限公司保障部">JSKJ有限公司保障部</el-option>
+                                            <el-option value="HDDN厂货品部">HDDN厂货品部</el-option>
+                                            <el-option value="SCDZ油品有限公司仓储部">SCDZ油品有限公司仓储部</el-option>
                                         </el-select>
                                     </el-form-item>
-                                    <el-form-item label="状态类别">
-                                        <el-select v-model="resGeneralForm.ztlb" placeholder="请选择状态类别">
-                                            <el-option label="正常" :value="1">正常</el-option>
-                                            <el-option label="故障" :value="0">故障</el-option>
-                                        </el-select>
+                                    <el-form-item label="所属期限">
+                                        <el-input placeholder="所属期限" v-model="pwrBelong.limitTime"></el-input>
                                     </el-form-item>
-                                    <el-form-item label="状态值">
-                                        <el-input placeholder="0%~100%" v-model="resGeneralForm.ztz"></el-input>
+                                    <el-form-item label="负责人员">
+                                        <el-input placeholder="负责人员" v-model="pwrBelong.official"></el-input>
+                                    </el-form-item>
+                                    <el-form-item label="联系电话">
+                                        <el-input placeholder="联系电话" v-model="pwrBelong.phone"></el-input>
                                     </el-form-item>
                                 </el-form>
                             </div>
-                        </div>
-                    </el-collapse-item>
-                    <el-collapse-item title="能力" name="4">
-                        <div v-for="useCap in useCapabilityList">
-                            <div class="header">
+                            <div>
+                                <div class="header">
+                                    <span>过程</span>
+                                </div>
+                                <el-form label-position="right" label-width="250px">
+                                    <el-form-item label="管理">
+                                        <el-select v-model="resGeneralForm.gl" placeholder="请选择是否在监控中">
+                                            <el-option label="在监控中" :value="1">在监控中</el-option>
+                                            <el-option label="不在监控中" :value="0">不在监控中</el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                </el-form>
+                                <div class="sub-form">
+                                    <div class="header">
+                                        <span>状态&途径</span>
+                                    </div>
+
+                                    <el-form label-position="right" label-width="250px">
+                                        <el-form-item label="状态名称">
+                                            <el-select v-model="resGeneralForm.stateId" placeholder="请选择状态名称">
+                                                <el-option label="调配" :value="1">调配</el-option>
+                                                <el-option label="使用" :value="2">使用</el-option>
+                                                <el-option label="占用" :value="3">占用</el-option>
+                                                <el-option label="空闲" :value="4">空闲</el-option>
+                                            </el-select>
+                                        </el-form-item>
+                                        <el-form-item label="状态类别">
+                                            <el-select v-model="resGeneralForm.stateType" placeholder="请选择状态类别">
+                                                <el-option label="正常" :value="1">正常</el-option>
+                                                <el-option label="故障" :value="0">故障</el-option>
+                                            </el-select>
+                                        </el-form-item>
+                                        <el-form-item label="状态值">
+                                            <el-input placeholder="0%~100%" v-model="resGeneralForm.stateValue"></el-input>
+                                        </el-form-item>
+                                    </el-form>
+                                </div>
+                            </div>
+                        </el-collapse-item>
+                    </div>
+                    <div id="Cap" class="anchor">
+                        <el-collapse-item title="能力" name="4" id="Cap">
+                            <div v-for="useCap in useCapabilityList" name="4">
+                                <div class="header">
                                 <span>使用能力
                                 <div class="adel">
                                     <el-button type="primary" size="mini"
@@ -328,25 +348,25 @@
                                                @click="()=>{handleDeleteUseCapability(useCapabilityList.indexOf(useCap))}">- 删除</el-button>
                                 </div>
                                 </span>
+                                </div>
+                                <el-form label-position="right" label-width="250px">
+                                    <el-form-item label="能力类型">
+                                        <el-select placeholder="请选择能力类型" v-model="useCap.nllx">
+                                            <el-option value="">不限</el-option>
+                                            <el-option value="补给">补给</el-option>
+                                            <el-option value="维修">维修</el-option>
+                                            <el-option value="土木">土木</el-option>
+                                            <el-option value="卫勤">卫勤</el-option>
+                                            <el-option value="其他">其他</el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                    <el-form-item label="能力描述">
+                                        <el-input placeholder="能力描述" v-model="useCap.nlms"></el-input>
+                                    </el-form-item>
+                                </el-form>
                             </div>
-                            <el-form label-position="right" label-width="250px">
-                                <el-form-item label="能力类型">
-                                    <el-select placeholder="请选择能力类型" v-model="useCap.nllx">
-                                        <el-option value="">不限</el-option>
-                                        <el-option value="补给">补给</el-option>
-                                        <el-option value="维修">维修</el-option>
-                                        <el-option value="土木">土木</el-option>
-                                        <el-option value="卫勤">卫勤</el-option>
-                                        <el-option value="其他">其他</el-option>
-                                    </el-select>
-                                </el-form-item>
-                                <el-form-item label="能力描述">
-                                    <el-input placeholder="能力描述" v-model="useCap.nlms"></el-input>
-                                </el-form-item>
-                            </el-form>
-                        </div>
-                        <div v-for="garCap in guaranteeCapabilityList">
-                            <div class="header">
+                            <div v-for="garCap in guaranteeCapabilityList">
+                                <div class="header">
                                 <span>保障能力
                                 <div class="adel">
                                     <el-button type="primary" size="mini"
@@ -355,24 +375,25 @@
                                                @click="()=>{handleDeleteGuaranteeCapability(guaranteeCapabilityList.indexOf(garCap))}">- 删除</el-button>
                                 </div>
                                 </span>
+                                </div>
+                                <el-form label-position="right" label-width="250px">
+                                    <el-form-item label="能力类型">
+                                        <el-select placeholder="请选择能力类型" v-model="garCap.nllx">
+                                            <el-option value="">不限</el-option>
+                                            <el-option value="采购">采购</el-option>
+                                            <el-option value="配送">配送</el-option>
+                                            <el-option value="维持">维持</el-option>
+                                            <el-option value="处理">处理</el-option>
+                                            <el-option value="其他">其他</el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                    <el-form-item label="能力描述">
+                                        <el-input placeholder="能力描述" v-model="garCap.nlms"></el-input>
+                                    </el-form-item>
+                                </el-form>
                             </div>
-                            <el-form label-position="right" label-width="250px">
-                                <el-form-item label="能力类型">
-                                    <el-select placeholder="请选择能力类型" v-model="garCap.nllx">
-                                        <el-option value="">不限</el-option>
-                                        <el-option value="采购">采购</el-option>
-                                        <el-option value="配送">配送</el-option>
-                                        <el-option value="维持">维持</el-option>
-                                        <el-option value="处理">处理</el-option>
-                                        <el-option value="其他">其他</el-option>
-                                    </el-select>
-                                </el-form-item>
-                                <el-form-item label="能力描述">
-                                    <el-input placeholder="能力描述" v-model="garCap.nlms"></el-input>
-                                </el-form-item>
-                            </el-form>
-                        </div>
-                    </el-collapse-item>
+                        </el-collapse-item>
+                    </div>
                 </el-collapse>
                 <p style="text-align: right">
                     <el-button type="primary">保存并返回</el-button>
@@ -392,12 +413,13 @@
 <script src="res/dependencies.js"></script>
 <script>
     var ChinaAreaData = require("element-china-area-data").regionData;
+    var post=require("/mods/backend");
 
     function powerGeneral() {
-        this.ssbm = "";
-        this.ssqx = "";
-        this.fzry = "";
-        this.lxdh = "";
+        this.department = "";
+        this.limitTime = "";
+        this.official = "";
+        this.phone = "";
     }
 
     function capGeneral() {
@@ -412,7 +434,10 @@
         el: '#app',
         data: function () {
             return {
-                menu: [{val: '属性'}, {val: '位置'}, {val: '状态'}, {val: '能力'}],
+                menu: [{val: '属性', id: 'Attr'}, {val: '位置', id: 'Pos'}, {val: '状态', id: 'State'}, {
+                    val: '能力',
+                    id: 'Cap'
+                }],
                 areaData: ChinaAreaData,
                 selectedLocations: [],
                 activeNames: ['1', '2', '3', '4'],
@@ -420,33 +445,33 @@
                 useCapabilityList: useCapGeneralList,
                 guaranteeCapabilityList: garCapGeneralList,
                 resGeneralForm: {
-                    wzmc: "",
-                    sfsbm: "",
-                    wzlx: "",
-                    gjz: "",
-                    wzgg: "",
-                    wg: "",
-                    scsmc: "",
+                    goodName: "",
+                    localId: "",
+                    type: "",
+                    keywords: "",
+                    norms: "",
+                    appearance: "",
+                    producerName: "",
                     produceTime: "",
-                    sxrq: "",
-                    aqtj: "",
-                    yzcc: "",
-                    wdtj: "",
-                    sdtj: "",
-                    qttj: "",
+                    validTime: "",
+                    safetyCondition: "",
+                    carrierSize: "",
+                    temperature: "",
+                    humidity: "",
+                    otherCondition: "",
                     longitude: "",
                     latitude: "",
                     altitude: "",
-                    szck: "",
-                    gj: "",
-                    zq: "",
+                    warehouseId: "",
+                    country: "",
+                    area: "",
                     province: "",
                     city: "",
                     county: "",
-                    xxdz: "",
-                    ztmc: "",
-                    ztlb: "",
-                    ztz: "",
+                    detailLocation: "",
+                    stateId: "",
+                    stateType: "",
+                    stateValue: "",
                     gl: "",
                 }
             }
@@ -456,7 +481,11 @@
                 app.activeNames = val;
             },
             handleAddPowerBelong() {
-                app.powerBelongList.push({ssbm: "", ssqx: "", fzry: "", lxdh: ""});
+                app.$message({
+                    type:'warning',
+                    message:'这个功能暂时不要'
+                })
+                //app.powerBelongList.push({department: "", limitTime: "", official: "", phone: ""});
             },
             handleAddUseCapability() {
                 app.useCapabilityList.push({nllx: "", nlms: ""});
@@ -485,6 +514,9 @@
                 }
                 app.guaranteeCapabilityList.splice(index, 1);
             },
+            commitRegister(){
+                
+            }
         }
     });
 </script>
