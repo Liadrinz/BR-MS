@@ -7,7 +7,8 @@ var pages = {
     "调配业务管理": "Management.html",
     "个人信息修改":"EditProfile.html",
     "密码修改":"NewPassword.html",
-    "查询后勤物资":"resLookup.html"
+    "查询后勤物资":"resLookup.html",
+    "新物料入库登记":"NewResImport.html"
 };
 
 // Get menus like [{name: ..., url: ...}, ...] from menulist.
@@ -70,7 +71,8 @@ export default {
             "消息"
         ]),
         manager: getMenus([
-            "消息"
+            "消息",
+            "新物料入库登记"
         ]),
         normal: getMenus([
             "调配业务管理",

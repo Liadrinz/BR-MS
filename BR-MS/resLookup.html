@@ -21,8 +21,8 @@
         <el-form-item label="物资状态：" size="mini">
             <el-radio-group v-model="stateId">
                 <el-radio :label="null" border>不限</el-radio>
-                <el-radio :label="1" border>调配</el-radio>
-                <el-radio :label="2" border>占用</el-radio>
+                <el-radio :label="1" border>占用</el-radio>
+                <el-radio :label="2" border>调配</el-radio>
                 <el-radio :label="3" border>使用</el-radio>
                 <el-radio :label="4" border>空闲</el-radio>
             </el-radio-group>
@@ -465,7 +465,7 @@
                         if (key === 'is_managed') {
                             obj['val'] = ['不受监管', '受监管'][parseInt(data[key])];
                         } else if (key === 'state_id') {
-                            obj['val'] = ["", '调配', '占用', '使用', '空闲'][parseInt(data[key])];
+                            obj['val'] = ["", '占用', '调配', '使用', '空闲'][parseInt(data[key])];
                         } else if (key === 'province_id' || key === 'city_id' || key === 'county_id') {
                             obj['val'] = CTT[parseInt(data[key])];
                         } else if (key === 'country_id') {
@@ -473,7 +473,9 @@
                         } else {
                             obj['val'] = data[key];
                         }
-                        app.detailForm.push(obj);
+                        if(obj['key']!==undefined){
+                            app.detailForm.push(obj);
+                        }
                     }
                 });
                 app.dialogs.detail = true;
@@ -489,6 +491,10 @@
                 app.singleForm.unit = "个";
             },
             allocateAll() {
+                if(app.multipleSelection.length<=0){
+                    app.$message.error('没有选择任何条目');
+                    return;
+                }
                 app.dialogs.allocateAll = true;
                 app.singleForm = {...generalApplicationForm};
                 app.singleForm.userRealName = userInfo.realName;
@@ -524,7 +530,8 @@
                     city: app.selectedLocations[1],
                     produceTime: app.produceTime
                 };
-                searchKey['pageNum'] = app.pageNum;
+                searchKey['pageNum'] = 1;
+                app.pageNum=1;
                 for (var i in data) {
                     if (data[i] !== null && data[i] !== "") {
                         if (i === 'produceTime') {

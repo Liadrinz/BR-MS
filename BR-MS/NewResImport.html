@@ -48,7 +48,7 @@
             <el-table-column type="index" :index="indexMethod" label="序号" :width="75"></el-table-column>
             <el-table-column label="货品信息" :width="125">
                 <template slot-scope="props">
-                    <el-button size="mini" type="primary">填写</el-button><!--跳转到那个写好的页面-->
+                    <el-button size="mini" type="primary" @click="()=>{createRes(resInfo.indexOf(props.row));}">填写</el-button><!--跳转到那个写好的页面-->
                 </template>
             </el-table-column>
             <el-table-column label="数量" prop="amount" :width="125"></el-table-column>

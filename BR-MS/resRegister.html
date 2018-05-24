@@ -28,7 +28,7 @@
             width: 50%;
         }
 
-        .el-select, .el-cascader, .el-date-picker {
+        .el-select, .el-cascader {
             width: 100%;
         }
 
@@ -36,6 +36,10 @@
             .el-aside {
                 display: none;
             }
+        }
+
+        .el-header{
+            display: none;
         }
 
         .adel {
@@ -57,12 +61,18 @@
             text-decoration: none;
         }
 
-        el-main{
+        el-main {
             overflow: fragments;
         }
 
-        .anchor:target{
-            padding-top:140px;
+        .menu > a > div{
+            padding:10px;
+            border-bottom:1px solid rgba(192,192,192,0.5);
+            transition:background 0.5s;
+        }
+
+        .menu > a > div:hover{
+            background: rgba(168,168,168,0.4);
         }
 
     </style>
@@ -71,22 +81,17 @@
 
 <div id="app">
     <el-container>
-        <el-container style="padding-top:100px;">
+        <el-container style="padding-top:25px;">
             <el-aside>
                 <div style="margin:0;position:fixed;width:275px;">
                     <div class="header" style="margin:0;border:none;">
-                        <span style="margin:0 5px 5px 5px;padding-top:35px;">物资信息</span>
+                        <span style="margin:0 5px 5px 5px;padding-top:0;">物资信息</span>
                     </div>
-                    <div>
-                        <el-table :data="menu">
-                            <el-table-column prop="val">
-                                <template slot-scope="props">
-                                    <a :href="'#'+props.row.id">
-                                        <div>{{props.row.val}}</div>
-                                    </a>
-                                </template>
-                            </el-table-column>
-                        </el-table>
+                    <div class="menu">
+                        <a href="#Attr"><div style="border-top:1px solid rgba(192,192,192,0.5); margin-top: 10px">属性</div></a>
+                        <a href="#Pos"><div>位置</div></a>
+                        <a href="#State"><div>状态</div></a>
+                        <a href="#Cap"><div>能力</div></a>
                     </div>
                 </div>
             </el-aside>
@@ -101,7 +106,7 @@
                                 </div>
                                 <el-form label-position="right" label-width="250px">
                                     <el-form-item label="物资名称">
-                                        <el-input v-model="resGeneralForm.resGeneralFormgoodName"
+                                        <el-input v-model="resGeneralForm.goodName"
                                                   placeholder="物资名称"></el-input>
                                     </el-form-item>
                                     <el-form-item label="身份识别码">
@@ -162,7 +167,8 @@
                                                         value-format="yyyy-MM-dd"></el-date-picker>
                                     </el-form-item>
                                     <el-form-item label="失效日期">
-                                        <el-date-picker v-model="resGeneralForm.validTime" type="date" placeholder="选择失效日期"
+                                        <el-date-picker v-model="resGeneralForm.validTime" type="date"
+                                                        placeholder="选择失效日期"
                                                         format="yyyy年MM月dd日"
                                                         value-format="yyyy-MM-dd"></el-date-picker>
                                     </el-form-item>
@@ -172,19 +178,24 @@
                                         </div>
                                         <el-form label-position="right" label-width="250px">
                                             <el-form-item label="安全条件">
-                                                <el-input v-model="resGeneralForm.safetyCondition" placeholder="安全条件"></el-input>
+                                                <el-input v-model="resGeneralForm.safetyCondition"
+                                                          placeholder="安全条件"></el-input>
                                             </el-form-item>
                                             <el-form-item label="运载尺寸">
-                                                <el-input v-model="resGeneralForm.carrierSize" placeholder="运载尺寸"></el-input>
+                                                <el-input v-model="resGeneralForm.carrierSize"
+                                                          placeholder="运载尺寸"></el-input>
                                             </el-form-item>
                                             <el-form-item label="温度条件">
-                                                <el-input v-model="resGeneralForm.temperature" placeholder="温度条件"></el-input>
+                                                <el-input v-model="resGeneralForm.temperature"
+                                                          placeholder="温度条件"></el-input>
                                             </el-form-item>
                                             <el-form-item label="湿度条件">
-                                                <el-input v-model="resGeneralForm.humidity" placeholder="湿度条件"></el-input>
+                                                <el-input v-model="resGeneralForm.humidity"
+                                                          placeholder="湿度条件"></el-input>
                                             </el-form-item>
                                             <el-form-item label="其他条件">
-                                                <el-input v-model="resGeneralForm.otherCondition" placeholder="其他条件"></el-input>
+                                                <el-input v-model="resGeneralForm.otherCondition"
+                                                          placeholder="其他条件"></el-input>
                                             </el-form-item>
                                         </el-form>
                                     </div>
@@ -218,7 +229,9 @@
                                 </div>
                                 <el-form label-position="right" label-width="250px">
                                     <el-form-item label="所在仓库">
-                                        <el-select v-model="resGeneralForm.warehouseId" placeholder="所在仓库">
+                                        <el-select v-model="resGeneralForm.warehouseId" :placeholder="(resGeneralForm.country===undefined||resGeneralForm.province===undefined)?warehouseChoiceMsg:'请选择仓库'"
+                                                   :disabled="resGeneralForm.country===undefined||resGeneralForm.province===undefined">
+                                            <el-option v-for="warehouse in warehouseChoice" :label="warehouse.warehouseName" :value="warehouse.warehouseId">{{warehouse.warehouseName}}</el-option>
                                         </el-select>
                                     </el-form-item>
                                 </el-form>
@@ -228,7 +241,7 @@
                                     </div>
                                     <el-form label-position="right" label-width="250px">
                                         <el-form-item label="国家">
-                                            <el-select placeholder="国家" v-model="resGeneralForm.country">
+                                            <el-select placeholder="国家" v-model="resGeneralForm.country" @change="handleCountryChange">
                                                 <el-option label="中国" :value="1">中国</el-option>
                                                 <el-option label="其他" :value="2">其他</el-option>
                                             </el-select>
@@ -244,7 +257,7 @@
                                         </el-form-item>
                                         <el-form-item label="省/市/区">
                                             <el-cascader placeholder="省/市/区" :options="areaData"
-                                                         v-model="selectedLocations"
+                                                         v-model="selectedLocations" @change="handleLocationChange"
                                                          size="large"></el-cascader>
                                         </el-form-item>
                                         <el-form-item label="详细地址">
@@ -257,52 +270,47 @@
                     </div>
                     <div id="State" class="anchor">
                         <el-collapse-item title="状态" name="3" id="State">
-                            <div v-for="pwrBelong in powerBelongList" name="3">
-                                <div class="header">
-                                <span>权属
-                                <div class="adel">
-                                    <el-button type="primary" size="mini" @click="handleAddPowerBelong">+ 添加</el-button>
-                                    <el-button type="danger" size="mini"
-                                               @click="()=>{handleDeletePowerBelong(powerBelongList.indexOf(pwrBelong))}">- 删除</el-button>
-                                </div>
-                                </span>
-                                </div>
-                                <el-form label-position="right" label-width="250px">
-                                    <el-form-item label="所属部门">
-                                        <el-select placeholder="所属部门" v-model="pwrBelong.department">
-                                            <el-option value="">不限</el-option>
-                                            <el-option value="陆军部001部队后勤保障中心">陆军部001部队后勤保障中心</el-option>
-                                            <el-option value="海军部054部队后勤保障中心">海军部054部队后勤保障中心</el-option>
-                                            <el-option value="空军部003部队后勤保障中心">空军部003部队后勤保障中心</el-option>
-                                            <el-option value="火箭军部015部队后勤保障中心">火箭军部015部队后勤保障中心</el-option>
-                                            <el-option value="战略支援部队总部后勤保障中心">战略支援部队总部后勤保障中心</el-option>
-                                            <el-option value="陆军部028部队后勤保障中心">陆军部028部队后勤保障中心</el-option>
-                                            <el-option value="DKY商厦集团货品部">DKY商厦集团货品部</el-option>
-                                            <el-option value="XKY医院材料管理处">XKY医院材料管理处</el-option>
-                                            <el-option value="HKWS集团产品部">HKWS集团产品部</el-option>
-                                            <el-option value="JSKJ有限公司保障部">JSKJ有限公司保障部</el-option>
-                                            <el-option value="HDDN厂货品部">HDDN厂货品部</el-option>
-                                            <el-option value="SCDZ油品有限公司仓储部">SCDZ油品有限公司仓储部</el-option>
-                                        </el-select>
-                                    </el-form-item>
-                                    <el-form-item label="所属期限">
-                                        <el-input placeholder="所属期限" v-model="pwrBelong.limitTime"></el-input>
-                                    </el-form-item>
-                                    <el-form-item label="负责人员">
-                                        <el-input placeholder="负责人员" v-model="pwrBelong.official"></el-input>
-                                    </el-form-item>
-                                    <el-form-item label="联系电话">
-                                        <el-input placeholder="联系电话" v-model="pwrBelong.phone"></el-input>
-                                    </el-form-item>
-                                </el-form>
+                            <div class="header">
+                                <span>权属</span>
                             </div>
+                            <el-form label-position="right" label-width="250px">
+                                <el-form-item label="所属部门">
+                                    <el-select placeholder="所属部门" v-model="resGeneralForm.department">
+                                        <el-option value="">不限</el-option>
+                                        <el-option value="陆军部001部队后勤保障中心">陆军部001部队后勤保障中心</el-option>
+                                        <el-option value="海军部054部队后勤保障中心">海军部054部队后勤保障中心</el-option>
+                                        <el-option value="空军部003部队后勤保障中心">空军部003部队后勤保障中心</el-option>
+                                        <el-option value="火箭军部015部队后勤保障中心">火箭军部015部队后勤保障中心</el-option>
+                                        <el-option value="战略支援部队总部后勤保障中心">战略支援部队总部后勤保障中心</el-option>
+                                        <el-option value="陆军部028部队后勤保障中心">陆军部028部队后勤保障中心</el-option>
+                                        <el-option value="DKY商厦集团货品部">DKY商厦集团货品部</el-option>
+                                        <el-option value="XKY医院材料管理处">XKY医院材料管理处</el-option>
+                                        <el-option value="HKWS集团产品部">HKWS集团产品部</el-option>
+                                        <el-option value="JSKJ有限公司保障部">JSKJ有限公司保障部</el-option>
+                                        <el-option value="HDDN厂货品部">HDDN厂货品部</el-option>
+                                        <el-option value="SCDZ油品有限公司仓储部">SCDZ油品有限公司仓储部</el-option>
+                                    </el-select>
+                                </el-form-item>
+                                <el-form-item label="所属期限">
+                                    <el-date-picker v-model="resGeneralForm.limitTime" type="date"
+                                                    placeholder="选择生产日期"
+                                                    format="yyyy年MM月dd日"
+                                                    value-format="yyyy-MM-dd"></el-date-picker>
+                                </el-form-item>
+                                <el-form-item label="负责人员">
+                                    <el-input placeholder="负责人员" v-model="resGeneralForm.official"></el-input>
+                                </el-form-item>
+                                <el-form-item label="联系电话">
+                                    <el-input placeholder="联系电话" v-model="resGeneralForm.phone"></el-input>
+                                </el-form-item>
+                            </el-form>
                             <div>
                                 <div class="header">
                                     <span>过程</span>
                                 </div>
                                 <el-form label-position="right" label-width="250px">
                                     <el-form-item label="管理">
-                                        <el-select v-model="resGeneralForm.gl" placeholder="请选择是否在监控中">
+                                        <el-select v-model="resGeneralForm.isManaged" placeholder="请选择是否在监控中">
                                             <el-option label="在监控中" :value="1">在监控中</el-option>
                                             <el-option label="不在监控中" :value="0">不在监控中</el-option>
                                         </el-select>
@@ -316,9 +324,9 @@
                                     <el-form label-position="right" label-width="250px">
                                         <el-form-item label="状态名称">
                                             <el-select v-model="resGeneralForm.stateId" placeholder="请选择状态名称">
-                                                <el-option label="调配" :value="1">调配</el-option>
-                                                <el-option label="使用" :value="2">使用</el-option>
-                                                <el-option label="占用" :value="3">占用</el-option>
+                                                <el-option label="占用" :value="1">占用</el-option>
+                                                <el-option label="调配" :value="2">调配</el-option>
+                                                <el-option label="使用" :value="3">使用</el-option>
                                                 <el-option label="空闲" :value="4">空闲</el-option>
                                             </el-select>
                                         </el-form-item>
@@ -329,7 +337,8 @@
                                             </el-select>
                                         </el-form-item>
                                         <el-form-item label="状态值">
-                                            <el-input placeholder="0%~100%" v-model="resGeneralForm.stateValue"></el-input>
+                                            <el-input placeholder="0%~100%"
+                                                      v-model="resGeneralForm.stateValue"></el-input>
                                         </el-form-item>
                                     </el-form>
                                 </div>
@@ -351,7 +360,7 @@
                                 </div>
                                 <el-form label-position="right" label-width="250px">
                                     <el-form-item label="能力类型">
-                                        <el-select placeholder="请选择能力类型" v-model="useCap.nllx">
+                                        <el-select placeholder="请选择能力类型" v-model="useCap.smallType">
                                             <el-option value="">不限</el-option>
                                             <el-option value="补给">补给</el-option>
                                             <el-option value="维修">维修</el-option>
@@ -361,7 +370,7 @@
                                         </el-select>
                                     </el-form-item>
                                     <el-form-item label="能力描述">
-                                        <el-input placeholder="能力描述" v-model="useCap.nlms"></el-input>
+                                        <el-input placeholder="能力描述" v-model="useCap.detail"></el-input>
                                     </el-form-item>
                                 </el-form>
                             </div>
@@ -378,7 +387,7 @@
                                 </div>
                                 <el-form label-position="right" label-width="250px">
                                     <el-form-item label="能力类型">
-                                        <el-select placeholder="请选择能力类型" v-model="garCap.nllx">
+                                        <el-select placeholder="请选择能力类型" v-model="garCap.smallType">
                                             <el-option value="">不限</el-option>
                                             <el-option value="采购">采购</el-option>
                                             <el-option value="配送">配送</el-option>
@@ -388,7 +397,7 @@
                                         </el-select>
                                     </el-form-item>
                                     <el-form-item label="能力描述">
-                                        <el-input placeholder="能力描述" v-model="garCap.nlms"></el-input>
+                                        <el-input placeholder="能力描述" v-model="garCap.detail"></el-input>
                                     </el-form-item>
                                 </el-form>
                             </div>
@@ -396,14 +405,11 @@
                     </div>
                 </el-collapse>
                 <p style="text-align: right">
-                    <el-button type="primary">保存并返回</el-button>
+                    <el-button type="primary" @click="commitRegister">保存并返回</el-button>
                     <el-button>放弃并返回</el-button>
                 </p>
             </el-main>
         </el-container>
-        <el-header>
-            <div style="position:fixed;top:0;left:0;"><img src="res/bar.png"/></div>
-        </el-header>
     </el-container>
 </div>
 </body>
@@ -413,85 +419,148 @@
 <script src="res/dependencies.js"></script>
 <script>
     var ChinaAreaData = require("element-china-area-data").regionData;
-    var post=require("/mods/backend");
+    var warehouseChoice=[];
+    var post = require("/mods/backend");
 
-    function powerGeneral() {
-        this.department = "";
-        this.limitTime = "";
-        this.official = "";
-        this.phone = "";
-    }
+    // function powerGeneral() {
+    //     this.department = "";
+    //     this.limitTime = "";
+    //     this.official = "";
+    //     this.phone = "";
+    // }
 
     function capGeneral() {
-        this.nllx = "";
-        this.nlms = "";
+        this.smallType = "";
+        this.detail = "";
     }
 
-    var powerGeneralList = [new powerGeneral()];
+    // var powerGeneralList = [new powerGeneral()];
     var useCapGeneralList = [new capGeneral()];
     var garCapGeneralList = [new capGeneral()];
     var app = new Vue({
         el: '#app',
         data: function () {
             return {
+                warehouseChoiceMsg:"请先选择国家和省市",
+                warehouseChoiceDisable:true,
                 menu: [{val: '属性', id: 'Attr'}, {val: '位置', id: 'Pos'}, {val: '状态', id: 'State'}, {
                     val: '能力',
                     id: 'Cap'
                 }],
                 areaData: ChinaAreaData,
+                warehouseChoice:warehouseChoice,
                 selectedLocations: [],
                 activeNames: ['1', '2', '3', '4'],
-                powerBelongList: powerGeneralList,
+                // powerBelongList: powerGeneralList,
                 useCapabilityList: useCapGeneralList,
                 guaranteeCapabilityList: garCapGeneralList,
                 resGeneralForm: {
-                    goodName: "",
-                    localId: "",
-                    type: "",
-                    keywords: "",
-                    norms: "",
-                    appearance: "",
-                    producerName: "",
-                    produceTime: "",
-                    validTime: "",
-                    safetyCondition: "",
-                    carrierSize: "",
-                    temperature: "",
-                    humidity: "",
-                    otherCondition: "",
-                    longitude: "",
-                    latitude: "",
-                    altitude: "",
-                    warehouseId: "",
-                    country: "",
-                    area: "",
-                    province: "",
-                    city: "",
-                    county: "",
-                    detailLocation: "",
-                    stateId: "",
-                    stateType: "",
-                    stateValue: "",
-                    gl: "",
+                    goodName: undefined,
+                    localId: undefined,
+                    type: undefined,
+                    keywords: undefined,
+                    norms: undefined,
+                    appearance: undefined,
+                    producerName: undefined,
+                    produceTime: undefined,
+                    validTime: undefined,
+                    safetyCondition: undefined,
+                    carrierSize: undefined,
+                    temperature: undefined,
+                    humidity: undefined,
+                    otherCondition: undefined,
+                    longitude: undefined,
+                    latitude: undefined,
+                    altitude: undefined,
+                    warehouseId: undefined,
+                    country: undefined,
+                    area: undefined,
+                    province: undefined,
+                    city: undefined,
+                    county: undefined,
+                    detailLocation: undefined,
+                    department:undefined,
+                    limitTime:undefined,
+                    official:undefined,
+                    phone:undefined,
+                    stateId: undefined,
+                    stateType: undefined,
+                    stateValue: undefined,
+                    isManaged: undefined,
                 }
             }
         },
+        mounted:function(){
+            post('/common/allwarehouse',{},(data)=>{
+                for(var warehouse of data){
+                    warehouseChoice.push(warehouse);
+                }
+            });
+        },
         methods: {
+            handleLocationChange(){
+                while(warehouseChoice[0]!==undefined){
+                    warehouseChoice.pop();
+                }
+                var country=app.resGeneralForm.country;
+                var [province,city,county]=[...app.selectedLocations];
+                [app.resGeneralForm['province'],app.resGeneralForm['city'],app.resGeneralForm['county']]=[...app.selectedLocations];
+                post('/common/allwarehouse',{
+                    country:country,
+                    province:province,
+                    city:city
+                },(data)=>{
+                    var isChange=true;
+                    for(var warehouse of data){
+                        warehouseChoice.push(warehouse);
+                        if(app.resGeneralForm.warehouseId===warehouse.warehouseId){
+                            isChange=false;
+                        }
+                    }
+                    if(isChange){
+                        app.resGeneralForm.warehouseId="";
+                    }
+                });
+            },
+            handleCountryChange(){
+                while(warehouseChoice[0]!==undefined){
+                    warehouseChoice.pop();
+                }
+                var country=app.resGeneralForm.country;
+                var [province,city,county]=[...app.selectedLocations];
+                [app.resGeneralForm['province'],app.resGeneralForm['city'],app.resGeneralForm['county']]=[...app.selectedLocations];
+                post('/common/allwarehouse',{
+                    country:country,
+                    province:province,
+                    city:city
+                },(data)=>{
+                    var isChange=true;
+                    for(var warehouse of data){
+                        warehouseChoice.push(warehouse);
+                        if(app.resGeneralForm.warehouseId===warehouse.warehouseId){
+                            isChange=false;
+                        }
+                    }
+                    if(isChange){
+                        app.resGeneralForm.warehouseId="";
+                    }
+                });
+            },
             handleCollapse(val) {
                 app.activeNames = val;
             },
-            handleAddPowerBelong() {
-                app.$message({
-                    type:'warning',
-                    message:'这个功能暂时不要'
-                })
-                //app.powerBelongList.push({department: "", limitTime: "", official: "", phone: ""});
-            },
+            // handleAddPowerBelong() {
+            //     app.$message({
+            //         type: 'warning',
+            //         message: '这个功能暂时不要'
+            //     })
+            //     //app.powerBelongList.push({department: "", limitTime: "", official: "", phone: ""});
+            // },
             handleAddUseCapability() {
-                app.useCapabilityList.push({nllx: "", nlms: ""});
+                app.useCapabilityList.push({smallType: "", detail: ""});
             },
             handleAddGuaranteeCapability() {
-                app.guaranteeCapabilityList.push({nllx: "", nlms: ""});
+                app.guaranteeCapabilityList.push({smallType: "", detail: ""});
             },
             handleDeletePowerBelong(index) {
                 if (app.powerBelongList.length <= 1) {
@@ -514,8 +583,44 @@
                 }
                 app.guaranteeCapabilityList.splice(index, 1);
             },
-            commitRegister(){
-                
+            commitRegister() {
+                post('/depot/reg_newgood',app.resGeneralForm,(data,err)=>{
+                    if(err){
+                        console.log(err);
+                        return;
+                    }
+                    var goodId=data.goodId;
+                    for(let useAbility of app.useCapabilityList){
+                        ((p)=>{
+                            post('/depot/add_newability',{
+                                goodId:goodId,
+                                bigType:"使用能力",
+                                smallType:p.smallType,
+                                detail:p.detail
+                            },(data,err)=>{
+                                if(err){
+                                    console.log(err);
+                                    return;
+                                }
+                            })
+                        })(useAbility);
+                    }
+                    for(let garAbility of app.guaranteeCapabilityList){
+                        ((p)=>{
+                            post('/depot/add_newability',{
+                                goodId:goodId,
+                                bigType:"保障能力",
+                                smallType:p.smallType,
+                                detail:p.detail
+                            },(data,err)=>{
+                                if(err){
+                                    console.log(err);
+                                    return;
+                                }
+                            })
+                        })(garAbility);
+                    }
+                })
             }
         }
     });
