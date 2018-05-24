@@ -108,6 +108,7 @@
 <script src="res/dependencies.js"></script>
 <script>
     var post = require('/mods/backend');
+    var importObj={};
     function generalSingle(){
         this.unit="";
         this.amount="";
@@ -140,14 +141,7 @@
                     tel: ""
                 },
                 resInfo: [
-                    //fake
-                    {
-                        unit: "台",
-                        amount: 20,
-                        storedPosition: "东南",
-                        principal: "我",
-                        tel: "18888888888"
-                    },
+
                 ]
             }
         },
@@ -171,6 +165,9 @@
             },
             print(){
                 //打印机
+            },
+            createRes(index){
+
             }
         }
     });

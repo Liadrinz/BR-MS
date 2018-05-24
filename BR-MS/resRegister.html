@@ -82,8 +82,8 @@
 <div id="app">
     <el-container>
         <el-container style="padding-top:25px;">
-            <el-aside>
-                <div style="margin:0;position:fixed;width:275px;">
+            <el-aside style="width: 250px;">
+                <div style="margin:0;position:fixed;width:225px;">
                     <div class="header" style="margin:0;border:none;">
                         <span style="margin:0 5px 5px 5px;padding-top:0;">物资信息</span>
                     </div>
@@ -406,7 +406,7 @@
                 </el-collapse>
                 <p style="text-align: right">
                     <el-button type="primary" @click="commitRegister">保存并返回</el-button>
-                    <el-button>放弃并返回</el-button>
+                    <el-button @click="cancelRegister">放弃并返回</el-button>
                 </p>
             </el-main>
         </el-container>
@@ -590,6 +590,7 @@
                         return;
                     }
                     var goodId=data.goodId;
+                    localStorage.setItem('goodId',goodId);
                     for(let useAbility of app.useCapabilityList){
                         ((p)=>{
                             post('/depot/add_newability',{
@@ -620,7 +621,11 @@
                             })
                         })(garAbility);
                     }
+                    window.location.href="NewResImport.html";
                 })
+            },
+            cancelRegister(){
+                window.location.href="NewResImport.html";
             }
         }
     });
