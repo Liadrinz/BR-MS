@@ -14,6 +14,62 @@
 <div id="app">
     <el-form>
         <hr>
+        <!--入库业务-->
+        <el-form :model="inGoing">
+            <el-form :inline="true">
+                <el-form-item label="操作员：" size="mini"><el-input v-model="inGoing.caozuoyuan" :disabled="true"></el-input></el-form-item>
+                <el-form-item label="仓库：" size="mini"><el-input v-model="inGoing.cangku" :disabled="true"></el-input></el-form-item>
+            </el-form>
+            <el-form :inline="true">
+                <el-form-item label="建单人：" size="mini"><el-input v-model="inGoing.jiandanren"></el-input></el-form-item>
+                <el-form-item label="建单日期：" size="mini"><el-input v-model="inGoing.jiandanriqi"></el-input></el-form-item>
+            </el-form>
+            <el-form :inline="true">
+                <el-form-item label="入库单号：" size="mini"><el-input v-model="inGoing.rukudanhao"></el-input></el-form-item>
+                <el-form-item label="入库类别：" size="mini">
+                    <el-select v-model="inGoing.rukuleibie">
+                        <el-option label="正常入库" value="type1"></el-option>
+                    </el-select>
+                </el-form-item>
+            </el-form>
+            <!--点击上传文件-->
+            <!--<el-form :inline="true">
+                <el-form-item label="入库单上传：" size="mini" :inline="true">
+                    <el-upload action="https://jsonplaceholder.typicode.com/posts/" :on-preview="handlePreview" :on-remove="handleRemove" :before-remove="beforeRemove" multiple :limit="3" :on-exceed="handleExceed" :file-list="fileList">
+                        <el-button size="mini" type="primary">点击上传</el-button>
+                    </el-upload>
+                </el-form-item>
+            </el-form>-->
+            <hr style="height:1px; border:none; border-top:1px dashed #c0c4cc">
+            <el-table :data="inResult" size="mini" max-height="250">
+                <el-table-column type="index" width="44" label="序号"></el-table-column>
+                <el-table-column prop="huopinbianhao" label="货品编号"></el-table-column>
+                <el-table-column prop="huopinmingcheng" label="货品名称"></el-table-column>
+                <el-table-column prop="danwei" label="单位"></el-table-column>
+                <!--可编辑项 begin  *与出库不同——删 去向 项-->
+                <el-table-column prop="rukushiliang" label="入库数量" width="75"><template slot-scope="scope"><el-input size="mini"></el-input></template></el-table-column>
+                <el-table-column prop="rukushijian" label="入库时间" width="80"><template slot-scope="scope"><el-input size="mini"></el-input></template></el-table-column>
+                <!--可编辑项 end-->
+                <el-table-column prop="zerenren" label="责任人"></el-table-column>
+                <el-table-column prop="lianxidianhua" label="联系电话"></el-table-column>
+                <el-table-column prop="beizhu" label="备注"></el-table-column>
+                <el-table-column prop="shanchu" label="">
+                    <!--点击删除当前已选中货品-->
+                    <template slot-scope="scope">
+                        <el-button size="mini" style="background-color: #ececec" @click.native.prevent="deleteRow(scope.$index,inResult)">删除</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <!--保存 生成货品清单-->
+            <el-form>
+                <el-form-item size="medium">
+                    <el-button style="background-color: #ececec">保存</el-button>
+                    <!--点击调用打印机 打印inResult表格清单-->
+                    <el-button style="background-color: #ececec">生成货品清单</el-button>
+                </el-form-item>
+            </el-form>
+            <hr>
+        </el-form>
         <!--查找-->
         <el-form :model="queryCondition">
             <el-form :inline="true">
@@ -63,62 +119,6 @@
             </el-table>
         </el-form>
         <hr>
-        <!--入库业务-->
-        <el-form :model="inGoing">
-            <el-form :inline="true">
-                <el-form-item label="操作员：" size="mini"><el-input v-model="inGoing.caozuoyuan" :disabled="true"></el-input></el-form-item>
-                <el-form-item label="仓库：" size="mini"><el-input v-model="inGoing.cangku" :disabled="true"></el-input></el-form-item>
-            </el-form>
-            <el-form :inline="true">
-                <el-form-item label="建单人：" size="mini"><el-input v-model="inGoing.jiandanren"></el-input></el-form-item>
-                <el-form-item label="建单日期：" size="mini"><el-input v-model="inGoing.jiandanriqi"></el-input></el-form-item>
-            </el-form>
-            <el-form :inline="true">
-                <el-form-item label="入库单号：" size="mini"><el-input v-model="inGoing.rukudanhao"></el-input></el-form-item>
-                <el-form-item label="入库类别：" size="mini">
-                    <el-select v-model="inGoing.rukuleibie">
-                        <el-option label="正常入库" value="type1"></el-option>
-                    </el-select>
-                </el-form-item>
-            </el-form>
-            <!--点击上传文件-->
-            <el-form :inline="true">
-                <el-form-item label="入库单上传：" size="mini" :inline="true">
-                    <el-upload action="https://jsonplaceholder.typicode.com/posts/" :on-preview="handlePreview" :on-remove="handleRemove" :before-remove="beforeRemove" multiple :limit="3" :on-exceed="handleExceed" :file-list="fileList">
-                        <el-button size="mini" type="primary">点击上传</el-button>
-                    </el-upload>
-                </el-form-item>
-            </el-form>
-            <hr style="height:1px; border:none; border-top:1px dashed #c0c4cc">
-            <el-table :data="inResult" size="mini" max-height="250">
-                <el-table-column type="index" width="44" label="序号"></el-table-column>
-                <el-table-column prop="huopinbianhao" label="货品编号"></el-table-column>
-                <el-table-column prop="huopinmingcheng" label="货品名称"></el-table-column>
-                <el-table-column prop="danwei" label="单位"></el-table-column>
-                <!--可编辑项 begin  *与出库不同——删 去向 项-->
-                <el-table-column prop="rukushiliang" label="入库数量" width="75"><template slot-scope="scope"><el-input size="mini"></el-input></template></el-table-column>
-                <el-table-column prop="rukushijian" label="入库时间" width="80"><template slot-scope="scope"><el-input size="mini"></el-input></template></el-table-column>
-                <!--可编辑项 end-->
-                <el-table-column prop="zerenren" label="责任人"></el-table-column>
-                <el-table-column prop="lianxidianhua" label="联系电话"></el-table-column>
-                <el-table-column prop="beizhu" label="备注"></el-table-column>
-                <el-table-column prop="shanchu" label="">
-                    <!--点击删除当前已选中货品-->
-                    <template slot-scope="scope">
-                        <el-button size="mini" style="background-color: #ececec">删除</el-button>
-                    </template>
-                </el-table-column>
-            </el-table>
-            <!--保存 生成货品清单-->
-            <el-form>
-                <el-form-item size="medium">
-                    <el-button style="background-color: #ececec">保存</el-button>
-                    <!--点击调用打印机 打印inResult表格清单-->
-                    <el-button style="background-color: #ececec">生成货品清单</el-button>
-                </el-form-item>
-            </el-form>
-            <hr>
-        </el-form>
     </el-form>
 </div>
 </body>
@@ -185,8 +185,13 @@
             },
             beforeRemove(file, fileList) {
                 return this.$confirm(`确定移除 ${ file.name }？`);
-            }
+            },
             /*入库单上传相关函数 end*/
+
+            /*表格内 删除 按钮  begin*/
+            deleteRow(index, rows) {
+                rows.splice(index, 1);
+            }
 
         }
     });
