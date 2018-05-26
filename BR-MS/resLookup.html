@@ -13,10 +13,14 @@
             color: #8c939d;
             font-size: 13px;
         }
+
+        [v-cloak]{
+            display:none;
+        }
     </style>
 </head>
 <body>
-<div id="app">
+<div id="app" v-cloak>
     <el-form>
         <el-form-item label="物资状态：" size="mini">
             <el-radio-group v-model="stateId">
@@ -72,8 +76,8 @@
             <template slot-scope="props">
                 <el-button size="mini" type="text" @click="()=>{detail(props.row)}">详情</el-button>
                 <el-button size="mini" type="text" @click="()=>{allocate(props.row)}">申请调配</el-button>
-                <el-dialog title="申请信息" :visible.sync="dialogs.allocate" width="70%"
-                           :before-close="()=>{clearFilledForm();dialogs.allocate=false}">
+                <el-dialog title="申请信息" :visible.sync="props.row.dialogVisible" width="70%"
+                           :before-close="()=>{props.row.dialogVisible=false;clearFilledForm();}">
                     <!--申请信息表单-->
                     <el-form :model="singleForm">
                         <el-form :inline="true">
@@ -91,7 +95,7 @@
                                 <el-form-item label="申请物资名称" size="mini">
                                     <el-input v-model="singleForm.goodName" :disabled="true"></el-input>
                                 </el-form-item>
-                                <el-form-item label="申请物资编号" size="mini">
+                                <el-form-item label="申请物资ID" size="mini">
                                     <el-input v-model="singleForm.goodId" :disabled="true"></el-input>
                                 </el-form-item>
                                 <el-form-item label="所在仓库" size="mini">
@@ -123,15 +127,19 @@
                                               style="width: 150px"></el-input>
                                     <span class="postfix">元</span>
                                 </el-form-item>
-                                <el-form-item label="运输方式" size="mini"><!--无对应接口名-->
+                                <el-form-item label="需求类型" size="mini"><!--无对应接口名-->
                                     <el-select v-model="singleForm.transport" @change="()=>{
-                        singleForm.price=singleForm.transport==0?'':singleForm.transport*1.9;
                         singleForm.time=singleForm.transport==0?'':360/singleForm.transport;
                         }">
-                                        <el-option label="航运" :value="30"></el-option>
-                                        <el-option label="海运" :value="2"></el-option>
-                                        <el-option label="高铁" :value="10"></el-option>
-                                        <el-option label="普通铁路" :value="5"></el-option>
+                                        <el-option label="应急" :value="20"></el-option>
+                                        <el-option label="普通" :value="4"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                                <el-form-item label="期望时间成本" size="mini">
+                                    <el-select v-model="singleForm.expectTime">
+                                        <el-option label="高" value="高"></el-option>
+                                        <el-option label="中" value="中"></el-option>
+                                        <el-option label="低" value="低"></el-option>
                                     </el-select>
                                 </el-form-item>
                             </el-form>
@@ -182,7 +190,7 @@
                     <span slot="footer" class="dialog-footer">
             <el-button size="mini">暂存</el-button>
             <el-button size="mini" @click="()=>{submitSingle(props.row)}">提交</el-button>
-            <el-button @click="()=>{dialogs.allocate=false;clearFilledForm();}" size="mini">返回</el-button>
+            <el-button @click="()=>{props.row.dialogVisible=false;clearFilledForm();}" size="mini">返回</el-button>
         </span>
                 </el-dialog>
             </template>
@@ -225,7 +233,7 @@
                         <el-form-item label="申请物资名称" size="mini">
                             <el-input v-model="applicationForm[i].goodName" :disabled="true"></el-input>
                         </el-form-item>
-                        <el-form-item label="申请物资编号" size="mini">
+                        <el-form-item label="申请物资ID" size="mini">
                             <el-input v-model="applicationForm[i].goodId" :disabled="true"></el-input>
                         </el-form-item>
                         <el-form-item label="所在仓库" size="mini">
@@ -247,25 +255,24 @@
                         </el-form-item>
                     </el-form>
                     <el-form :inline="true">
-                        <el-form-item label="调配时间" size="mini"><!--无对应接口名-->
+                        <el-form-item label="预计调配时间" size="mini"><!--无对应接口名-->
                             <el-input v-model="applicationForm[i].time" :disabled="true"
                                       style="width: 150px"></el-input>
                             <span class="postfix">小时</span>
                         </el-form-item>
-                        <el-form-item label="费用" size="mini"><!--无对应接口名-->
-                            <el-input v-model="applicationForm[i].price" :disabled="true"
-                                      style="width: 150px"></el-input>
-                            <span class="postfix">元</span>
-                        </el-form-item>
-                        <el-form-item label="运输方式" size="mini"><!--无对应接口名-->
+                        <el-form-item label="需求类型" size="mini"><!--无对应接口名-->
                             <el-select v-model="selectedTransport[i]" @change="()=>{
                             applicationForm[i].time=360/selectedTransport[i];
-                            applicationForm[i].price=selectedTransport[i]*1.9;
                             }">
-                                <el-option label="航运" :value="30"></el-option>
-                                <el-option label="海运" :value="2"></el-option>
-                                <el-option label="高铁" :value="10"></el-option>
-                                <el-option label="普通铁路" :value="5"></el-option>
+                                <el-option label="应急" :value="20"></el-option>
+                                <el-option label="普通" :value="4"></el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="期望时间成本" size="mini">
+                            <el-select v-model="selectedExpectTime[i]">
+                                <el-option label="高" value="高"></el-option>
+                                <el-option label="中" value="中"></el-option>
+                                <el-option label="低" value="低"></el-option>
                             </el-select>
                         </el-form-item>
                     </el-form>
@@ -347,6 +354,7 @@
             //TODO
             app.totalNum = data.totalNum;
             for (var i in data.overview) {
+                data.overview[i]['dialogVisible']=false;
                 items.push(data.overview[i]);
             }
         })
@@ -371,6 +379,7 @@
         time: "",
         price: "",
         transport: "",
+        expectTime:"",
         province: "",
         city: "",
         county: "",
@@ -401,6 +410,7 @@
                 [], [], [], [], [], []
             ],
             selectedTransport: [],
+            selectedExpectTime:[],
             selectedWarehouse: [],
             multipleSelection: [],
             areaData: ChinaAreaData,
@@ -465,6 +475,9 @@
                 while (app.selectedTransport[0] != undefined) {
                     app.selectedTransport.pop();
                 }
+                while(app.selectedExpectTime[0]!=undefined){
+                    app.selectedExpectTime.pop();
+                }
                 while (app.selectedWarehouse[0] != undefined) {
                     app.selectedWarehouse.pop();
                 }
@@ -509,7 +522,7 @@
                         app.warehouseChoice.push(warehouse);
                     }
                 });
-                app.dialogs.allocate = true;
+                row.dialogVisible = true;
                 app.singleForm = {...generalApplicationForm};
                 app.singleForm.userRealName = userInfo.realName;
                 app.singleForm.companyName = userInfo.companyName;
@@ -588,18 +601,58 @@
             },
             submitSingle: function (row) {
                 var toPost = {};
-                Object.assign(toPost, app.singleForm);
-                toPost['province'] = app.selectedLocations[0];
-                toPost['city'] = app.selectedLocations[1];
-                toPost['county'] = app.selectedLocations[2];
-                toPost['endWarehouseId'] =app.singleForm['endWarehouseName'];
-                toPost['isSubmit']=1;
-                for(let i of app.warehouseChoice){
-                    if(i.warehouseId===toPost['endWarehouseId']){
-                        toPost['endWarehouseName']=i.warehouseName;
-                        break;
-                    }
-                }
+                [
+                    toPost['goodsId'],
+                    toPost['description'],
+                    toPost['amount'],
+                    toPost['endWarehouseId'],
+                    toPost['endWarehouseName'],
+                    toPost['applyTime'],
+                    toPost['destinationProvince'],
+                    toPost['destinationCity'],
+                    toPost['destinationAddress'],
+                    toPost['requestType'],
+                    toPost['expectTime'],
+                    toPost['validTime'],
+                    toPost['contractPerson'],
+                    toPost['contractTel'],
+                    toPost['note'],
+                    toPost['isSubmit']
+                ]=[
+                    app.singleForm['goodId'],
+                    app.singleForm['description'],
+                    parseInt(app.singleForm['amount']),
+                    app.singleForm['endWarehouseName'],
+                    (()=>{
+                        for(let i of app.warehouseChoice){
+                            if(i.warehouseId===app.singleForm['endWarehouseName']){
+                                return i.warehouseName;
+                            }
+                        }
+                    })(),
+                    (()=>{
+                        var day=new Date();
+                        var [year,month,date]=[day.getFullYear(),day.getMonth()+1,day.getDate()];
+                        if(month<10){
+                            month='0'+month;
+                        }
+                        if(date<10){
+                            date='0'+date;
+                        }
+                        return [year,month,date].join('-');
+                    })(),
+                    app.selectedLocations[0],
+                    app.selectedLocations[1],
+                    app.singleForm['destinationAddress'],
+                    {"20":"应急","4":"普通"}[String(app.singleForm['transport'])],
+                    app.singleForm['expectTime'],
+                    7,
+                    app.singleForm['userRealName'],
+                    app.singleForm['tel'],
+                    app.singleForm['ps'],
+                    1
+                ]
+                console.log(toPost);
                 post('/common/user_goods/submit',toPost,(data,err)=>{
                     console.log(data);
                     console.log(err);
@@ -609,27 +662,64 @@
                 var toPost = {};
                 var postList = [];
                 for (var form in app.applicationForm) {
-                    Object.assign(toPost, app.applicationForm[form]);
-                    toPost['province'] = app.selectedLocationsList[form][0];
-                    toPost['city'] = app.selectedLocationsList[form][1];
-                    toPost['county'] = app.selectedLocationsList[form][2];
-                    toPost['companyName'] = app.singleForm['companyName'];
-                    toPost['ps'] = app.singleForm['ps'];
-                    toPost['transport'] = app.selectedTransport[form];
-                    toPost['endWarehouseId'] = app.selectedWarehouse[form];
-                    toPost['isSubmit']=1;
-                    for(let i of app.warehouseChoiceList[form]){
-                        if(i.warehouseId===toPost['endWarehouseId']){
-                            toPost['endWarehouseName']=i.warehouseName;
-                            break;
-                        }
-                    }
-                    toPost['userRealName'] = app.singleForm['userRealName'];
-                    toPost['tel'] = app.singleForm['tel'];
-                    post('/common/user_goods/submit',toPost,(data,err)=>{
-                        console.log(data);
-                        console.log(err);
-                    })
+                    [
+                        toPost['goodsId'],
+                        toPost['description'],
+                        toPost['amount'],
+                        toPost['endWarehouseId'],
+                        toPost['endWarehouseName'],
+                        toPost['applyTime'],
+                        toPost['destinationProvince'],
+                        toPost['destinationCity'],
+                        toPost['destinationAddress'],
+                        toPost['requestType'],
+                        toPost['expectTime'],
+                        toPost['validTime'],
+                        toPost['contractPerson'],
+                        toPost['contractTel'],
+                        toPost['note'],
+                        toPost['isSubmit']
+                    ]=[
+                        app.applicationForm[form]['goodId'],
+                        app.applicationForm[form]['description'],
+                        parseInt(app.applicationForm[form]['amount']),
+                        app.selectedWarehouse[form],
+                        (()=>{
+                            for(let i of app.warehouseChoiceList[form]){
+                                if(i.warehouseId===app.selectedWarehouse[form]){
+                                    return i.warehouseName;
+                                }
+                            }
+                        })(),
+                        (()=>{
+                            var day=new Date();
+                            var [year,month,date]=[day.getFullYear(),day.getMonth()+1,day.getDate()];
+                            if(month<10){
+                                month='0'+month;
+                            }
+                            if(date<10){
+                                date='0'+date;
+                            }
+                            return [year,month,date].join('-');
+                        })(),
+                        app.selectedLocationsList[form][0],
+                        app.selectedLocationsList[form][1],
+                        app.applicationForm[form]['destinationAddress'],
+                        {"20":"应急","4":"普通"}[String(app.selectedTransport[form])],
+                        app.selectedExpectTime[form],
+                        7,
+                        app.singleForm['userRealName'],
+                        app.singleForm['tel'],
+                        app.singleForm['ps'],
+                        1
+                    ];
+                    ((d)=>{
+                        post('/common/user_goods/submit',d,(data,err)=>{
+                            console.log(data);
+                            console.log(err);
+                        });
+                    })({...toPost});
+                    console.log({...toPost});
                 }
             }
         }

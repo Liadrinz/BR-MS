@@ -19,21 +19,35 @@
 <script src="lib/jquery.min.js"></script>
 <script src="res/dependencies.js"></script>
 <script>
-    var post=require('/mods/backend');
-    var a=null;
+    var post = require('/mods/backend');
+    var a = null;
     var app = new Vue({
         el: '#app',
         data: function () {
             return {
-                results:[],
-                userInfo:[]
+                results: [],
+                userInfo: []
             }
         },
         methods: {
-            test:function(){
-                post('/common/get_my_info',{
-
-                },(data)=>{
+            test: function () {
+                post('/depot/add_newinbound', {
+                    amount:"1",
+                    charity:"1",
+                    founder:"1",
+                    goodLocalId:"201805260120",
+                    goodName:"1",
+                    inboundNum:"1",
+                    remark:"1",
+                    supplier:"1",
+                    tel: "1",
+                    type: 1,
+                    unit: "1",
+                    warehouseId: 1,
+                    warehouseRepository: "1",
+                    warehouseName:"001仓"
+                }, (data,err) => {
+                    console.log(err);
                     console.log(data);
                 });
                 // $.ajax({
