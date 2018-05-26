@@ -1,43 +1,34 @@
 /*
-数据获取模块
+分页
 ps:已写好的页面不建议改用此方法,因为已经很乱了再改浪费时间!!!
+pps:仅供参考,主要是方便cya用...
 
-1.获取分页条目
-
+1.获取分页条目(默认位于全局作用域)
+原型:getData(Object,callback);
 getData({
-    url:'/system/get_warehouses',//接口
-    app:app1,//Vue对象
+    url:'/system/get_warehouses',//接口url
+    app:app1,//所需操纵的Vue对象
     refresh:[items,],//每次获取数据需要清空的数组
-    pageNum:1,
-    pageSize:10,
-    itemName:'warehouses',//接口回参的data中,条目的属性名
+    pageNum:1,//你想获取第几页
+    pageSize:6,//每页条目数(后台默认为6,最好不改)
+    itemName:'warehouses',//接口回参的Map对象中,你所想获取的数据的属性名
     total:(totalNum)=>{
-        //回调,totalNum是条目总数
+        //回调,totalNum是所有条目的数量
     },
-},(allPages,allItems)=>{
-    //回调,allPages是总页数,allItems是本页所有条目
-}
+},(allPages,data)=>{
+    //回调,allPages是所有条目的总页数,data是本页所有条目的数据(List)
+    }
 });
 
-2.获取非分页条目
-
-getData({
-    url:'/system/get_warehouses',//接口
-    app:app1,//Vue对象
-    refresh:[items,],//每次获取数据需要清空的数组
-},(data)=>{
-    //回调,data即回参data
-}
-});
-
-3.清除数据
+2.清除数据(默认位于全局作用域)
+原型:clearData(List);
 clearData([items,maxPageRefs,totalRefs]);
 */
 var post=require('./backend');
 
 function totalCompute(url,callback,searchKey,attrName){
     post(url,searchKey?searchKey:{pageNum:1},(data)=>{
-        maxPage=data.allPages;
+        var maxPage=data.allPages;
         if(searchKey){
             searchKey['pageNum']=maxPage;
         }
@@ -47,7 +38,7 @@ function totalCompute(url,callback,searchKey,attrName){
             for(var key in items){
                 arr.push(items[key]);
             }
-            total=6*(maxPage-1)+arr.length;
+            var total=6*(maxPage-1)+arr.length;
             callback(total);
         })
     })
@@ -63,18 +54,12 @@ function clearData(listsToPop){
 
 function getData(params,dataCallback){
     clearData(params.refresh);
-    if(params.app.initializing!==undefined){
-        params.app.initializing=true;
-    }
     if(params.pageNum!==undefined){
         if(params.searchKey){
             params.searchKey['pageNum']=params.pageNum;
             params.searchKey['pageSize']=params.pageSize;
         }
         post(params.url,params.searchKey?params.searchKey:{pageNum:params.pageNum,pageSize:params.pageSize},(data,err)=>{
-            if(params.app.initializing!==undefined){
-                params.app.initializing=false;
-            }
             if(err){
                 params.app.$message.error(err.msg);
                 return;
@@ -84,9 +69,6 @@ function getData(params,dataCallback){
         });
     }else{
         post(params.url,params.searchKey?params.searchKey:{},(data,err)=>{
-            if(params.app.initializing!==undefined){
-                params.app.initializing=false;
-            }
             if(err){
                 params.app.$message.error(err.msg);
                 return;

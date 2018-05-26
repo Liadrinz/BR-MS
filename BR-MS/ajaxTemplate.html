@@ -31,8 +31,12 @@
         },
         methods: {
             test: function () {
-                post('/depot/reg_newgood', {localId:"1"}, (data,err)=>{
-                    console.log(err.id);
+                post('/common/getnowsche', {
+                    pageNum:1,
+                    startWarehouseId:1
+                }, (data,err)=>{
+                    console.log(err);
+                    console.log(data);
                 })
                 // $.ajax({
                 //     type:'post',

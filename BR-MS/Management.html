@@ -19,10 +19,38 @@
             margin-bottom: 0;
             width: 50%;
         }
+
+        [v-cloak]{
+            display: none;
+        }
     </style>
 </head>
 <body>
-<div id="app">
+<div id="app" v-cloak>
+    <el-form>
+        <el-form-item label="时间范围">
+            <el-date-picker
+                @change="handleDateChange"
+                v-model="dateRange"
+                type="daterange"
+                unlink-panels
+                range-separator="至"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期">
+            </el-date-picker>
+        </el-form-item>
+        <el-form-item label="发货仓库">
+            <el-select v-model="query.warehouseid">
+                <el-option v-for="warehouse in warehouseChoices" :label="warehouse.warehouseName" :value="warehouse.warehouseId">
+                    {{warehouse.warehouseName}}
+                </el-option>
+            </el-select>
+        </el-form-item>
+        <el-form-item>
+            <el-button type="primary" @click="search">查询</el-button>
+            <el-button type="reset" @click="reset">重置</el-button>
+        </el-form-item>
+    </el-form>
     <template>
         <el-table stripe :data="management">
             <el-table-column type="expand">
@@ -35,13 +63,19 @@
                             <span>{{props.row.companyName}}</span>
                         </el-form-item>
                         <el-form-item label="货物本地ID">
-                            <span>{{props.row.goodId}}</span>
+                            <span>{{props.row.goodLocalId}}</span>
                         </el-form-item>
                         <el-form-item label="创建时间">
-                            <span>{{props.row.create_time}}</span>
+                            <span>{{props.row.createTime}}</span>
                         </el-form-item>
                         <el-form-item label="更新时间">
-                            <span>{{props.row.update_time}}</span>
+                            <span>{{props.row.updateTime}}</span>
+                        </el-form-item>
+                        <el-form-item label="期待时间成本">
+                            <span>{{props.row.expectTime}}</span>
+                        </el-form-item>
+                        <el-form-item label="申请单有效时间">
+                            <span>{{validTime}}</span>
                         </el-form-item>
                         <el-form-item label="发货仓库">
                             <span>{{props.row.startWarehouseName}}</span>
@@ -67,15 +101,13 @@
                     </el-form>
                 </template>
             </el-table-column>
-            <el-table-column prop="goodName" label="货物名称">
+            <el-table-column prop="goodsName" label="货物名称">
             </el-table-column>
             <el-table-column prop="requestType" label="需求类型">
             </el-table-column>
-            <el-table-column prop="expectTime" label="期待时间成本">
-            </el-table-column>
             <el-table-column prop="amount" label="申请数量">
             </el-table-column>
-            <el-table-column prop="validTime" label="申请单有效时间">
+            <el-table-column prop="state" label="状态">
             </el-table-column>
             <el-table-column prop="isDone" label="是否完成">
             </el-table-column>
@@ -83,12 +115,15 @@
             </el-table-column>
             <el-table-column prop="completetime" label="完成时间">
             </el-table-column>
-            <el-table-column label="操作">
+            <el-table-column label="操作" :width="250">
                 <template slot-scope="props">
-                    <el-button type="danger" size="mini" @click="()=>{cancelReq(props.row)}">撤销</el-button>
+                    <el-button type="primary" size="mini" @click="()=>{viewRoute(props.row)}">跟踪</el-button>
+                    <el-button v-if="props.row.state==0" type="danger" size="mini" @click="()=>{cancelReq(props.row)}">撤销</el-button>
                 </template>
             </el-table-column>
         </el-table>
+        <el-pagination @current-change="handleCurrentChange" :current-page="pageNum"
+                       :page-size="6" layout="total,prev,pager,next,jumper" :total="total"></el-pagination>
     </template>
 </div>
 </body>
@@ -97,41 +132,74 @@
 <script src="res/dependencies.js"></script>
 <script>
     //接口没好
+    var catchData=require('/mods/pagination').getData;
+    var totalPages;//DOM里用这些
+
     function clearData(){
         while(manageItems[0]!=undefined){
             manageItems.pop();
         }
     }
 
-    function getData(){
-        clearData();
-        post('/common/getnowsche',{
-            pageNum:1
-        },(data,err)=>{
-            if(err){
-                app.$message.error(err.msg);
-                return;
+    function getData(searchKey,pageNum){
+        catchData({
+            url:'/common/getnowsche',
+            app:app,
+            refresh:[manageItems,],
+            pageNum:pageNum,
+            searchKey:searchKey,
+            pageSize:6,
+            itemName:'schedules',
+            total:(totalNum)=>{
+                app.total=totalNum;
             }
-            console.log(data);
-            for(var i in data.schedules){
-                manageItems.push(data.schedules[i]);
+        },(allPages,data)=>{
+            totalPages=allPages;
+            for(var da of data){
+                manageItems.push(da);
             }
-        });
+        })
     }
 
+    var searchKey={state:1}
     var post=require('/mods/backend');
     var manageItems=[];
     var app = new Vue({
         el: '#app',
         data:function() {
             return {
-                management:manageItems
+                management:manageItems,
+                dateRange:"",
+                pageNum:1,
+                total:0,
+                warehouseChoices:[],
+                query:{
+                    warehouseid:undefined,
+                    start_time:undefined,
+                    end_time:undefined
+                },
             };
         },
         mounted:function(){
-            getData();
+            getData(searchKey,1);
+            post('/common/relatehouse',{},(data,err)=>{
+                if(err){
+                    app.$message.error(err.msg);
+                }
+                for(let warehouse of data){
+                    app.warehouseChoices.push(warehouse);
+                }
+            })
         },
         methods: {
+            handleDateChange(){
+                var [s,e]=[...app.dateRange];
+                app.query.start_time=[s.getFullYear(),s.getMonth()+1<10?'0'+(s.getMonth()+1):s.getMonth()+1,s.getDate()<10?'0'+s.getDate():s.getDate()].join('-')+" 00:00:00";
+                app.query.end_time=[e.getFullYear(),e.getMonth()+1<10?'0'+(e.getMonth()+1):e.getMonth()+1,e.getDate()<10?'0'+e.getDate():e.getDate()].join('-')+" 00:00:00";
+            },
+            handleCurrentChange(page){
+                getData(searchKey,page);
+            },
             cancelReq:function(row){
                 this.$confirm('确认撤销该物资调配的申请？', null, {
                     confirmButtonText: '确定',
@@ -145,13 +213,25 @@
                             app.$message.error(err.msg);
                             return;
                         }
-                        getData();
+                        getData(searchKey,1);
                     })
                 })
+            },
+            handleFilterChange:function(){
+                getData({state:app.stateFilter});
+            },
+            search(){
+                var obj={};
+                Object.assign(obj,app.query);
+                Object.assign(searchKey,obj);
+                getData(obj,1);
+            },
+            reset(){
+                searchKey={};
+                getData(searchKey,1);
             }
 
         }
     });
 </script>
-
 </html>

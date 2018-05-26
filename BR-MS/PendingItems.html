@@ -5,11 +5,13 @@
     <title>待审核事项</title>
     <link rel="stylesheet" href="lib/eleme-index.css">
     <style>
-
+        [v-cloak]{
+            display: none;
+        }
     </style>
 </head>
 <body>
-<div id="app">
+<div id="app" v-cloak>
     <el-table
         :data="items">
 
