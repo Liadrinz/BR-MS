@@ -1058,7 +1058,9 @@
                 for(let i in app.resInfo){
                     Object.assign(obj,app.resInfo[i]);
                     obj.index=parseInt(i)+1;
-                    delete obj.goodId,obj.warehouseId,obj.canView;
+                    delete obj.goodId;
+                    delete obj.warehouseId;
+                    delete obj.canView;
                     app.toPrint.push({...obj});
                 }
                 app.state=3;
