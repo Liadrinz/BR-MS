@@ -32,7 +32,7 @@
             width: 100%;
         }
 
-        @media (max-width: 1200px) {
+        @media (max-width: 1000px) {
             #box2 .el-aside {
                 display: none;
             }
@@ -78,14 +78,51 @@
         [v-cloak] {
             display: none;
         }
+
+        /*element自带表格对不齐,网上找的好看的表格样式*/
+
+        .grid {
+            font-family: verdana,arial,sans-serif;
+            font-size:11px;
+            color:#333333;
+            border-width: 1px;
+            border-color: #666666;
+            border-collapse: collapse;
+        }
+
+        .grid th {
+            border-width: 1px;
+            padding: 8px;
+            border-style: solid;
+            border-color: #666666;
+            background-color: #dedede;
+        }
+
+        .grid td {
+            border-width: 1px;
+            padding: 8px;
+            border-style: solid;
+            border-color: #666666;
+            background-color: #ffffff;
+        }
+
+        #box3{
+            position:absolute;
+            left:50%;
+        }
+
+        .grid{
+            position: relative;
+            left:-50%;
+        }
     </style>
 </head>
 <body>
 <div id="app" v-cloak>
     <div v-show="state===1" id="box1">
         <div id="above">
-            <el-form id="above-form">
-                <el-form :inline="true" ref="upperForm" :model="importInfo" label-width="200px">
+            <el-form id="above-form" ref="headerForm">
+                <el-form :inline="true" :rules="headerRules.rules1" ref="upperForm" :model="importInfo" label-width="200px">
                     <el-form-item label="入库单号" prop="inboundNum" required>
                         <el-input v-model="importInfo.inboundNum" size="medium" :disabled="true"></el-input>
                     </el-form-item>
@@ -95,7 +132,7 @@
                         </el-upload>
                     </el-form-item>
                 </el-form>
-                <el-form :inline="true" ref="midForm" :model="importInfo" label-width="200px">
+                <el-form :inline="true" :rules="headerRules.rules2" ref="midForm" :model="importInfo" label-width="200px">
                     <el-form-item label="建单人" prop="founder" required>
                         <el-input v-model="importInfo.founder" size="medium"></el-input>
                     </el-form-item>
@@ -105,7 +142,7 @@
                                         value-format="yyyy-MM-dd" size="medium"></el-date-picker>
                     </el-form-item>
                 </el-form>
-                <el-form :inline="true" ref="downForm" :model="importInfo" label-width="200px">
+                <el-form :inline="true" :rules="headerRules.rules3" ref="downForm" :model="importInfo" label-width="200px">
                     <el-form-item label="供应商" prop="supplier" required>
                         <el-input size="medium" v-model="importInfo.supplier"></el-input>
                     </el-form-item>
@@ -558,6 +595,24 @@
             </el-container>
         </el-container>
     </div>
+    <div v-show="state===3" id="box3">
+        <table class="grid">
+            <tr>
+                <th>序号</th>
+                <th>物资名称</th>
+                <th>身份识别码</th>
+                <th>数量</th>
+                <th>单位</th>
+                <th>存放库位</th>
+                <th>负责人</th>
+                <th>联系电话</th>
+                <th>备注</th>
+            </tr>
+            <tr v-for="data in toPrint">
+                <td v-for="key in Object.keys(data)">{{data[key]}}</td>
+            </tr>
+        </table>
+    </div>
 </div>
 </body>
 <!-- 这是 JS 代码，一定要放在 <body> 后面 -->
@@ -709,6 +764,27 @@
                         {required: true, message: '请输入备注,若没有请输入无'}
                     ]
                 },
+                headerRules:{
+                    rules1:{
+                        inboundNum:[
+                            {required:true,message:'请填写入库单号'}
+                        ]
+                    },
+                    rules2:{
+                        founder:[
+                            {required:true,message:'请填写建单人'}
+                        ]
+                    },
+                    rules3:{
+                        supplier:[
+                            {required:true,message:'请填写供应商'}
+                        ],
+                        type:[
+                            {required:true,message:'请选择入库类别'}
+                        ]
+                    }
+
+                },
 
                 //------------------------------
 
@@ -802,18 +878,7 @@
                             {required: true, message: '请输入物资名称'}
                         ],
                         localId: [
-                            {required: true, message: '请输入身份识别码'},
-                            {
-                                validator: (rule, value, callback) => {
-                                    post('/depot/reg_newgood', app.resGeneralForm, (data, err) => {
-                                        if (err.id === 5021) {
-                                            callback(new Error('身份识别码重复'))
-                                        } else {
-                                            callback();
-                                        }
-                                    })
-                                }
-                            }
+                            {required: true, message: '请输入身份识别码'}
                         ],
                         type: [
                             {required: true, message: '请选择物资类型'}
@@ -873,12 +938,13 @@
                         smallType: [
                             {required: true, message: '请选择能力类型'}
                         ],
-                        description: [
+                        detail: [
                             {required: true, message: '请输入能力描述'}
                         ]
                     }
 
-                }
+                },
+                toPrint:[]
             }
         },
         mounted: function () {
@@ -931,36 +997,71 @@
                 app.editFormVisible = true;
             },
             save() {
-                var toPost = {};
-                Object.assign(toPost, app.importInfo);
-                for (let i in app.resInfo) {
-                    toPost['goodLocalId'] = app.resInfo[i].goodLocalId;
-                    toPost['goodName'] = app.resInfo[i].goodName;
-                    toPost['warehouseId'] = app.resInfo[i].warehouseId;
-                    Object.assign(toPost, app.resInfo[i]);
-                    delete toPost.goodId;
-                    delete toPost.canView;
-                    delete toPost.createdDate;
-                    toPost['amount'] = Number(toPost['amount']);
-                    toPost['type'] = String(toPost['type']);
-                    for (let i in toPost) {
-                        if (!toPost[i]) {
-                            delete toPost[i];
+                if(app.resInfo.length===0){
+                    app.$message.error('未填写货品信息');
+                }
+                app.$refs['midForm'].validate((valid)=>{
+                    console.log(valid);
+                    if(!valid){
+                        app.$message.error('表单信息填写错误,请重新填写');
+                        return false;
+                    }
+                });
+                app.$refs['downForm'].validate((valid)=>{
+                    console.log(valid);
+                    if(!valid){
+                        app.$message.error('表单信息填写错误,请重新填写');
+                        return false;
+                    }else{
+                        var toPost = {};
+                        Object.assign(toPost, app.importInfo);
+                        for (let i in app.resInfo) {
+                            toPost['goodLocalId'] = app.resInfo[i].goodLocalId;
+                            toPost['goodName'] = app.resInfo[i].goodName;
+                            toPost['warehouseId'] = app.resInfo[i].warehouseId;
+                            Object.assign(toPost, app.resInfo[i]);
+                            delete toPost.goodId;
+                            delete toPost.canView;
+                            delete toPost.createdDate;
+                            toPost['amount'] = Number(toPost['amount']);
+                            toPost['type'] = String(toPost['type']);
+                            for (let i in toPost) {
+                                if (!toPost[i]) {
+                                    delete toPost[i];
+                                }
+                            }
+                            ((e) => {
+                                post('/depot/add_newinbound', {...toPost}, (data, err) => {
+                                    if (err) {
+                                        app.$message.error('未填写货品信息');
+                                        return;
+                                    }
+                                    app.$alert('保存成功!');
+                                })
+                            })(i)
                         }
                     }
-                    ((e) => {
-                        post('/depot/add_newinbound', {...toPost}, (data, err) => {
-                            if (err) {
-                                app.$message.error(err.msg);
-                                return;
-                            }
-                            app.$alert('保存成功!');
-                        })
-                    })(i)
-                }
+                });
             },
             print() {
-                //打印机
+                var obj={
+                    index:1,
+                    goodName:"",
+                    goodLocalId:"",
+                    amount:"",
+                    unit:"",
+                    warehouseRepository:"",
+                    charity:"",
+                    phone:"",
+                    remark:""
+                }
+                for(let i in app.resInfo){
+                    Object.assign(obj,app.resInfo[i]);
+                    obj.index=parseInt(i)+1;
+                    delete obj.goodId,obj.warehouseId,obj.canView;
+                    app.toPrint.push({...obj});
+                }
+                app.state=3;
             },
             createRes(index) {
                 app.resGeneralForm = new resGeneral();
@@ -1087,68 +1188,98 @@
                 app.guaranteeCapabilityList.splice(index, 1);
             },
             commitRegister() {
-                app.$confirm('确定信息填写无误？提交后将无法修改').then(() => {
-                    let obj = {};
-                    obj = app.resGeneralForm;
-                    let uA = [];
-                    let gA = [];
-                    for (let useAbility of app.useCapabilityList) {
-                        uA.push(useAbility);
-                    }
-                    for (let garAbility of app.guaranteeCapabilityList) {
-                        gA.push(garAbility);
-                    }
-                    obj.useAbility = uA;
-                    obj.garAbility = gA;
-                    app.storedDetailResInfo.push(obj);
-                    post('/depot/reg_newgood', app.resGeneralForm, (data) => {
-                        var goodId = data.goodId;
-                        console.log(data);
-                        importObj.goodId = goodId;
-                        app.resInfo[importObj.resIndex].goodLocalId = data.goodLocalId;
-                        app.resInfo[importObj.resIndex].goodId = importObj.goodId;
-                        app.resInfo[importObj.resIndex].goodName = data.goodName;
-                        app.resInfo[importObj.resIndex].warehouseId = data.warehouseId;
-                        app.resInfo[importObj.resIndex].canView = true;
-                        app.state = 1;
-                        app.editFormVisible = true;
-                        app.editFormVisible = false;
-                        for (let useAbility of app.useCapabilityList) {
-                            ((p) => {
-                                post('/depot/add_newability', {
-                                    goodId: goodId,
-                                    bigType: "使用能力",
-                                    smallType: p.smallType,
-                                    detail: p.detail
-                                }, (data, err) => {
-                                    if (err) {
-                                        app.$message.error(err.msg);
-                                        console.log(err);
-                                        return;
+                let promise = new Promise((resolve, reject)=>{
+                    var [validNum, totalNum] = [0, 0];
+                    for (var formName in app.$refs) {
+                        ((p) => {
+                            if (formName.match(/form\d+/)) {
+                                (Number(formName.slice(-1)) >= 7 ? p[0] : p).validate((valid) => {
+                                    totalNum++;
+                                    if (valid) {
+                                        validNum++;
+                                    }
+                                    if (totalNum !== validNum) {
+                                        app.$message.error('信息填写错误，请重新填写');
+                                        reject();
+                                        return false;
                                     }
                                 })
-                            })(useAbility);
+                            }
+                        })(app.$refs[formName])
+                    }
+                    resolve();
+                })
+                promise.then(()=>{
+                    app.$confirm('确定信息填写无误？提交后将无法修改').then(() => {
+                        let obj = {};
+                        obj = app.resGeneralForm;
+                        let uA = [];
+                        let gA = [];
+                        for (let useAbility of app.useCapabilityList) {
+                            uA.push(useAbility);
                         }
                         for (let garAbility of app.guaranteeCapabilityList) {
-                            ((p) => {
-                                post('/depot/add_newability', {
-                                    goodId: goodId,
-                                    bigType: "保障能力",
-                                    smallType: p.smallType,
-                                    detail: p.detail
-                                }, (data, err) => {
-                                    if (err) {
-                                        console.log(err);
-                                        return;
-                                    }
-                                })
-                            })(garAbility);
+                            gA.push(garAbility);
                         }
-                        app.$message({
-                            type: 'success',
-                            message: '新物资注册成功'
+                        obj.useAbility = uA;
+                        obj.garAbility = gA;
+                        app.storedDetailResInfo.push(obj);
+                        post('/depot/reg_newgood', app.resGeneralForm, (data,err) => {
+                            if(err){
+                                if(err.id===5021){
+                                    app.$message.error('身份识别码重复');
+                                    return;
+                                }
+                            }
+                            var goodId = data.goodId;
+                            console.log(data);
+                            importObj.goodId = goodId;
+                            app.resInfo[importObj.resIndex].goodLocalId = data.goodLocalId;
+                            app.resInfo[importObj.resIndex].goodId = importObj.goodId;
+                            app.resInfo[importObj.resIndex].goodName = data.goodName;
+                            app.resInfo[importObj.resIndex].warehouseId = data.warehouseId;
+                            app.resInfo[importObj.resIndex].canView = true;
+                            app.state = 1;
+                            app.editFormVisible = true;
+                            app.editFormVisible = false;
+                            for (let useAbility of app.useCapabilityList) {
+                                ((p) => {
+                                    post('/depot/add_newability', {
+                                        goodId: goodId,
+                                        bigType: "使用能力",
+                                        smallType: p.smallType,
+                                        detail: p.detail
+                                    }, (data, err) => {
+                                        if (err) {
+                                            app.$message.error(err.msg);
+                                            console.log(err);
+                                            return;
+                                        }
+                                    })
+                                })(useAbility);
+                            }
+                            for (let garAbility of app.guaranteeCapabilityList) {
+                                ((p) => {
+                                    post('/depot/add_newability', {
+                                        goodId: goodId,
+                                        bigType: "保障能力",
+                                        smallType: p.smallType,
+                                        detail: p.detail
+                                    }, (data, err) => {
+                                        if (err) {
+                                            console.log(err);
+                                            return;
+                                        }
+                                    })
+                                })(garAbility);
+                            }
+                            app.$message({
+                                type: 'success',
+                                message: '新物资注册成功'
+                            });
                         });
-                    });
+
+                    })
 
                 })
             },
