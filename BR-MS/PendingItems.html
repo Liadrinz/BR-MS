@@ -5,17 +5,111 @@
     <title>待审核事项</title>
     <link rel="stylesheet" href="lib/eleme-index.css">
     <style>
-        [v-cloak]{
+        span.no-wrap {
+            white-space: nowrap;
+        }
+
+        .items-shorter .el-form-item {
+            margin-bottom: 10px;
+        }
+
+        [v-cloak] {
             display: none;
         }
     </style>
 </head>
 <body>
 <div id="app" v-cloak>
-    <el-table
-        :data="items">
-
+    <el-table :data="items">
+        <el-table-column
+            prop="userRealName" label="申请人" width="100px"></el-table-column>
+        <el-table-column
+            prop="createTime" label="申请时间" width="200px"></el-table-column>
+        <el-table-column
+            prop="goodsName" label="货物名"></el-table-column>
+        <el-table-column
+            label="操作" width="320px">
+            <template slot-scope="scope">
+                <span class="no-wrap">
+                    <el-button
+                        type="primary" plain size="mini"
+                        @click="showAndSet(scope.$index, 'applySheet')">查看详细信息</el-button>
+                    <el-button
+                        type="success" plain size="mini"
+                        @click="showAndSet(scope.$index, 'allowNum')">审核通过</el-button>
+                    <el-button type="danger" plain size="mini">驳回申请</el-button>
+                </span>
+            </template>
+        </el-table-column>
+        <el-table-column
+            prop="JianyiCelue" label="建议策略" width="200px">
+        </el-table-column>
     </el-table>
+    <el-dialog
+        :visible.sync="dialogs.allowNum"
+        title="审核通过确认" width="35%" class="items-shorter">
+        <el-form
+            v-if="states.dataReady" label-position="left"
+            label-width="100px">
+            <el-form-item label="申请人">
+                {{ currentRow.userRealName }}
+            </el-form-item>
+            <el-form-item label="物品名">
+                {{ currentRow.goodsName }}
+            </el-form-item>
+            <el-form-item label="允许调配数量">
+                <el-input
+                    v-model="allowedNum"
+                    placeholder="输入数字"></el-input>
+            </el-form-item>
+        </el-form>
+        <template slot="footer">
+            <el-button
+                type="primary" @click="handleAllow">审核通过</el-button>
+            <el-button @click="dialogs.allowNum=false">返回</el-button>
+        </template>
+    </el-dialog>
+    <el-dialog
+        :visible.sync="dialogs.applySheet"
+        title="详细信息">
+        <el-form
+            v-if="states.dataReady" class="items-shorter"
+            label-width="100px" label-position="left">
+            <el-form-item label="申请人">
+                {{ currentRow.userRealName }}
+            </el-form-item>
+            <el-form-item label="申请人部门">
+                {{ currentRow.companyName }}
+            </el-form-item>
+            <el-form-item label="货物名">
+                {{ currentRow.goodsName }}
+            </el-form-item>
+            <el-form-item label="货物ID">
+                {{ currentRow.goodsId }}
+            </el-form-item>
+            <el-form-item label="发货仓库">
+                {{ currentRow.startWarehouseName }}
+            </el-form-item>
+            <el-form-item label="目的仓库">
+                {{ currentRow.endWarehouseName }}
+            </el-form-item>
+            <el-form-item label="申请数量">
+                {{ currentRow.amount }}
+            </el-form-item>
+            <el-form-item label="申请描述">
+                {{ currentRow.description }}
+            </el-form-item>
+            <el-form-item label="申请创建时间">
+                {{ currRowCalc.createTime }}
+            </el-form-item>
+            <el-form-item label="目的地址">
+                {{ currRowCalc.end }}
+            </el-form-item>
+        </el-form>
+        <template slot="footer">
+            <el-button type="primary" @click="dialogs.applySheet=false">确定</el-button>
+        </template>
+    </el-dialog>
 </div>
 </body>
 <script src="lib/vue.js"></script>
@@ -23,13 +117,84 @@
 <script src="res/dependencies.js"></script>
 <script>
     var post = require('/mods/backend');
+    var dateFormat = require('dateformat');
+
+    var mock = [{
+        "schedule_id":1,
+        "user_id":33,
+        "userRealName":"wwer",
+        "companyName":"qwer",
+        "goodsName":"1",
+        "goodsId":"234",
+        "startWarehouseId":1,
+        "startWarehouseName":"001仓",
+        "description":null,
+        "permitAmount":null,
+        "amount":23,
+        "endWarehouseId":3,
+        "endWarehouseName":"DKY仓",
+        "applyTime":null,
+        "createTime":1526528139000,
+        "updateTime":null,
+        "destinationAddress":null,
+        "destinationProvince":null,
+        "destinationCity":null,
+        "applicationNum":null,
+        "isPass":0,
+        "isDone":0,
+        "completetime":1526257814000,
+        "state":1,
+        "requestType":null,
+        "expectTime":null,
+        "validTime":null,
+        "contractPerson":null,
+        "contractTel":null,
+        "note":null,
+        "isSubmit":1,
+        "JianyiCelue": "建议全部驳回，这是一条辣鸡请求"
+    }];
 
     var app = new Vue({
         el: '#app',
         data: {
-            items:[]
+            dialogs: {
+                allowNum: false,
+                applySheet: false
+            },
+            states: {
+                dataReady: false
+            },
+            items: mock,
+            currentRowIndex: 0,
+            allowedNum: ''
         },
-        methods: {}
+        methods: {
+            showAndSet: function(row, dlgName) {
+                this.currentRowIndex = row;
+                this.dialogs[dlgName] = true;
+            },
+            handleAllow: function() {
+                this.dialogs.allowNum = false;
+            }
+        },
+        computed: {
+            currentRow: function() {
+                return this.items[this.currentRowIndex];
+            },
+            currRowCalc: function() {
+                return {
+                    createTime: dateFormat(
+                        new Date(this.currentRow.createTime),
+                        ""
+                    ),
+                    end: this.currentRow.destinationAddress
+                }
+            }
+        },
+        created: function() {
+            // TODO: 删掉这行；当获取到数据时才设为true
+            this.states.dataReady = true;
+        }
     });
 </script>
 </html>
