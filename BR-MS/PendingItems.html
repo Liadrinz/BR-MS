@@ -33,10 +33,10 @@
                 <span class="no-wrap">
                     <el-button
                         type="primary" plain size="mini"
-                        @click="showAndSet(scope.$index, 'applySheet')">查看详细信息</el-button>
+                        @click="showApplySheet(scope.$index)">查看详细信息</el-button>
                     <el-button
                         type="success" plain size="mini"
-                        @click="showAndSet(scope.$index, 'allowNum')">审核通过</el-button>
+                        @click="showAllowNum(scope.$index)">审核通过</el-button>
                     <el-button type="danger" plain size="mini">驳回申请</el-button>
                 </span>
             </template>
@@ -50,7 +50,7 @@
         title="审核通过确认" width="35%" class="items-shorter">
         <el-form
             v-if="states.dataReady" label-position="left"
-            label-width="100px">
+            label-width="120px">
             <el-form-item label="申请人">
                 {{ currentRow.userRealName }}
             </el-form-item>
@@ -59,8 +59,7 @@
             </el-form-item>
             <el-form-item label="允许调配数量">
                 <el-input
-                    v-model="allowedNum"
-                    placeholder="输入数字"></el-input>
+                    v-model="currRowData.allow"></el-input>
             </el-form-item>
         </el-form>
         <template slot="footer">
@@ -161,31 +160,54 @@
                 allowNum: false,
                 applySheet: false
             },
+            rules: {
+                allowNum: {
+                    allowing: [
+                        { required: true, message: '请输入允许数量', trigger: 'blur' }
+                    ]
+                }
+            },
             states: {
                 dataReady: false
             },
             items: mock,
-            currentRowIndex: 0,
+            currRowData: {
+                index: 0,
+                allow: 0
+            },
             allowedNum: ''
         },
         methods: {
-            showAndSet: function(row, dlgName) {
-                this.currentRowIndex = row;
-                this.dialogs[dlgName] = true;
+            showApplySheet: function(row) {
+                this.currRowData.index = row;
+                this.dialogs['applySheet'] = true;
+            },
+            showAllowNum: function(row) {
+                this.currRowData.index = row;
+                this.currRowData.allow =
+                    this.items[this.currRowData.index].amount;
+                this.dialogs['allowNum'] = true;
             },
             handleAllow: function() {
+                this.$refs['allowApplyForm'].validate(valid => {
+                    if (valid) {
+
+                    }
+                });
+
+                // TODO: 写真实的交互逻辑
                 this.dialogs.allowNum = false;
             }
         },
         computed: {
             currentRow: function() {
-                return this.items[this.currentRowIndex];
+                return this.items[this.currRowData.index];
             },
             currRowCalc: function() {
                 return {
                     createTime: dateFormat(
                         new Date(this.currentRow.createTime),
-                        ""
+                        "yyyy-mm-dd HH:MM:ss"
                     ),
                     end: this.currentRow.destinationAddress
                 }
