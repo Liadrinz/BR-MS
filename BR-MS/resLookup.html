@@ -32,7 +32,33 @@
             </el-radio-group>
         </el-form-item>
         <el-form-item label="物资类别：" size="mini">
-            <el-input v-model="type" placeholder="请输入" style="width: 200px"></el-input>
+            <el-select v-model="type" placeholder="物资类型">
+                <el-option value="电脑整机">电脑整机</el-option>
+                <el-option value="大型家电">大型家电</el-option>
+                <el-option value="网络产品">网络产品</el-option>
+                <el-option value="厨房电器">厨房电器</el-option>
+                <el-option value="电脑配件">电脑配件</el-option>
+                <el-option value="五金装饰">五金装饰</el-option>
+                <el-option value="摄影摄像">摄影摄像</el-option>
+                <el-option value="健康卫生">健康卫生</el-option>
+                <el-option value="数码配件">数码配件</el-option>
+                <el-option value="通信器材">通信器材</el-option>
+                <el-option value="办公设备">办公设备</el-option>
+                <el-option value="家具">家具</el-option>
+                <el-option value="文具耗材">文具耗材</el-option>
+                <el-option value="生活电器">生活电器</el-option>
+                <el-option value="生活用品">生活用品</el-option>
+                <el-option value="汽车用品">汽车用品</el-option>
+                <el-option value="文体器材">文体器材</el-option>
+                <el-option value="学习书籍">学习书籍</el-option>
+                <el-option value="粮油食品">粮油食品</el-option>
+                <el-option value="工程建材">工程建材</el-option>
+                <el-option value="医疗卫生">医疗卫生</el-option>
+                <el-option value="油品">油品</el-option>
+                <el-option value="军队服装">军队服装</el-option>
+                <el-option value="交通工具">交通工具</el-option>
+                <el-option value="其他">其他</el-option>
+            </el-select>
         </el-form-item>
         <el-form-item label="地理位置：" size="mini">
             <el-radio v-model="locationRadio" label="1" @change="(val)=>{
@@ -121,11 +147,6 @@
                                     <el-input v-model="singleForm.time" :disabled="true"
                                               style="width: 150px"></el-input>
                                     <span class="postfix">小时</span>
-                                </el-form-item>
-                                <el-form-item label="费用" size="mini"><!--无对应接口名-->
-                                    <el-input v-model="singleForm.price" :disabled="true"
-                                              style="width: 150px"></el-input>
-                                    <span class="postfix">元</span>
                                 </el-form-item>
                                 <el-form-item label="需求类型" size="mini"><!--无对应接口名-->
                                     <el-select v-model="singleForm.transport" @change="()=>{
@@ -340,6 +361,7 @@
     var items = [];
     var pageNum = 1, pageSize = 6, maxPage = 0;
     var userInfo;
+    var currentRow;
 
     const ChinaAreaData = require('element-china-area-data').regionData;
 
@@ -523,6 +545,7 @@
                     }
                 });
                 row.dialogVisible = true;
+                currentRow=row;
                 app.singleForm = {...generalApplicationForm};
                 app.singleForm.userRealName = userInfo.realName;
                 app.singleForm.companyName = userInfo.companyName;
@@ -654,8 +677,15 @@
                 ]
                 console.log(toPost);
                 post('/common/user_goods/submit',toPost,(data,err)=>{
-                    console.log(data);
-                    console.log(err);
+                    if(err){
+                        app.$message.error(err.msg);
+                        return;
+                    }
+                    currentRow.dialogVisible=false;
+                    app.$message({
+                        type:'success',
+                        message:'申请提交成功'
+                    });
                 });
             },
             submitAll: function () {
@@ -715,8 +745,15 @@
                     ];
                     ((d)=>{
                         post('/common/user_goods/submit',d,(data,err)=>{
-                            console.log(data);
-                            console.log(err);
+                            if(err){
+                                app.$message.error(err.msg);
+                                return;
+                            }
+                            app.dialogs.allocateAll=false;
+                            app.$message({
+                                type:'success',
+                                message:'申请提交成功'
+                            });
                         });
                     })({...toPost});
                     console.log({...toPost});

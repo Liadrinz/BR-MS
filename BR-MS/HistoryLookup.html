@@ -27,7 +27,8 @@
             margin-bottom: 0;
             width: 50%;
         }
-        [v-cloak]{
+
+        [v-cloak] {
             display: none;
         }
     </style>
@@ -71,46 +72,157 @@
             <el-button type="primary" @click="search">查询</el-button>
         </el-form-item>
     </el-form>
-    <div>{{ lookupDateText }} 的历史数据</div>
-    <el-table stripe :data="tableData">
-        <el-table-column type="expand">
-            <template slot-scope="props">
-                <el-form label-position="left" inline class="demo-table-expand">
-                    <el-form-item label="发货时间">
-                        <span>{{props.row.transportTime}}</span>
-                    </el-form-item>
-                    <el-form-item label="收货时间">
-                        <span>{{props.row.arrivalTime}}</span>
-                    </el-form-item>
-                    <el-form-item label="传输类型">
-                        <span>{{props.row.transportType}}</span>
-                    </el-form-item>
-                    <el-form-item label="用户真名">
-                        <span>{{props.row.userRealName}}</span>
-                    </el-form-item>
-                    <el-form-item label="用户所在单位">
-                        <span>{{props.row.companyName}}</span>
-                    </el-form-item>
-                </el-form>
-            </template>
-        </el-table-column>
-        <el-table-column prop="startWarehouseName" label="发货仓库名">
-        </el-table-column>
-        <el-table-column prop="endWarehouseName" label="收货仓库名">
-        </el-table-column>
-        <el-table-column prop="applicationNum" label="调度单编号">
-        </el-table-column>
-        <el-table-column prop="goodName" label="货物名称">
-        </el-table-column>
-        <el-table-column prop="amount" label="请求数量">
-        </el-table-column>
-        <el-table-column prop="idDone" label="是否完成">
-        </el-table-column>
-    </el-table>
-    <p style="text-align: center">
-        <el-pagination @current-change="handleCurrentChange" :current-page="pageNum"
-                       :page-size="6" layout="total,prev,pager,next,jumper" :total="total[0]"></el-pagination>
-    </p>
+    <div v-show="formInput.eventType==='出入库事件'">
+        <div>{{ lookupDateText?lookupDateText:'所有时段' }}</div>
+        <el-table stripe :data="tableData2">
+            <el-table-column type="expand">
+                <template slot-scope="props2">
+                    <el-form label-position="left" inline class="demo-table-expand">
+                        <el-form-item label="申请人所在单位">
+                            <span>{{props2.row.companyName}}</span>
+                        </el-form-item>
+                        <el-form-item label="调度申请单编号">
+                            <span>{{props2.row.applicationNum}}</span>
+                        </el-form-item>
+                        <el-form-item label="创建时间">
+                            <span>{{props2.row.createTime}}</span>
+                        </el-form-item>
+                        <el-form-item label="出/入库建单人">
+                            <span>{{props2.row.founder}}</span>
+                        </el-form-item>
+                        <el-form-item label="负责人">
+                            <span>{{props2.row.charity}}</span>
+                        </el-form-item>
+                        <el-form-item label="备注">
+                            <span>{{props2.row.remark}}</span>
+                        </el-form-item>
+                    </el-form>
+                </template>
+            </el-table-column>
+            <el-table-column prop="goodName" label="货物名称">
+            </el-table-column>
+            <el-table-column prop="amount" label="请求数量">
+            </el-table-column>
+            <el-table-column prop="unit" label="单位">
+            </el-table-column>
+            <el-table-column prop="method" label="出库/入库">
+            </el-table-column>
+            <el-table-column prop="warehouseName" label="仓库名">
+            </el-table-column>
+            <el-table-column prop="inboundNum" label="出/入库单号">
+            </el-table-column>
+        </el-table>
+        <p style="text-align: center">
+            <el-pagination @current-change="handleCurrentChange" :current-page="pageNum"
+                           :page-size="6" layout="total,prev,pager,next,jumper" :total="total[0]"></el-pagination>
+        </p>
+    </div>
+    <div v-show="formInput.eventType==='物资调配申请'">
+        <div>{{ lookupDateText?lookupDateText:'所有时段' }}</div>
+        <el-table stripe :data="tableData">
+            <el-table-column type="expand">
+                <template slot-scope="props">
+                    <el-form label-position="left" inline class="demo-table-expand">
+                        <el-form-item label="申请人所在单位">
+                            <span>{{props.row.companyName}}</span>
+                        </el-form-item>
+                        <el-form-item label="调度单编号">
+                            <span>{{props.row.applicationNum}}</span>
+                        </el-form-item>
+                        <el-form-item label="发货仓库名">
+                            <span>{{props.row.startWarehouseName}}</span>
+                        </el-form-item>
+                        <el-form-item label="收货仓库名">
+                            <span>{{props.row.endWarehouseName}}</span>
+                        </el-form-item>
+                        <el-form-item label="创建时间">
+                            <span>{{props.row.createTime}}</span>
+                        </el-form-item>
+                        <el-form-item label="更新时间">
+                            <span>{{props.row.updateTime}}</span>
+                        </el-form-item>
+                    </el-form>
+                </template>
+            </el-table-column>
+            <el-table-column prop="goodsName" label="货物名称">
+            </el-table-column>
+            <el-table-column prop="goodsId" label="货物本地ID">
+            </el-table-column>
+            <el-table-column prop="amount" label="请求数量">
+            </el-table-column>
+            <el-table-column prop="isDone" label="是否完成">
+                <template slot-scope="props">
+                    {{['未完成','已完成'][props.row.isDone]}}
+                </template>
+            </el-table-column>
+            <el-table-column prop="isPass" label="是否通过">
+                <template slot-scope="props">
+                    {{['未通过','已通过'][props.row.isDone]}}
+                </template>
+            </el-table-column>
+            <el-table-column prop="permitAmount" label="同意调配数量">
+            </el-table-column>
+        </el-table>
+        <p style="text-align: center">
+            <el-pagination @current-change="handleCurrentChange" :current-page="pageNum"
+                           :page-size="6" layout="total,prev,pager,next,jumper" :total="total[0]"></el-pagination>
+        </p>
+    </div>
+    <div v-show="formInput.eventType==='物资调配完成'">
+        <div>{{ lookupDateText?lookupDateText:'所有时段' }}</div>
+        <el-table stripe :data="tableData3">
+            <el-table-column type="expand">
+                <template slot-scope="props">
+                    <el-form label-position="left" inline class="demo-table-expand">
+                        <el-form-item label="申请人所在单位">
+                            <span>{{props.row.companyName}}</span>
+                        </el-form-item>
+                        <el-form-item label="调度单编号">
+                            <span>{{props.row.applicationNum}}</span>
+                        </el-form-item>
+                        <el-form-item label="需求类型">
+                            <span>{{props.row.requestType}}</span>
+                        </el-form-item>
+                        <el-form-item label="期望时间成本">
+                            <span>{{props.row.expectTime}}</span>
+                        </el-form-item>
+                        <el-form-item label="目的省">
+                            <span>{{props.row.destinationProvince}}</span>
+                        </el-form-item>
+                        <el-form-item label="目的城市">
+                            <span>{{props.row.destinationCity}}</span>
+                        </el-form-item>
+                        <el-form-item label="目的地址">
+                            <span>{{props.row.destinationAddress}}</span>
+                        </el-form-item>
+                        <el-form-item label="联系人">
+                            <span>{{props.row.contractPerson}}</span>
+                        </el-form-item>
+                        <el-form-item label="联系电话">
+                            <span>{{props.row.contractTel}}</span>
+                        </el-form-item>
+                    </el-form>
+                </template>
+            </el-table-column>
+            <el-table-column prop="goodName" label="货物名称">
+            </el-table-column>
+            <el-table-column prop="warehouseName" label="仓库名称">
+            </el-table-column>
+            <el-table-column prop="amount" label="请求数量">
+            </el-table-column>
+            <el-table-column prop="unit" label="单位">
+            </el-table-column>
+            <el-table-column prop="createTime" label="完成时间">
+            </el-table-column>
+            <el-table-column prop="permitAmount" label="同意调配数量">
+            </el-table-column>
+        </el-table>
+        <p style="text-align: center">
+            <el-pagination @current-change="handleCurrentChange" :current-page="pageNum"
+                           :page-size="6" layout="total,prev,pager,next,jumper" :total="total[0]"></el-pagination>
+        </p>
+    </div>
+
 </div>
 </body>
 <script src="lib/vue.js"></script>
@@ -129,7 +241,7 @@
                 validate[i] = searchKey[i];
         }
         console.log(validate);
-        if(app.eventTypes[app.formInput.eventType]==1){
+        if (app.eventTypes[app.formInput.eventType] == 1) {
             post('/common/enandex', validate, (data, err) => {
                 app.lookupDateText = app.dateText;
                 if (err) {
@@ -140,10 +252,10 @@
                 console.log(data);
                 var Schedule = data.transViews;
                 for (var i in Schedule) {
-                    scheduleItems.push(Schedule[i]);
+                    scheduleItems2.push(Schedule[i]);
                 }
             });
-        }else if(app.eventTypes[app.formInput.eventType]==2){
+        } else if (app.eventTypes[app.formInput.eventType] == 2) {
             post('/common/allapply', validate, (data, err) => {
                 app.lookupDateText = app.dateText;
                 if (err) {
@@ -157,55 +269,72 @@
                     scheduleItems.push(Schedule[i]);
                 }
             });
-        }else if(app.eventTypes[app.formInput.eventType]==3){
-
-        }else{
+        } else if (app.eventTypes[app.formInput.eventType] == 3) {
+            post('/common/comdis', validate, (data, err) => {
+                app.lookupDateText = app.dateText;
+                if (err) {
+                    console.log(err);
+                    return;
+                }
+                maxPage = data.allPages;
+                console.log(data);
+                var Schedule = data.scheViews;
+                for (var i in Schedule) {
+                    scheduleItems3.push(Schedule[i]);
+                }
+            });
+        } else {
             app.$message.error('请选择事件类型');
         }
 
     }
 
     function clearData() {
-        while(scheduleItems[0]!==undefined){
+        while (scheduleItems[0] !== undefined) {
             scheduleItems.pop();
+        }
+        while (scheduleItems2[0] !== undefined) {
+            scheduleItems2.pop();
+        }
+        while (scheduleItems3[0] !== undefined) {
+            scheduleItems3.pop();
         }
     }
 
-    function totalCompute(searchKey){
-        var validate={
-        }
-        var temp=searchKey['pageNum'];
-        searchKey['pageNum']=1;
-        for(var i in searchKey){
-            if(searchKey[i]!==""){
-                validate[i]=searchKey[i];
+    function totalCompute(searchKey) {
+        var validate = {}
+        var temp = searchKey['pageNum'];
+        searchKey['pageNum'] = 1;
+        for (var i in searchKey) {
+            if (searchKey[i] !== "") {
+                validate[i] = searchKey[i];
             }
         }
-        if(app.eventTypes[app.formInput.eventType]==1){
-            post('/common/enandex',validate,(data)=>{
-                var max=data.allPages;
-                validate['pageNum']=max;
-                post('/common/enandex',validate,(data)=>{
-                    var len=data.transViews.length;
+        if (app.eventTypes[app.formInput.eventType] == 1) {
+            post('/common/enandex', validate, (data) => {
+                var max = data.allPages;
+                validate['pageNum'] = max;
+                post('/common/enandex', validate, (data) => {
+                    var len = data.transViews.length;
                     totalRef.pop();
                     totalRef.push(len);
-                    searchKey['pageNum']=temp;
+                    searchKey['pageNum'] = temp;
                 })
             });
-        }else if(app.eventTypes[app.formInput.eventType]==2){
-            post('/common/allapply',validate,(data)=>{
-                var max=data.allPages;
-                validate['pageNum']=max;
-                post('/common/allapply',validate,(data)=>{
-                    var len=data.schedules.length;
+        } else if (app.eventTypes[app.formInput.eventType] == 2) {
+            post('/common/allapply', validate, (data) => {
+                var max = data.allPages;
+                validate['pageNum'] = max;
+                post('/common/allapply', validate, (data) => {
+                    var len = data.schedules.length;
                     totalRef.pop();
                     totalRef.push(len);
-                    searchKey['pageNum']=temp;
+                    searchKey['pageNum'] = temp;
                 })
             });
-        }else if(app.eventTypes[app.formInput.eventType]==3){
+        } else if (app.eventTypes[app.formInput.eventType] == 3) {
 
-        }else{
+        } else {
             app.$message.error('请选择事件类型');
         }
 
@@ -230,16 +359,16 @@
         }
     }
 
-    var repoItems = [], scheduleItems = [];
+    var repoItems = [], scheduleItems = [], scheduleItems2 = [], scheduleItems3 = [];
     var pageSize = 6, maxPage = 0, pageNum = 1;
-    var searchKey={};
-    var totalRef=[];
+    var searchKey = {};
+    var totalRef = [];
 
     var app = new Vue({
         el: '#app',
         data: {
             pageNum: pageNum,
-            total:totalRef,
+            total: totalRef,
             formInput: {
                 date: undefined,
                 repo: '',
@@ -247,6 +376,8 @@
             },
             repos: repoItems,
             tableData: scheduleItems,
+            tableData2: scheduleItems2,
+            tableData3: scheduleItems3,
             lookupDateText: "",
             eventTypes: {
                 '出入库事件': 1,
@@ -288,7 +419,7 @@
         },
         methods: {
             search: function () {
-                searchKey={
+                searchKey = {
                     warehouseid: app.formInput.repo,
                     pageNum: app.pageNum,
                     start_time: app.dateText.slice(0, 19),
@@ -296,8 +427,8 @@
                 }
                 getData(searchKey);
             },
-            handleCurrentChange:function(page){
-                searchKey['pageNum']=page;
+            handleCurrentChange: function (page) {
+                searchKey['pageNum'] = page;
                 getData(searchKey);
             },
             getWarehouses: function () {

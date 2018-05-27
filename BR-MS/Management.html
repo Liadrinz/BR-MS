@@ -40,11 +40,17 @@
             </el-date-picker>
         </el-form-item>
         <el-form-item label="发货仓库">
-            <el-select v-model="query.warehouseid">
-                <el-option v-for="warehouse in warehouseChoices" :label="warehouse.warehouseName" :value="warehouse.warehouseId">
+            <el-select v-model="query.startWarehouseName">
+                <el-option label="不限" :value="undefined">不限</el-option>
+                <el-option v-for="warehouse in warehouseChoices" :label="warehouse.warehouseName" :value="warehouse.warehouseName">
                     {{warehouse.warehouseName}}
                 </el-option>
             </el-select>
+        </el-form-item>
+        <el-form-item>
+            <el-radio v-model="query.state" :label="undefined">不限</el-radio>
+            <el-radio v-model="query.state" :label="0">申请中</el-radio>
+            <el-radio v-model="query.state" :label="1">已撤销</el-radio>
         </el-form-item>
         <el-form-item>
             <el-button type="primary" @click="search">查询</el-button>
@@ -108,16 +114,25 @@
             <el-table-column prop="amount" label="申请数量">
             </el-table-column>
             <el-table-column prop="state" label="状态">
+                <template slot-scope="props">
+                    {{['申请中','已撤销'][props.row.state]}}
+                </template>
             </el-table-column>
             <el-table-column prop="isDone" label="是否完成">
+                <template slot-scope="props">
+                    {{['未完成','已完成'][props.row.isDone]}}
+                </template>
             </el-table-column>
             <el-table-column prop="isPass" label="请求是否通过">
+                <template slot-scope="props">
+                    {{['未通过','已通过'][props.row.isPass]}}
+                </template>
             </el-table-column>
             <el-table-column prop="completetime" label="完成时间">
             </el-table-column>
             <el-table-column label="操作" :width="250">
                 <template slot-scope="props">
-                    <el-button type="primary" size="mini" @click="()=>{viewRoute(props.row)}">跟踪</el-button>
+                    <el-button v-if="props.row.state==0" type="primary" size="mini" @click="()=>{viewRoute(props.row)}">跟踪</el-button>
                     <el-button v-if="props.row.state==0" type="danger" size="mini" @click="()=>{cancelReq(props.row)}">撤销</el-button>
                 </template>
             </el-table-column>
@@ -161,7 +176,7 @@
         })
     }
 
-    var searchKey={state:1}
+    var searchKey={};
     var post=require('/mods/backend');
     var manageItems=[];
     var app = new Vue({
@@ -174,7 +189,7 @@
                 total:0,
                 warehouseChoices:[],
                 query:{
-                    warehouseid:undefined,
+                    startWarehouseName:undefined,
                     start_time:undefined,
                     end_time:undefined
                 },
@@ -217,9 +232,6 @@
                     })
                 })
             },
-            handleFilterChange:function(){
-                getData({state:app.stateFilter});
-            },
             search(){
                 var obj={};
                 Object.assign(obj,app.query);
@@ -228,6 +240,8 @@
             },
             reset(){
                 searchKey={};
+                app.query={};
+                app.dateRange="";
                 getData(searchKey,1);
             }
 
