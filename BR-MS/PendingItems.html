@@ -12,10 +12,14 @@
         .items-shorter .el-form-item {
             margin-bottom: 10px;
         }
+
+        [v-cloak] {
+            display: none;
+        }
     </style>
 </head>
 <body>
-<el-form id="app">
+<div id="app" v-cloak>
     <el-table :data="items">
         <el-table-column
             prop="userRealName" label="申请人" width="100px"></el-table-column>
@@ -113,6 +117,8 @@
 <script src="res/dependencies.js"></script>
 <script>
     var post = require('/mods/backend');
+    var dateFormat = require('dateformat');
+
     var mock = [{
         "schedule_id":1,
         "user_id":33,
@@ -177,7 +183,10 @@
             },
             currRowCalc: function() {
                 return {
-                    createTime: this.currentRow.createTime,
+                    createTime: dateFormat(
+                        new Date(this.currentRow.createTime),
+                        ""
+                    ),
                     end: this.currentRow.destinationAddress
                 }
             }

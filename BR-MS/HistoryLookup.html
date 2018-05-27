@@ -27,10 +27,13 @@
             margin-bottom: 0;
             width: 50%;
         }
+        [v-cloak]{
+            display: none;
+        }
     </style>
 </head>
 <body>
-<div id="app">
+<div id="app" v-cloak>
     <el-form label-width="100px">
         <el-form-item label="时间范围">
             <el-date-picker
@@ -315,7 +318,7 @@
         computed: {
             dateText: function () {
                 if (!this.formInput.date) {
-                    return '所有时段';
+                    return '';
                 }
 
                 var dateFormat = require('dateformat');

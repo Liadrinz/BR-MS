@@ -8,10 +8,14 @@
         #search .el-input {
             width: 140px;
         }
+
+        [v-cloak]{
+            display: none;
+        }
     </style>
 </head>
 <body>
-<div id="app">
+<div id="app" v-cloak>
     <!--全部 未读 已读(checkbox) 发送消息(dialog)--><!--status 状态-->
     <el-form>
         <el-form id="search" :inline="true" ref="queryParams" label-position="right" label-with="80px"

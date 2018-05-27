@@ -13,11 +13,14 @@
         .keys{
             color:#8c939d;
         }
+        [v-cloak]{
+            display: none;
+        }
     </style>
 </head>
 <body>
 
-<div id="app">
+<div id="app" v-cloak>
     <div v-if="!editing">
         <el-row>
             <el-col :span="20" :offset="2">
