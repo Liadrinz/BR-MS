@@ -83,13 +83,7 @@
             </el-form>
             <el-form :inline="true">
                 <el-form-item label="货品名称：" size="mini"><el-input v-model="queryCondition.huopinmingcheng"></el-input></el-form-item>
-                <el-form-item label="供应商：" size="mini">
-                    <el-select v-model="queryCondition.gongyingshang">
-                        <el-option label="一" value="TB"></el-option>
-                        <el-option label="二" value="JD"></el-option></el-select>
-                </el-form-item>
-            </el-form>
-            <el-form :inline="true">
+                <el-form-item label="供应商：" size="mini"><el-input v-model="queryCondition.gongyingshang" placeholder="直接输入查询"></el-input></el-form-item>
                 <el-form-item label="货品编号：" size="mini"><el-input v-model="queryCondition.huopinbianhao"></el-input></el-form-item>
             </el-form>
             <el-form><el-form-item size="mini"><el-button style="background-color: #ececec">查找</el-button></el-form-item></el-form>
@@ -105,7 +99,43 @@
                     <template slot-scope="scope">
                         <el-button size="mini"style="background-color: #ececec" @click="dialogVisible=true">查看</el-button>
                         <el-dialog title="货品详细信息" :visible.sync="dialogVisible" width="50%" :before-close="handleClose">
-                            <span>这里应该是所选货品的详细信息</span>
+                            <span><!--点击查看物资详情 里的 物资详情-->
+                                <el-form :model="getDetails">
+                                    <el-form-item label="  物资ID：" size="mini"></el-form-item>
+                                    <el-form-item label="物资名称：" size="mini"></el-form-item>
+                                    <el-form-item label="    编号：" size="mini"></el-form-item>
+                                    <el-form-item label="物资类型：" size="mini"></el-form-item>
+                                    <el-form-item label="  关键字：" size="mini"></el-form-item>
+                                    <el-form-item label="    规格：" size="mini"></el-form-item>
+                                    <el-form-item label="    外观：" size="mini"></el-form-item>
+                                    <el-form-item label="时间特征：" size="mini"></el-form-item>
+                                    <el-form-item label="安全条件：" size="mini"></el-form-item>
+                                    <el-form-item label="运载尺寸：" size="mini"></el-form-item>
+                                    <el-form-item label="温度条件：" size="mini"></el-form-item>
+                                    <el-form-item label="湿度条件：" size="mini"></el-form-item>
+                                    <el-form-item label="其他条件：" size="mini"></el-form-item>
+                                    <el-form-item label="  生产商：" size="mini"></el-form-item>
+                                    <el-form-item label="生产时间：" size="mini"></el-form-item>
+                                    <el-form-item label="过期时间：" size="mini"></el-form-item>
+                                    <el-form-item label="所在仓库：" size="mini"></el-form-item>
+                                    <el-form-item label="    经度：" size="mini"></el-form-item>
+                                    <el-form-item label="    维度：" size="mini"></el-form-item>
+                                    <el-form-item label="    纬度：" size="mini"></el-form-item>
+                                    <el-form-item label="    海拔：" size="mini"></el-form-item>
+                                    <el-form-item label="  国家ID：" size="mini"></el-form-item>
+                                    <el-form-item label="  地区ID：" size="mini"></el-form-item>
+                                    <el-form-item label="  省份ID：" size="mini"></el-form-item>
+                                    <el-form-item label="    市ID：" size="mini"></el-form-item>
+                                    <el-form-item label="    县ID：" size="mini"></el-form-item>
+                                    <el-form-item label="详细地址：" size="mini"></el-form-item>
+                                    <el-form-item label="过程管理：" size="mini"><span>（0:不受监管 1:受监管）</span></el-form-item>
+                                    <el-form-item label="  状态ID：" size="mini"></el-form-item>
+                                    <el-form-item label="状态类型：" size="mini"></el-form-item>
+                                    <el-form-item label="  状态值：" size="mini"></el-form-item>
+                                    <el-form-item label="    数量：" size="mini"></el-form-item>
+                                     <el-form-item label="最后一次修改时间：" size="mini"></el-form-item>
+                                </el-form>
+                            </span>
                             <span slot="footer" class="dialog-footer">
                                 <el-button @click="dialogVisible = false" size="mini" style="background-color: #ececec">关闭</el-button>
                             </span>
@@ -175,7 +205,10 @@
                     name: '默认文件',
                     url: ''
                 }],
-                dialogVisible: false  /*查看当前货品详细信息 查看 button*/
+                dialogVisible: false,  /*查看当前货品详细信息 查看 button*/
+                getDetails:{ /*查看物资详情中 物资信息项*/
+
+                }
             }
         },
         methods: {
