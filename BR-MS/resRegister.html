@@ -311,8 +311,10 @@
                                         <el-form-item label="身份识别码" prop="localId" required>
                                             <el-input v-model="resGeneralForm.localId" placeholder="身份识别码"></el-input>
                                         </el-form-item>
-                                        <!--这里加物资类型的组件-->
-                                        <el-form-item label="物资类型" prop="type" required>
+                                        <el-form-item label="物资类型">
+                                            <el-ext-foldable :options="resTypeList" v-model="resGeneralForm.type"></el-ext-foldable>
+                                        </el-form-item>
+                                        <!-- el-form-item label="物资类型" prop="type" required>
                                             <el-select v-model="resGeneralForm.type" placeholder="物资类型">
                                                 <el-option value="电脑整机">电脑整机</el-option>
                                                 <el-option value="大型家电">大型家电</el-option>
@@ -340,7 +342,7 @@
                                                 <el-option value="交通工具">交通工具</el-option>
                                                 <el-option value="其他">其他</el-option>
                                             </el-select>
-                                        </el-form-item>
+                                        </el-form-item -->
                                         <el-form-item label="关键字" prop="keywords">
                                             <el-input v-model="resGeneralForm.keywords" placeholder="关键字"></el-input>
                                         </el-form-item>
@@ -651,6 +653,7 @@
     var ChinaAreaData = require("element-china-area-data").regionData;
     var importObj = {};
     var TTC = require("element-china-area-data").TextToCode;
+    const ElExtFoldable = require('/comps/el-ext-foldable');
 
     //------------------------------------------------------------------
     function generalSingle() {
@@ -826,6 +829,14 @@
                 // powerBelongList: powerGeneralList,
                 useCapabilityList: useCapGeneralList,
                 guaranteeCapabilityList: garCapGeneralList,
+                resTypeList: [
+                    '电脑整机', '大型家电', '网络产品', '厨房电器',
+                    '电脑配件', '五金装饰', '摄影摄像', '健康卫生',
+                    '数码配件', '通信器材', '办公设备', '家具',
+                    '文具耗材', '生活电器', '生活用品', '汽车用品',
+                    '文体器材', '学习书籍', '粮油食品', '工程建材',
+                    '医疗卫生', '油品', '军队服装', '交通工具', '其他'
+                ],
                 resGeneralForm: {
                     goodName: undefined,
                     localId: undefined,
@@ -1339,6 +1350,9 @@
             cancelRegister() {
                 app.state = 1;
             }
+        },
+        components: {
+            ElExtFoldable: ElExtFoldable
         }
     });
 </script>
