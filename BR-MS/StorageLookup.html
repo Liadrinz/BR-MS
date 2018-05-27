@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>库存盘点</title>
+    <link rel="stylesheet" href="lib/eleme-index.css">
+    <style>
+        [v-cloak] {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+<div id="app" v-cloak>
+    <el-button @click="test">测试</el-button>
+</div>
+</body>
+<script src="lib/vue.js"></script>
+<script src="lib/eleme-index.js"></script>
+<script src="lib/jquery.min.js"></script>
+<script src="res/dependencies.js"></script>
+<script>
+    var post = require('/mods/backend');
+
+
+    var app = new Vue({
+        el: '#app',
+        data: {
+            results: [],
+            userInfo: []
+        },
+        methods: {},
+    });
+</script>
+</html>
