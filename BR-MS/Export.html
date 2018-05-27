@@ -76,6 +76,12 @@
             <!--查找-->
             <el-form :model="queryCondition">
                 <el-form :inline="true">
+                    <!-- TODO: 放入组件 -->
+                    <el-form-item label="货品类别">
+                        <el-ext-foldable :options="[1,2,3,4]"></el-ext-foldable>
+                    </el-form-item>
+                </el-form>
+                <el-form :inline="true">
                     <el-form-item label="货品名称：" size="mini"><el-input v-model="queryCondition.huopinmingcheng"></el-input></el-form-item>
                     <el-form-item label="供应商：" size="mini">
                         <el-select v-model="queryCondition.gongyingshang">
@@ -85,11 +91,6 @@
                 </el-form>
                 <el-form :inline="true">
                     <el-form-item label="货品编号：" size="mini"><el-input v-model="queryCondition.number"></el-input></el-form-item>
-                    <el-form-item label="货品类别：" size="mini">
-                        <el-select v-model="queryCondition.type">
-                            <el-option label="一" value="type1"></el-option>
-                            <el-option label="二" value="type2"></el-option></el-select>
-                    </el-form-item>
                 </el-form>
                 <el-form><el-form-item size="mini"><el-button style="background-color: #ececec">查找</el-button></el-form-item></el-form>
                 <hr style="height:1px; border:none; border-top:1px dashed #c0c4cc">
@@ -127,8 +128,10 @@
 </body>
 <script src="lib/vue.js"></script>
 <script src="lib/eleme-index.js"></script>
-
+<script src="res/dependencies.js"></script>
 <script>
+    const ElExtFoldable = require('/comps/el-ext-foldable');
+
     var app = new Vue({
         el: '#app',
         data: function(){
@@ -197,6 +200,9 @@
             deleteRow(index, rows) {
                 rows.splice(index, 1);
             }
+        },
+        components: {
+            ElExtFoldable: ElExtFoldable
         }
     });
 </script>
