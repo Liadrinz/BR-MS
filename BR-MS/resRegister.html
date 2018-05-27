@@ -82,9 +82,9 @@
         /*element自带表格对不齐,网上找的好看的表格样式*/
 
         .grid {
-            font-family: verdana,arial,sans-serif;
-            font-size:11px;
-            color:#333333;
+            font-family: verdana, arial, sans-serif;
+            font-size: 11px;
+            color: #333333;
             border-width: 1px;
             border-color: #666666;
             border-collapse: collapse;
@@ -95,7 +95,7 @@
             padding: 8px;
             border-style: solid;
             border-color: #666666;
-            background-color: #dedede;
+            background-color: #ffffff;
         }
 
         .grid td {
@@ -106,25 +106,42 @@
             background-color: #ffffff;
         }
 
-        #box3{
-            position:absolute;
-            left:50%;
+        .grid, #form-top {
+            display: block;
         }
 
-        .grid{
-            position: relative;
-            left:-50%;
+        #form-top {
+            font-size: 6px;
+        }
+
+        #form-top span {
+            display: inline-block;
+            margin: 0 1%;
+        }
+
+        .noprint{
+            text-align: left;
+        }
+
+        @media print{
+            .noprint{
+                display: none;
+            }
         }
     </style>
 </head>
 <body>
 <div id="app" v-cloak>
-    <div v-show="state===1" id="box1">
+    <div v-if="state===1" id="box1">
         <div id="above">
             <el-form id="above-form" ref="headerForm">
-                <el-form :inline="true" :rules="headerRules.rules1" ref="upperForm" :model="importInfo" label-width="200px">
+                <el-form :inline="true" :rules="headerRules.rules1" ref="upperForm" :model="importInfo"
+                         label-width="200px">
                     <el-form-item label="入库单号" prop="inboundNum" required>
                         <el-input v-model="importInfo.inboundNum" size="medium" :disabled="true"></el-input>
+                    </el-form-item>
+                    <el-form-item label="建单人" prop="founder" required>
+                        <el-input v-model="importInfo.founder" size="medium"></el-input>
                     </el-form-item>
                     <el-form-item label="入库单上传" style="display: none">
                         <el-upload action="#">
@@ -132,17 +149,8 @@
                         </el-upload>
                     </el-form-item>
                 </el-form>
-                <el-form :inline="true" :rules="headerRules.rules2" ref="midForm" :model="importInfo" label-width="200px">
-                    <el-form-item label="建单人" prop="founder" required>
-                        <el-input v-model="importInfo.founder" size="medium"></el-input>
-                    </el-form-item>
-                    <el-form-item label="建单日期">
-                        <el-date-picker v-model="importInfo.createdDate" type="date" placeholder="选择日期"
-                                        format="yyyy年MM月dd日"
-                                        value-format="yyyy-MM-dd" size="medium"></el-date-picker>
-                    </el-form-item>
-                </el-form>
-                <el-form :inline="true" :rules="headerRules.rules3" ref="downForm" :model="importInfo" label-width="200px">
+                <el-form :inline="true" :rules="headerRules.rules3" ref="downForm" :model="importInfo"
+                         label-width="200px">
                     <el-form-item label="供应商" prop="supplier" required>
                         <el-input size="medium" v-model="importInfo.supplier"></el-input>
                     </el-form-item>
@@ -171,7 +179,7 @@
                 <el-table-column label="数量" prop="amount" :width="100"></el-table-column>
                 <el-table-column label="单位" prop="unit" :width="100"></el-table-column>
                 <!--未定变量名-->
-                <el-table-column label="存放库位" prop="warehouseRepository" :width="150"></el-table-column>
+                <el-table-column label="存放库位" prop="warehouseRepository" :width="120"></el-table-column>
                 <el-table-column label="责任人" prop="charity" :width="150"></el-table-column>
                 <el-table-column label="联系电话" prop="phone" :width="175"></el-table-column>
                 <el-table-column label="备注" prop="remark" :width="150"></el-table-column>
@@ -261,7 +269,7 @@
         </p>
     </div>
     <!-------------------------------------------------------------------------------------------------------------------------------------------------------->
-    <div v-show="state===2" id="box2">
+    <div v-if="state===2" id="box2">
         <el-container>
             <el-container style="padding-top:25px;">
                 <el-aside style="width: 250px;">
@@ -595,7 +603,19 @@
             </el-container>
         </el-container>
     </div>
-    <div v-show="state===3" id="box3">
+    <div v-if="state===3" id="box3">
+        <!--startprint-->
+        <p id="form-top">
+            <span><b>入库单号:</b>{{importInfo.inboundNum}}</span>
+            <span><b>入库类别:</b>{{['非正常入库','正常入库'][importInfo.type]}}</span>
+            <span><b>供应商:</b>{{importInfo.supplier}}</span>
+            <span><b>建单人:</b>{{importInfo.founder}}</span>
+            <span><b>建单日期:</b>{{(()=>{
+                var da=new Date();
+                var [year,month,date]=[da.getFullYear(),da.getMonth()+1,da.getDate()];
+                return year+'年'+month+'月'+date+'日';
+                })()}}</span>
+        </p>
         <table class="grid">
             <tr>
                 <th>序号</th>
@@ -612,6 +632,11 @@
                 <td v-for="key in Object.keys(data)">{{data[key]}}</td>
             </tr>
         </table>
+        <!--endprint-->
+        <p class="noprint">
+            <el-button type="primary" @click="performPrint">打印</el-button>
+            <el-button @click="()=>{state=1;}">返回</el-button>
+        </p>
     </div>
 </div>
 </body>
@@ -764,23 +789,21 @@
                         {required: true, message: '请输入备注,若没有请输入无'}
                     ]
                 },
-                headerRules:{
-                    rules1:{
-                        inboundNum:[
-                            {required:true,message:'请填写入库单号'}
-                        ]
-                    },
-                    rules2:{
-                        founder:[
-                            {required:true,message:'请填写建单人'}
-                        ]
-                    },
-                    rules3:{
-                        supplier:[
-                            {required:true,message:'请填写供应商'}
+                headerRules: {
+                    rules1: {
+                        inboundNum: [
+                            {required: true, message: '请填写入库单号'}
                         ],
-                        type:[
-                            {required:true,message:'请选择入库类别'}
+                        founder: [
+                            {required: true, message: '请填写建单人'}
+                        ]
+                    },
+                    rules3: {
+                        supplier: [
+                            {required: true, message: '请填写供应商'}
+                        ],
+                        type: [
+                            {required: true, message: '请选择入库类别'}
                         ]
                     }
 
@@ -944,7 +967,9 @@
                     }
 
                 },
-                toPrint:[]
+                //-------------------------------------------------------------
+                toPrint: [],
+                printButtonVisible: true
             }
         },
         mounted: function () {
@@ -997,22 +1022,23 @@
                 app.editFormVisible = true;
             },
             save() {
-                if(app.resInfo.length===0){
+                if (app.resInfo.length === 0) {
                     app.$message.error('未填写货品信息');
+                    return;
                 }
-                app.$refs['midForm'].validate((valid)=>{
+                app.$refs['upperForm'].validate((valid) => {
                     console.log(valid);
-                    if(!valid){
+                    if (!valid) {
                         app.$message.error('表单信息填写错误,请重新填写');
                         return false;
                     }
                 });
-                app.$refs['downForm'].validate((valid)=>{
+                app.$refs['downForm'].validate((valid) => {
                     console.log(valid);
-                    if(!valid){
+                    if (!valid) {
                         app.$message.error('表单信息填写错误,请重新填写');
                         return false;
-                    }else{
+                    } else {
                         var toPost = {};
                         Object.assign(toPost, app.importInfo);
                         for (let i in app.resInfo) {
@@ -1036,7 +1062,7 @@
                                         app.$message.error('未填写货品信息');
                                         return;
                                     }
-                                    app.$alert('保存成功!');
+                                    app.$message({type:'success',message:'保存成功!'});
                                 })
                             })(i)
                         }
@@ -1044,26 +1070,50 @@
                 });
             },
             print() {
-                var obj={
-                    index:1,
-                    goodName:"",
-                    goodLocalId:"",
-                    amount:"",
-                    unit:"",
-                    warehouseRepository:"",
-                    charity:"",
-                    phone:"",
-                    remark:""
+                if (app.resInfo.length === 0) {
+                    app.$message.error('未填写货品信息');
+                    return;
                 }
-                for(let i in app.resInfo){
-                    Object.assign(obj,app.resInfo[i]);
-                    obj.index=parseInt(i)+1;
-                    delete obj.goodId;
-                    delete obj.warehouseId;
-                    delete obj.canView;
-                    app.toPrint.push({...obj});
-                }
-                app.state=3;
+                app.$refs['upperForm'].validate((valid) => {
+                    console.log(valid);
+                    if (!valid) {
+                        app.$message.error('表单信息填写错误,请重新填写');
+                        return false;
+                    }
+                });
+                app.$refs['downForm'].validate((valid) => {
+                    console.log(valid);
+                    if (!valid) {
+                        app.$message.error('表单信息填写错误,请重新填写');
+                        return false;
+                    } else {
+                        app.toPrint = [];
+                        var obj = {
+                            index: 1,
+                            goodName: "",
+                            goodLocalId: "",
+                            amount: "",
+                            unit: "",
+                            warehouseRepository: "",
+                            charity: "",
+                            phone: "",
+                            remark: ""
+                        };
+                        for (let i in app.resInfo) {
+                            Object.assign(obj, app.resInfo[i]);
+                            obj.index = parseInt(i) + 1;
+                            delete obj.goodId;
+                            delete obj.warehouseId;
+                            delete obj.canView;
+                            app.toPrint.push({...obj});
+                        }
+                        app.state = 3;
+                    }
+                });
+
+            },
+            performPrint() {
+                window.print();
             },
             createRes(index) {
                 app.resGeneralForm = new resGeneral();
@@ -1190,7 +1240,7 @@
                 app.guaranteeCapabilityList.splice(index, 1);
             },
             commitRegister() {
-                let promise = new Promise((resolve, reject)=>{
+                let promise = new Promise((resolve, reject) => {
                     var [validNum, totalNum] = [0, 0];
                     for (var formName in app.$refs) {
                         ((p) => {
@@ -1211,7 +1261,7 @@
                     }
                     resolve();
                 })
-                promise.then(()=>{
+                promise.then(() => {
                     app.$confirm('确定信息填写无误？提交后将无法修改').then(() => {
                         let obj = {};
                         obj = app.resGeneralForm;
@@ -1226,9 +1276,9 @@
                         obj.useAbility = uA;
                         obj.garAbility = gA;
                         app.storedDetailResInfo.push(obj);
-                        post('/depot/reg_newgood', app.resGeneralForm, (data,err) => {
-                            if(err){
-                                if(err.id===5021){
+                        post('/depot/reg_newgood', app.resGeneralForm, (data, err) => {
+                            if (err) {
+                                if (err.id === 5021) {
                                     app.$message.error('身份识别码重复');
                                     return;
                                 }
