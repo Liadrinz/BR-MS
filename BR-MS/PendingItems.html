@@ -13,6 +13,10 @@
             margin-bottom: 10px;
         }
 
+        .items-shorter label {
+            color: #57a;
+        }
+
         [v-cloak] {
             display: none;
         }
@@ -20,7 +24,9 @@
 </head>
 <body>
 <div id="app" v-cloak>
-    <el-table :data="items">
+    <el-table
+        :data="items"
+        v-loading.fullscreen="states.initializing" element-loading-text="正在获取数据">
         <el-table-column
             prop="userRealName" label="申请人" width="100px"></el-table-column>
         <el-table-column
@@ -36,7 +42,8 @@
                         @click="showApplySheet(scope.$index)">查看详细信息</el-button>
                     <el-button
                         type="success" plain size="mini"
-                        @click="showAllowNum(scope.$index)">审核通过</el-button>
+                        @click="showAllowNum(scope.$index)"
+                        :loading="states.buttonLoad.allow">审核通过</el-button>
                     <el-button type="danger" plain size="mini">驳回申请</el-button>
                 </span>
             </template>
@@ -49,22 +56,26 @@
         :visible.sync="dialogs.allowNum"
         title="审核通过确认" width="35%" class="items-shorter">
         <el-form
-            v-if="states.dataReady" label-position="left"
-            label-width="120px">
+            v-if="states.dataReady" label-position="left" :model="allowForm"
+            label-width="120px" ref="allowApplyForm" :rules="rules.allowNum">
             <el-form-item label="申请人">
                 {{ currentRow.userRealName }}
             </el-form-item>
             <el-form-item label="物品名">
                 {{ currentRow.goodsName }}
             </el-form-item>
-            <el-form-item label="允许调配数量">
+            <el-form-item label="物资总数">
+                {{ currRowData.maxAmount }}
+            </el-form-item>
+            <el-form-item label="允许调配数量" prop="permitAmount">
                 <el-input
-                    v-model="currRowData.allow"></el-input>
+                    v-model="allowForm.permitAmount"></el-input>
             </el-form-item>
         </el-form>
         <template slot="footer">
             <el-button
-                type="primary" @click="handleAllow">审核通过</el-button>
+                type="primary" @click="handleAllow">审核通过
+            </el-button>
             <el-button @click="dialogs.allowNum=false">返回</el-button>
         </template>
     </el-dialog>
@@ -73,7 +84,7 @@
         title="详细信息">
         <el-form
             v-if="states.dataReady" class="items-shorter"
-            label-width="100px" label-position="left">
+            label-width="120px" label-position="left">
             <el-form-item label="申请人">
                 {{ currentRow.userRealName }}
             </el-form-item>
@@ -118,40 +129,21 @@
     var post = require('/mods/backend');
     var dateFormat = require('dateformat');
 
-    var mock = [{
-        "schedule_id":1,
-        "user_id":33,
-        "userRealName":"wwer",
-        "companyName":"qwer",
-        "goodsName":"1",
-        "goodsId":"234",
-        "startWarehouseId":1,
-        "startWarehouseName":"001仓",
-        "description":null,
-        "permitAmount":null,
-        "amount":23,
-        "endWarehouseId":3,
-        "endWarehouseName":"DKY仓",
-        "applyTime":null,
-        "createTime":1526528139000,
-        "updateTime":null,
-        "destinationAddress":null,
-        "destinationProvince":null,
-        "destinationCity":null,
-        "applicationNum":null,
-        "isPass":0,
-        "isDone":0,
-        "completetime":1526257814000,
-        "state":1,
-        "requestType":null,
-        "expectTime":null,
-        "validTime":null,
-        "contractPerson":null,
-        "contractTel":null,
-        "note":null,
-        "isSubmit":1,
-        "JianyiCelue": "建议全部驳回，这是一条辣鸡请求"
-    }];
+    function getData(app) {
+        post('/depot/get_apply', {
+            pageNum: 1, pageSize: 99999
+        }, (data, err) => {
+            app.states.initializing = false;
+
+            if (err) {
+                app.$message.error(err.msg);
+                return;
+            }
+
+            app.items = data.schedules;
+            app.states.dataReady = true;
+        })
+    }
 
     var app = new Vue({
         el: '#app',
@@ -160,50 +152,103 @@
                 allowNum: false,
                 applySheet: false
             },
+            allowForm: {
+                permitAmount: 0
+            },
             rules: {
                 allowNum: {
-                    allowing: [
-                        { required: true, message: '请输入允许数量', trigger: 'blur' }
+                    permitAmount: [
+                        {validator: (r, value, callback) => {
+                            if (value === "") {
+                                callback(new Error("请输入允许数量"));
+                                return;
+                            }
+                            if (typeof value === "string" && !value.match(/^\d+$/)) {
+                                callback(new Error("必须输入数字"));
+                                return;
+                            }
+                            const v = parseInt(value);
+                            if (v > app.currRowData.maxAmount) {
+                                callback(new Error("允许数量不能超过物资总数"));
+                                return;
+                            }
+                            callback();
+                        }, trigger: 'change'}
                     ]
                 }
             },
             states: {
-                dataReady: false
+                dataReady: false,
+                initializing: true,
+                buttonLoad: {
+                    allow: false
+                }
             },
-            items: mock,
+            items: [],
             currRowData: {
                 index: 0,
-                allow: 0
+                maxAmount: 1
             },
             allowedNum: ''
         },
         methods: {
-            showApplySheet: function(row) {
+            showApplySheet: function (row) {
                 this.currRowData.index = row;
                 this.dialogs['applySheet'] = true;
             },
-            showAllowNum: function(row) {
+            showAllowNum: function (row) {
                 this.currRowData.index = row;
-                this.currRowData.allow =
-                    this.items[this.currRowData.index].amount;
-                this.dialogs['allowNum'] = true;
-            },
-            handleAllow: function() {
-                this.$refs['allowApplyForm'].validate(valid => {
-                    if (valid) {
+                this.states.buttonLoad.allow = true;
 
+                post('/depot/get_amount', {
+                    goodsLocalId: this.currentRow.goodsId
+                }, (data, err) => {
+                    this.states.buttonLoad.allow = false;
+                    if (err) {
+                        app.$message.error(err.msg);
+                        return;
                     }
-                });
 
-                // TODO: 写真实的交互逻辑
-                this.dialogs.allowNum = false;
+                    this.currRowData.maxAmount = data;
+                    this.allowForm.permitAmount = data < this.currentRow.amount ? data : this.currentRow.amount;
+                    this.dialogs['allowNum'] = true;
+                });
+            },
+            handleAllow: function () {
+                this.$refs['allowApplyForm'].validate(valid => {
+                    if (!valid) {
+                        return;
+                    }
+                    post('/depot/permit_amount', {
+                        scheduleId: parseInt(this.currentRow.schedule_id),
+                        permitAmount: parseInt(this.allowForm.permitAmount)
+                    }, (data, err) => {
+                        if (err) {
+                            app.$message.error(err.msg);
+                            return;
+                        }
+
+                        post('/depot/allow_apply', {
+                            scheduleId: parseInt(this.currentRow.schedule_id),
+                            choose: 1
+                        }, (data, err) => {
+                            if (err) {
+                                app.$message.error(err.msg);
+                                return;
+                            }
+
+                            app.$message.success("已通过该申请。");
+                            this.dialogs['allowNum'] = false;
+                        })
+                    })
+                });
             }
         },
         computed: {
-            currentRow: function() {
+            currentRow: function () {
                 return this.items[this.currRowData.index];
             },
-            currRowCalc: function() {
+            currRowCalc: function () {
                 return {
                     createTime: dateFormat(
                         new Date(this.currentRow.createTime),
@@ -213,9 +258,8 @@
                 }
             }
         },
-        created: function() {
-            // TODO: 删掉这行；当获取到数据时才设为true
-            this.states.dataReady = true;
+        mounted: function () {
+            getData(this);
         }
     });
 </script>

@@ -5,30 +5,45 @@
     <title>入库登记</title>
     <link rel="stylesheet" href="lib/eleme-index.css">
     <style>
-        .el-form-item{
-            margin:0;
+        .el-form-item {
+            margin: 0;
         }
-        [v-cloak]{
+
+        [v-cloak] {
             display: none;
+        }
+
+        .el-card {
+            margin-bottom: 5px;
         }
     </style>
 </head>
 <body>
 <div id="app" v-cloak>
-    <el-form>
-        <hr>
-        <!--入库业务-->
+    <!--入库业务-->
+    <el-card>
+        <span slot="header">入库单填写</span>
         <el-form :model="inGoing">
             <el-form :inline="true">
-                <el-form-item label="操作员：" size="mini"><el-input v-model="inGoing.caozuoyuan" :disabled="true"></el-input></el-form-item>
-                <el-form-item label="仓库：" size="mini"><el-input v-model="inGoing.cangku" :disabled="true"></el-input></el-form-item>
+                <el-form-item label="操作员：" size="mini">
+                    <el-input v-model="inGoing.caozuoyuan" :disabled="true"></el-input>
+                </el-form-item>
+                <el-form-item label="仓库：" size="mini">
+                    <el-input v-model="inGoing.cangku" :disabled="true"></el-input>
+                </el-form-item>
             </el-form>
             <el-form :inline="true">
-                <el-form-item label="建单人：" size="mini"><el-input v-model="inGoing.jiandanren"></el-input></el-form-item>
-                <el-form-item label="建单日期：" size="mini"><el-input v-model="inGoing.jiandanriqi"></el-input></el-form-item>
+                <el-form-item label="建单人：" size="mini">
+                    <el-input v-model="inGoing.jiandanren"></el-input>
+                </el-form-item>
+                <el-form-item label="建单日期：" size="mini">
+                    <el-input v-model="inGoing.jiandanriqi"></el-input>
+                </el-form-item>
             </el-form>
             <el-form :inline="true">
-                <el-form-item label="入库单号：" size="mini"><el-input v-model="inGoing.rukudanhao"></el-input></el-form-item>
+                <el-form-item label="入库单号：" size="mini">
+                    <el-input v-model="inGoing.rukudanhao"></el-input>
+                </el-form-item>
                 <el-form-item label="入库类别：" size="mini">
                     <el-select v-model="inGoing.rukuleibie">
                         <el-option label="正常入库" value="type1"></el-option>
@@ -50,8 +65,16 @@
                 <el-table-column prop="huopinmingcheng" label="货品名称"></el-table-column>
                 <el-table-column prop="danwei" label="单位"></el-table-column>
                 <!--可编辑项 begin  *与出库不同——删 去向 项-->
-                <el-table-column prop="rukushiliang" label="入库数量" width="75"><template slot-scope="scope"><el-input size="mini"></el-input></template></el-table-column>
-                <el-table-column prop="rukushijian" label="入库时间" width="80"><template slot-scope="scope"><el-input size="mini"></el-input></template></el-table-column>
+                <el-table-column prop="rukushiliang" label="入库数量" width="75">
+                    <template slot-scope="scope">
+                        <el-input size="mini"></el-input>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="rukushijian" label="入库时间" width="80">
+                    <template slot-scope="scope">
+                        <el-input size="mini"></el-input>
+                    </template>
+                </el-table-column>
                 <!--可编辑项 end-->
                 <el-table-column prop="zerenren" label="责任人"></el-table-column>
                 <el-table-column prop="lianxidianhua" label="联系电话"></el-table-column>
@@ -59,7 +82,9 @@
                 <el-table-column prop="shanchu" label="">
                     <!--点击删除当前已选中货品-->
                     <template slot-scope="scope">
-                        <el-button size="mini" style="background-color: #ececec" @click.native.prevent="deleteRow(scope.$index,inResult)">删除</el-button>
+                        <el-button size="mini" style="background-color: #ececec"
+                                   @click.native.prevent="deleteRow(scope.$index,inResult)">删除
+                        </el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -71,9 +96,11 @@
                     <el-button style="background-color: #ececec">生成货品清单</el-button>
                 </el-form-item>
             </el-form>
-            <hr>
         </el-form>
-        <!--查找-->
+    </el-card>
+    <!--查找-->
+    <el-card>
+        <span slot="header">选择填进入库单的物品</span>
         <el-form :model="queryCondition">
             <el-form :inline="true">
                 <!-- TODO: 放入组件 -->
@@ -82,17 +109,26 @@
                 </el-form-item>
             </el-form>
             <el-form :inline="true">
-                <el-form-item label="货品名称：" size="mini"><el-input v-model="queryCondition.huopinmingcheng"></el-input></el-form-item>
+                <el-form-item label="货品名称：" size="mini">
+                    <el-input v-model="queryCondition.huopinmingcheng"></el-input>
+                </el-form-item>
                 <el-form-item label="供应商：" size="mini">
                     <el-select v-model="queryCondition.gongyingshang">
                         <el-option label="一" value="TB"></el-option>
-                        <el-option label="二" value="JD"></el-option></el-select>
+                        <el-option label="二" value="JD"></el-option>
+                    </el-select>
                 </el-form-item>
             </el-form>
             <el-form :inline="true">
-                <el-form-item label="货品编号：" size="mini"><el-input v-model="queryCondition.huopinbianhao"></el-input></el-form-item>
+                <el-form-item label="货品编号：" size="mini">
+                    <el-input v-model="queryCondition.huopinbianhao"></el-input>
+                </el-form-item>
             </el-form>
-            <el-form><el-form-item size="mini"><el-button style="background-color: #ececec">查找</el-button></el-form-item></el-form>
+            <el-form>
+                <el-form-item size="mini">
+                    <el-button style="background-color: #ececec">查找</el-button>
+                </el-form-item>
+            </el-form>
             <hr style="height:1px; border:none; border-top:1px dashed #c0c4cc">
             <el-table :data="queryResult" size="mini" max-height="250">
                 <el-table-column type="index" width="50" label="序号"></el-table-column>
@@ -103,7 +139,8 @@
                 <el-table-column prop="xiangxixinxi" label="详细信息" width="80">
                     <!--点击查看当前物资详细信息-->
                     <template slot-scope="scope">
-                        <el-button size="mini"style="background-color: #ececec" @click="dialogVisible=true">查看</el-button>
+                        <el-button size="mini" style="background-color: #ececec" @click="dialogVisible=true">查看
+                        </el-button>
                         <el-dialog title="货品详细信息" :visible.sync="dialogVisible" width="50%" :before-close="handleClose">
                             <span>这里应该是所选货品的详细信息</span>
                             <span slot="footer" class="dialog-footer">
@@ -122,8 +159,8 @@
                 </el-table-column>
             </el-table>
         </el-form>
-        <hr>
-    </el-form>
+        </el-form>
+    </el-card>
 </div>
 </body>
 <script src="lib/vue.js"></script>
@@ -134,15 +171,17 @@
 
     var app = new Vue({
         el: '#app',
-        data: function(){
-            return{
-                queryCondition:{/* 查找部分 —— 查找条件 */
-                    huopinmingcheng:'',
-                    gongyingshang:'',
-                    huopinbianhao:'',
-                    huopinleibie:''
+        data: function () {
+            return {
+                queryCondition: {
+                    /* 查找部分 —— 查找条件 */
+                    huopinmingcheng: '',
+                    gongyingshang: '',
+                    huopinbianhao: '',
+                    huopinleibie: ''
                 },
-                queryResult:[{/* 查找部分 —— 查找结果表格 */
+                queryResult: [{
+                    /* 查找部分 —— 查找结果表格 */
                     huopinbianhao: '1',
                     huopinmingcheng: '',
                     rukkushijian: '',
@@ -150,28 +189,31 @@
                     xiangxixinxi: '',
                     zerenren: '',
                     lianxidianhua: '',
-                    ruku:''
+                    ruku: ''
                 }],
-                inGoing:{/* 入库业务 —— 相关信息填写 */
-                    cangku:'',
-                    caozuoyuan:'',
-                    rukudanhao:'',
-                    rukudanshangchuan:'',
-                    jiaodanren:'',
-                    jiandanriqi:'',
-                    rukuleibie:''
+                inGoing: {
+                    /* 入库业务 —— 相关信息填写 */
+                    cangku: '',
+                    caozuoyuan: '',
+                    rukudanhao: '',
+                    rukudanshangchuan: '',
+                    jiaodanren: '',
+                    jiandanriqi: '',
+                    rukuleibie: ''
                 },
-                inResult:[{/* 入库业务 —— 信息结果表格 */
-                    huopinbianhao:'',
-                    huopinmingcheng:'',
-                    danwei:'',
-                    rukushuliang:'',
-                    rukushijian:'',
-                    zerenren:'',
-                    lianxidianhua:'',
-                    beizhu:''
+                inResult: [{
+                    /* 入库业务 —— 信息结果表格 */
+                    huopinbianhao: '',
+                    huopinmingcheng: '',
+                    danwei: '',
+                    rukushuliang: '',
+                    rukushijian: '',
+                    zerenren: '',
+                    lianxidianhua: '',
+                    beizhu: ''
                 }],
-                fileList: [{/* 入库业务 —— 入库单上传 */
+                fileList: [{
+                    /* 入库业务 —— 入库单上传 */
                     name: '默认文件',
                     url: ''
                 }],
