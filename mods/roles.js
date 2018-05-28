@@ -11,7 +11,9 @@ var pages = {
     "新物料入库登记":"resRegister.html",
     "调配物资出库":"Export.html",
     "调配物资入库":"Import.html",
-    "待审核申请":"PendingItems.html"
+    "待审核申请":"PendingItems.html",
+    "库存盘点":"Kucunpandian.html",
+    "数据统计":"Shujutongji.html"
 };
 
 // Get menus like [{name: ..., url: ...}, ...] from menulist.
@@ -78,6 +80,8 @@ export default {
             "调配物资入库",
             "调配物资出库",
             "待审核申请",
+            "库存盘点",
+            "数据统计",
             {"个人中心":[
                 "消息",
                 "个人信息修改",
