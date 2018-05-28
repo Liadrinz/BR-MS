@@ -226,10 +226,38 @@
     </div>
 
     <!-- 与物资详情、申请物资有关的对话框 -->
-    <el-dialog title="物资详情" :visible.sync="dialogs.detail" width="40%">
+    <el-dialog title="物资详情" :visible.sync="dialogs.detail" width="90%">
         <el-table :data="detailForm">
-            <el-table-column prop="key"></el-table-column>
-            <el-table-column prop="val"></el-table-column>
+            <el-table-column prop="key1" :width="150">
+                <template slot-scope="props">
+                    <b>{{props.row.key1}}</b>
+                </template>
+            </el-table-column>
+            <el-table-column prop="val1" :width="260">
+                <template slot-scope="props">
+                    <p style="margin: 0 20px;">{{props.row.val1}}</p>
+                </template>
+            </el-table-column>
+            <el-table-column prop="key2" :width="150">
+                <template slot-scope="props">
+                    <b>{{props.row.key2}}</b>
+                </template>
+            </el-table-column>
+            <el-table-column prop="val2" :width="260">
+                <template slot-scope="props">
+                    <p style="margin: 0 20px;">{{props.row.val2}}</p>
+                </template>
+            </el-table-column>
+            <el-table-column prop="key3" :width="150">
+                <template slot-scope="props">
+                    <b>{{props.row.key3}}</b>
+                </template>
+            </el-table-column>
+            <el-table-column prop="val3" :width="260">
+                <template slot-scope="props">
+                    <p style="margin: 0 20px;">{{props.row.val3}}</p>
+                </template>
+            </el-table-column>
         </el-table>
         <span slot="footer" class="dialog-footer">
             <el-button @click="dialogs.detail=false" size="mini">关闭</el-button>
@@ -462,7 +490,6 @@
                 producer_name: '生产商',
                 produce_time: '生产时间',
                 produce_valid_time: '过期时间',
-                ip_address: '描述文件地址',
                 warehouse_id: '所在仓库',
                 longitude: '经度',
                 latitude: '纬度',
@@ -505,6 +532,7 @@
                 }
             },
             detail(row) {
+                var tmp=[];
                 while (app.detailForm[0] !== undefined) {
                     app.detailForm.pop();
                 }
@@ -532,8 +560,28 @@
                             obj['val'] = data[key];
                         }
                         if (obj['key'] !== undefined) {
-                            app.detailForm.push(obj);
+                            tmp.push(obj);
                         }
+                    }
+                    for(let i=0;tmp[i]!==undefined;i+=3){
+                        var obj={};
+                        obj['key1']=tmp[i]['key'];
+                        obj['val1']=tmp[i]['val'];
+                        if(tmp[i+1]){
+                            obj['key2']=tmp[i+1]['key'];
+                            obj['val2']=tmp[i+1]['val'];
+                        }else{
+                            obj['key2']="";
+                            obj['val2']="";
+                        }
+                        if(tmp[i+2]){
+                            obj['key3']=tmp[i+2]['key'];
+                            obj['val3']=tmp[i+2]['val'];
+                        }else{
+                            obj['key3']="";
+                            obj['val3']="";
+                        }
+                        app.detailForm.push(obj);
                     }
                 });
                 app.dialogs.detail = true;
