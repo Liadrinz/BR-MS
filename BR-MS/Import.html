@@ -20,29 +20,21 @@
         <!--入库业务-->
         <el-form :model="inGoing">
             <el-form :inline="true">
-                <el-form-item label="操作员：" size="mini"><el-input v-model="inGoing.caozuoyuan" :disabled="true"></el-input></el-form-item>
-                <el-form-item label="仓库：" size="mini"><el-input v-model="inGoing.cangku" :disabled="true"></el-input></el-form-item>
+                <el-form-item label="操作员：" size="mini" prop="realName"><el-input v-model="inGoing.realName" :disabled="true"></el-input></el-form-item>
+                <el-form-item label="仓库名：" size="mini" prop="warehouseName"><el-input v-model="inGoing.warehouseName" :disabled="true"></el-input></el-form-item>
             </el-form>
             <el-form :inline="true">
-                <el-form-item label="建单人：" size="mini"><el-input v-model="inGoing.jiandanren"></el-input></el-form-item>
-                <el-form-item label="建单日期：" size="mini"><el-input v-model="inGoing.jiandanriqi"></el-input></el-form-item>
+                <el-form-item label="建单人：" size="mini" prop="founder"><el-input v-model="inGoing.founder"></el-input></el-form-item>
+                <el-form-item label="建单日期：" size="mini" prop="createTime"><el-input v-model="inGoing.createTime"></el-input></el-form-item>
             </el-form>
             <el-form :inline="true">
-                <el-form-item label="入库单号：" size="mini"><el-input v-model="inGoing.rukudanhao"></el-input></el-form-item>
-                <el-form-item label="入库类别：" size="mini">
-                    <el-select v-model="inGoing.rukuleibie">
+                <el-form-item label="入库单号：" size="mini" prop="inboundNum"><el-input v-model="inGoing.inboundNum"></el-input></el-form-item>
+                <el-form-item label="入库类别：" size="mini" prop="method">
+                    <el-select v-model="inGoing.method">
                         <el-option label="正常入库" value="type1"></el-option>
                     </el-select>
                 </el-form-item>
             </el-form>
-            <!--点击上传文件-->
-            <!--<el-form :inline="true">
-                <el-form-item label="入库单上传：" size="mini" :inline="true">
-                    <el-upload action="https://jsonplaceholder.typicode.com/posts/" :on-preview="handlePreview" :on-remove="handleRemove" :before-remove="beforeRemove" multiple :limit="3" :on-exceed="handleExceed" :file-list="fileList">
-                        <el-button size="mini" type="primary">点击上传</el-button>
-                    </el-upload>
-                </el-form-item>
-            </el-form>-->
             <hr style="height:1px; border:none; border-top:1px dashed #c0c4cc">
             <el-table :data="inResult" size="mini" max-height="250">
                 <el-table-column type="index" width="44" label="序号"></el-table-column>
@@ -101,39 +93,39 @@
                         <el-dialog title="货品详细信息" :visible.sync="dialogVisible" width="50%" :before-close="handleClose">
                             <span><!--点击查看物资详情 里的 物资详情-->
                                 <el-form :model="getDetails">
-                                    <el-form-item label="  物资ID：" size="mini"></el-form-item>
-                                    <el-form-item label="物资名称：" size="mini"></el-form-item>
-                                    <el-form-item label="    编号：" size="mini"></el-form-item>
-                                    <el-form-item label="物资类型：" size="mini"></el-form-item>
-                                    <el-form-item label="  关键字：" size="mini"></el-form-item>
-                                    <el-form-item label="    规格：" size="mini"></el-form-item>
-                                    <el-form-item label="    外观：" size="mini"></el-form-item>
-                                    <el-form-item label="时间特征：" size="mini"></el-form-item>
-                                    <el-form-item label="安全条件：" size="mini"></el-form-item>
-                                    <el-form-item label="运载尺寸：" size="mini"></el-form-item>
-                                    <el-form-item label="温度条件：" size="mini"></el-form-item>
-                                    <el-form-item label="湿度条件：" size="mini"></el-form-item>
-                                    <el-form-item label="其他条件：" size="mini"></el-form-item>
-                                    <el-form-item label="  生产商：" size="mini"></el-form-item>
-                                    <el-form-item label="生产时间：" size="mini"></el-form-item>
-                                    <el-form-item label="过期时间：" size="mini"></el-form-item>
-                                    <el-form-item label="所在仓库：" size="mini"></el-form-item>
-                                    <el-form-item label="    经度：" size="mini"></el-form-item>
-                                    <el-form-item label="    维度：" size="mini"></el-form-item>
-                                    <el-form-item label="    纬度：" size="mini"></el-form-item>
-                                    <el-form-item label="    海拔：" size="mini"></el-form-item>
-                                    <el-form-item label="  国家ID：" size="mini"></el-form-item>
-                                    <el-form-item label="  地区ID：" size="mini"></el-form-item>
-                                    <el-form-item label="  省份ID：" size="mini"></el-form-item>
-                                    <el-form-item label="    市ID：" size="mini"></el-form-item>
-                                    <el-form-item label="    县ID：" size="mini"></el-form-item>
-                                    <el-form-item label="详细地址：" size="mini"></el-form-item>
-                                    <el-form-item label="过程管理：" size="mini"><span>（0:不受监管 1:受监管）</span></el-form-item>
-                                    <el-form-item label="  状态ID：" size="mini"></el-form-item>
-                                    <el-form-item label="状态类型：" size="mini"></el-form-item>
-                                    <el-form-item label="  状态值：" size="mini"></el-form-item>
-                                    <el-form-item label="    数量：" size="mini"></el-form-item>
-                                     <el-form-item label="最后一次修改时间：" size="mini"></el-form-item>
+                                    <el-form-item label="  物资ID：" size="mini"><span>{{props.row.goods_id}}</span></el-form-item>
+                                    <el-form-item label="物资名称：" size="mini"><span>{{props.row.goods_name}}</span></el-form-item>
+                                    <el-form-item label="    编号：" size="mini"><span>{{props.row.local_id}}</span></el-form-item>
+                                    <el-form-item label="物资类型：" size="mini"><span>{{props.row.type}}</span></el-form-item>
+                                    <el-form-item label="  关键字：" size="mini"><span>{{props.row.keywords}}</span></el-form-item>
+                                    <el-form-item label="    规格：" size="mini"><span>{{props.row.norms}}</span></el-form-item>
+                                    <el-form-item label="    外观：" size="mini"><span>{{props.row.appearance}}</span></el-form-item>
+                                    <el-form-item label="时间特征：" size="mini"><span>{{props.row.time_feature}}</span></el-form-item>
+                                    <el-form-item label="安全条件：" size="mini"><span>{{props.row.safety_condition}}</span></el-form-item>
+                                    <el-form-item label="运载尺寸：" size="mini"><span>{{props.row.carrier_size}}</span></el-form-item>
+                                    <el-form-item label="温度条件：" size="mini"><span>{{props.row.temperature}}</span></el-form-item>
+                                    <el-form-item label="湿度条件：" size="mini"><span>{{props.row.humidity}}</span></el-form-item>
+                                    <el-form-item label="其他条件：" size="mini"><span>{{props.row.other_conditions}}</span></el-form-item>
+                                    <el-form-item label="  生产商：" size="mini"><span>{{props.row.producer_name}}</span></el-form-item>
+                                    <el-form-item label="生产时间：" size="mini"><span>{{props.row.produce_name}}</span></el-form-item>
+                                    <el-form-item label="过期时间：" size="mini"><span>{{props.row.produce_valid_time}}</span></el-form-item>
+                                    <el-form-item label="所在仓库：" size="mini"><span>{{props.row.warehouse_id}}</span></el-form-item>
+                                    <el-form-item label="    经度：" size="mini"><span>{{props.row.longitude}}</span></el-form-item>
+                                    <el-form-item label="    维度：" size="mini"><span>{{props.row.latitude}}</span></el-form-item>
+                                    <el-form-item label="    海拔：" size="mini"><span>{{props.row.altitude}}</span></el-form-item>
+                                    <el-form-item label="  国家ID：" size="mini"><span>{{props.row.country_id}}</span></el-form-item>
+                                    <el-form-item label="  地区ID：" size="mini"><span>{{props.row.area}}</span></el-form-item>
+                                    <el-form-item label="  省份ID：" size="mini"><span>{{props.row.province_id}}</span></el-form-item>
+                                    <el-form-item label="    市ID：" size="mini"><span>{{props.row.city_id}}</span></el-form-item>
+                                    <el-form-item label="    县ID：" size="mini"><span>{{props.row.county_id}}</span></el-form-item>
+                                    <el-form-item label="详细地址：" size="mini"><span>{{props.row.detail_location}}</span></el-form-item>
+                                    <el-form-item label="过程管理：" size="mini"><span>{{props.row.is_managed}}</span><span>（0:不受监管 1:受监管）</span></el-form-item>
+                                    <el-form-item label="  状态ID：" size="mini"><span>{{props.row.state_id}}</span></el-form-item>
+                                    <el-form-item label="状态类型：" size="mini"><span>{{props.row.state_type}}</span></el-form-item>
+                                    <el-form-item label="  状态值：" size="mini"><span>{{props.row.state_value}}</span></el-form-item>
+                                    <el-form-item label="    数量：" size="mini"><span>{{props.row.quantity}}</span></el-form-item>
+                                    <el-form-item label="描述文件地址：" size="mini"><span>{{props.row.ip_address}}</span></el-form-item>
+                                    <el-form-item label="最后一次修改时间：" size="mini"><span>{{props.row.employeeId}}</span></el-form-item>
                                 </el-form>
                             </span>
                             <span slot="footer" class="dialog-footer">
@@ -183,13 +175,12 @@
                     ruku:''
                 }],
                 inGoing:{/* 入库业务 —— 相关信息填写 */
-                    cangku:'',
-                    caozuoyuan:'',
-                    rukudanhao:'',
-                    rukudanshangchuan:'',
-                    jiaodanren:'',
-                    jiandanriqi:'',
-                    rukuleibie:''
+                    warehouseName:'',/*仓库名*/
+                    realName:'',/*操作员姓名*/
+                    inboundNum:'',/*出入库单号*/
+                    founder:'',/*建单人*/
+                    createTime:'',/*创建时间--建单日期*/
+                    method:''/*查询类别（出入库）*/
                 },
                 inResult:[{/* 入库业务 —— 信息结果表格 */
                     huopinbianhao:'',
@@ -207,10 +198,16 @@
                 }],
                 dialogVisible: false,  /*查看当前货品详细信息 查看 button*/
                 getDetails:{ /*查看物资详情中 物资信息项*/
-
+                    
                 }
             }
         },
+
+        mounted: function () {
+            //从后端拉取数据
+            getData({});
+        },
+
         methods: {
             /*入库单上传相关函数 begin*/
             handleRemove(file, fileList) {

@@ -20,29 +20,21 @@
         <!--出库业务-->
         <el-form :model="outGoing">
             <el-form :inline="true">
-                <el-form-item label="操作员：" size="mini"><el-input v-model="outGoing.caozuoyuan" :disabled="true"></el-input></el-form-item>
-                <el-form-item label="仓库：" size="mini"><el-input v-model="outGoing.cangku" :disabled="true"></el-input></el-form-item>
+                <el-form-item label="操作员：" size="mini" prop="realName"><el-input v-model="outGoing.realName" :disabled="true"></el-input></el-form-item>
+                <el-form-item label="仓库名：" size="mini" prop="warehouseName"><el-input v-model="outGoing.warehouseName" :disabled="true"></el-input></el-form-item>
             </el-form>
             <el-form :inline="true">
-                <el-form-item label="建单人：" size="mini"><el-input v-model="outGoing.jiandanren"></el-input></el-form-item>
-                <el-form-item label="建单日期：" size="mini"><el-input v-model="outGoing.jiandanriqi"></el-input></el-form-item>
+                <el-form-item label="建单人：" size="mini" prop="founder"><el-input v-model="outGoing.founder"></el-input></el-form-item>
+                <el-form-item label="建单日期：" size="mini" prop="createTime"><el-input v-model="outGoing.createTime"></el-input></el-form-item>
             </el-form>
             <el-form :inline="true">
-                <el-form-item label="出库单号：" size="mini"><el-input v-model="outGoing.chukudanhao"></el-input></el-form-item>
-                <el-form-item label="出库类别：" size="mini">
-                    <el-select v-model="outGoing.chukuleibie">
+                <el-form-item label="出库单号：" size="mini" prop="inboundNum"><el-input v-model="outGoing.inboundNum"></el-input></el-form-item>
+                <el-form-item label="出库类别：" size="mini" prop="method">
+                    <el-select v-model="outGoing.method">
                         <el-option label="正常出库" value="type1"></el-option>
                     </el-select>
                 </el-form-item>
             </el-form>
-            <!--点击上传文件-->
-            <!--<el-form :inline="true">
-                <el-form-item label="出库单上传：" size="mini" :inline="true">
-                    <el-upload action="https://jsonplaceholder.typicode.com/posts/" :on-preview="handlePreview" :on-remove="handleRemove" :before-remove="beforeRemove" multiple :limit="3" :on-exceed="handleExceed" :file-list="fileList">
-                        <el-button size="mini" type="primary">点击上传</el-button>
-                    </el-upload>
-                </el-form-item>
-            </el-form>-->
             <hr style="height:1px; border:none; border-top:1px dashed #c0c4cc">
             <el-table :data="outResult" size="mini" max-height="250">
                 <el-table-column type="index" width="44" label="序号"></el-table-column>
@@ -183,13 +175,12 @@
                     chuku:''
                 }],
                 outGoing:{/* 出库业务 —— 相关信息填写 */
-                    cangku:'',
-                    caozuoyuan:'',
-                    chukudanhao:'',
-                    chukudanshangchuan:'',
-                    jiaodanren:'',
-                    jiandanriqi:'',
-                    chukuleibie:''
+                    warehouseName:'',/*仓库名*/
+                    realName:'',/*操作员姓名*/
+                    inboundNum:'',/*出入库单号*/
+                    founder:'',/*建单人*/
+                    createTime:'',/*创建时间--建单日期*/
+                    method:''/*查询类别（出入库）*/
                 },
                 outResult:[{/* 出库业务 —— 信息结果表格 */
                     huopinbianhao:'',
@@ -211,6 +202,10 @@
 
                 }
             }
+        },
+        mounted: function () {
+            //从后端拉取数据
+            getData({});
         },
         methods: {
             /*出库单上传相关函数 begin*/
