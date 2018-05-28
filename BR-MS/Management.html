@@ -234,6 +234,7 @@
             },
             search(){
                 var obj={};
+                app.pageNum=1;
                 Object.assign(obj,app.query);
                 Object.assign(searchKey,obj);
                 getData(obj,1);
