@@ -183,6 +183,15 @@
             pageSize: pageSize,
             pageNum: page, ...common
         }, (data, err) => {
+            if(err){
+                if(err.id!==5000){
+                    app.$message.error(err.msg);
+                }else{
+                    app.$message.error('数据拉取失败');
+                }
+                app.initializing = false;
+                return;
+            }
             app.pageNum = page;
             app.initializing = false;
             console.log(data,err);
@@ -234,10 +243,28 @@
             common1['isRead'] = 1;
             common2['isRead'] = 1;
         }
-        post('/common/getms', searchKey ? {...needed, ...common1} : common1, (data) => {
+        post('/common/getms', searchKey ? {...needed, ...common1} : common1, (data,err) => {
+            if(err){
+                if(err.id!==5000){
+                    app.$message.error(err.msg);
+                }else{
+                    app.$message.error('数据拉取失败');
+                }
+                app.initializing = false;
+                return;
+            }
             maxPage = data.allPages;
             common2['pageNum'] = maxPage;
-            post('/common/getms', searchKey ? {...needed, ...common2} : common2, (data) => {
+            post('/common/getms', searchKey ? {...needed, ...common2} : common2, (data,err) => {
+                if(err){
+                    if(err.id!==5000){
+                        app.$message.error(err.msg);
+                    }else{
+                        app.$message.error('数据拉取失败');
+                    }
+                    app.initializing = false;
+                    return;
+                }
                 var arr = [], msg = data.SysMessage;
                 if(app.checked===4){
                     for (var key in msg) {
@@ -396,7 +423,11 @@
                         isDel: 0
                     }, (data, err) => {
                         if (err) {
-                            app.$message.error(err.msg);
+                            if(err.id!==5000){
+                                app.$message.error(err.msg);
+                            }else{
+                                app.$message.error('删除失败');
+                            }
                             app.initializing = false;
                             return;
                         }
@@ -436,7 +467,11 @@
                                 msg_Id: idToDel[e]
                             }, (data, err) => {
                                 if (err) {
-                                    app.$message.error(err.msg);
+                                    if(err.id!==5000){
+                                        app.$message.error(err.msg);
+                                    }else{
+                                        app.$message.error('删除失败');
+                                    }
                                     app.initializing = false;
                                     return;
                                 }
@@ -471,12 +506,14 @@
                     recipient: app.formInput1.recipient
                 }, (data, err) => {
                     app.initializing = false;
-                    if (err) {
-                        app.$message.error(err.msg);
-                        app.initializing = false;
-                        if (err.id === post.NOT_LOGIN) {
-
+                    console.log(err)
+                    if(err){
+                        if (err.id!==5000) {
+                            app.$message.error(err.msg);
+                        }else{
+                            app.$message.error('消息发送失败,请检查消息格式');
                         }
+                        app.initializing = false;
                         return;
                     }
                     this.$message({
@@ -497,10 +534,10 @@
                         isDel: 0
                     }, (data, err) => {
                         if (err) {
-                            app.$message.error(err.msg);
-                            app.initializing = false;
-                            if (err.id === post.NOT_LOGIN) {
-
+                            if(err.id!==5000){
+                                app.$message.error(err.msg);
+                            }else{
+                                app.$message.error('标记失败');
                             }
                             app.initializing = false;
                             return;
