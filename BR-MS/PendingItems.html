@@ -24,6 +24,7 @@
 </head>
 <body>
 <div id="app" v-cloak>
+<<<<<<< HEAD
     <el-card>
         <el-form :inline="true" :model="selection">
             <el-form-item label="申请单号：" prop="applicationNum" size="mini"><el-input v-model="selection.applicationNum"></el-input></el-form-item>
@@ -36,6 +37,11 @@
         <el-table
             :data="items"
             v-loading.fullscreen="states.initializing" element-loading-text="正在获取数据">
+=======
+    <el-table
+        :data="items" v-loading.fullscreen="states.initializing" element-loading-text="加载中"
+        element-loading-background="rgba(0,0,0,0.8)" element-loading-text="正在获取数据">
+>>>>>>> df544c9255fdebc83c6cbf52b1d2abce7ab391a8
         <el-table-column
                 prop="userRealName" label="申请人" width="100px"></el-table-column>
         <el-table-column
