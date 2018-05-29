@@ -31,11 +31,17 @@
         [v-cloak] {
             display: none;
         }
+
+        .timeRange{
+            color:#6f7180;
+            font-size:13px;
+        }
     </style>
 </head>
 <body>
 <div id="app" v-cloak>
-    <el-form label-width="100px">
+    <el-form label-width="100px"v-loading.fullscreen="initializing" element-loading-text="加载中"
+             element-loading-background="rgba(0,0,0,0.8)">
         <el-form-item label="时间范围">
             <el-date-picker
                 v-model="formInput.date"
@@ -70,10 +76,11 @@
         </el-form-item>
         <el-form-item>
             <el-button type="primary" @click="search">查询</el-button>
+            <el-button @click="reset">重置</el-button>
         </el-form-item>
     </el-form>
     <div v-show="formInput.eventType==='出入库事件'">
-        <div>{{ lookupDateText?lookupDateText:'所有时段' }}</div>
+        <div class="timeRange">{{'数据时段: '+(lookupDateText?lookupDateText:'所有时段') }}</div>
         <el-table stripe :data="tableData2">
             <el-table-column type="expand">
                 <template slot-scope="props2">
@@ -118,7 +125,7 @@
         </p>
     </div>
     <div v-show="formInput.eventType==='物资调配申请'">
-        <div>{{ lookupDateText?lookupDateText:'所有时段' }}</div>
+        <div class="timeRange">{{'数据时段: '+(lookupDateText?lookupDateText:'所有时段') }}</div>
         <el-table stripe :data="tableData">
             <el-table-column type="expand">
                 <template slot-scope="props">
@@ -169,7 +176,7 @@
         </p>
     </div>
     <div v-show="formInput.eventType==='物资调配完成'">
-        <div>{{ lookupDateText?lookupDateText:'所有时段' }}</div>
+        <div class="timeRange">{{'数据时段: '+(lookupDateText?lookupDateText:'所有时段') }}</div>
         <el-table stripe :data="tableData3">
             <el-table-column type="expand">
                 <template slot-scope="props">
@@ -244,9 +251,14 @@
         if (app.eventTypes[app.formInput.eventType] == 1) {
             post('/common/enandex', validate, (data, err) => {
                 app.lookupDateText = app.dateText;
-                if (err) {
-                    console.log(err);
-                    return
+                if(err){
+                    if(err.id!==5000){
+                        app.$message.error(err.msg);
+                    }else{
+                        app.$message.error('查找失败');
+                    }
+                    app.initializing = false;
+                    return;
                 }
                 maxPage = data.allPages;
                 console.log(data);
@@ -258,9 +270,14 @@
         } else if (app.eventTypes[app.formInput.eventType] == 2) {
             post('/common/allapply', validate, (data, err) => {
                 app.lookupDateText = app.dateText;
-                if (err) {
-                    console.log(err);
-                    return
+                if(err){
+                    if(err.id!==5000){
+                        app.$message.error(err.msg);
+                    }else{
+                        app.$message.error('查找失败');
+                    }
+                    app.initializing = false;
+                    return;
                 }
                 maxPage = data.allPages;
                 console.log(data);
@@ -272,8 +289,13 @@
         } else if (app.eventTypes[app.formInput.eventType] == 3) {
             post('/common/comdis', validate, (data, err) => {
                 app.lookupDateText = app.dateText;
-                if (err) {
-                    console.log(err);
+                if(err){
+                    if(err.id!==5000){
+                        app.$message.error(err.msg);
+                    }else{
+                        app.$message.error('查找失败');
+                    }
+                    app.initializing = false;
                     return;
                 }
                 maxPage = data.allPages;
@@ -367,6 +389,7 @@
     var app = new Vue({
         el: '#app',
         data: {
+            initializing:false,
             pageNum: pageNum,
             total: totalRef,
             formInput: {
@@ -408,9 +431,14 @@
         },
         mounted: function () {
             post('/common/relatehouse', {}, (data, err) => {
-                if (err) {
-                    console.log(err);
-                    return
+                if(err){
+                    if(err.id!==5000){
+                        app.$message.error(err.msg);
+                    }else{
+                        app.$message.error('数据获取失败');
+                    }
+                    app.initializing = false;
+                    return;
                 }
                 for (var i in data) {
                     repoItems.push(data[i]);
@@ -427,6 +455,15 @@
                 }
                 getData(searchKey);
             },
+            reset:function(){
+                clearData();
+                searchKey={};
+                app.formInput={
+                    date:"",
+                    repo:"",
+                    eventType:""
+                };
+            },
             handleCurrentChange: function (page) {
                 searchKey['pageNum'] = page;
                 getData(searchKey);
@@ -436,8 +473,13 @@
                     pageNum: 1,
                     pageSize: 100000
                 }, (data, err) => {
-                    if (err) {
-                        app.$message.error(err.msg);
+                    if(err){
+                        if(err.id!==5000){
+                            app.$message.error(err.msg);
+                        }else{
+                            app.$message.error('数据获取失败');
+                        }
+                        app.initializing = false;
                         return;
                     }
                     for (var i in data) {
