@@ -191,9 +191,6 @@
                     app.$message.error(err.msg);
                     app.initializing = false;
                 }
-                if (err.id === post.NOT_LOGIN) {
-
-                }
                 return;
             }
             totalCompute(searchKey);
@@ -401,9 +398,6 @@
                         if (err) {
                             app.$message.error(err.msg);
                             app.initializing = false;
-                            if (err.id === post.NOT_LOGIN) {
-
-                            }
                             return;
                         }
                         if (app.pageNum !== maxPageRef[0]) {
@@ -415,6 +409,10 @@
                                 getData(maxPageRef[0], searchKey)
                             }
                         }
+                        app.$message({
+                            type:'success',
+                            message:'删除成功'
+                        });
                     });
                 })
             },
@@ -433,33 +431,37 @@
                     }
                     delList = idToDel;
                     for (let i in idToDel) {
-                        post('/common/deletems', {
-                            msg_Id: idToDel[i]
-                        }, (data, err) => {
-                            console.log(i);
-                            if (err) {
-                                app.$message.error(err.msg);
-                                app.initializing = false;
-                                return;
-                            }
-                        });
+                        ((e)=>{
+                            post('/common/deletems', {
+                                msg_Id: idToDel[e]
+                            }, (data, err) => {
+                                if (err) {
+                                    app.$message.error(err.msg);
+                                    app.initializing = false;
+                                    return;
+                                }
+                                var len = delList.length;
+                                if (app.pageNum !== maxPageRef[0]) {
+                                    getData(maxPageRef[0], searchKey);
+                                } else {
+                                    if (len == lastPageItems) {
+                                        if (app.pageNum !== 1) {
+                                            getData(maxPageRef[0] - 1, searchKey);
+                                        } else {
+                                            getData(maxPageRef[0], searchKey);
+                                        }
+                                    } else {
+                                        getData(maxPageRef[0], searchKey);
+                                    }
+                                }
+                            });
+                        })(i);
                     }
-                }).then(() => {
-                    var len = delList.length;
-                    if (app.pageNum !== maxPageRef[0]) {
-                        getData(maxPageRef[0], searchKey);
-                    } else {
-                        if (len == lastPageItems) {
-                            if (app.pageNum !== 1) {
-                                getData(maxPageRef[0] - 1, searchKey);
-                            } else {
-                                getData(maxPageRef[0], searchKey);
-                            }
-                        } else {
-                            getData(maxPageRef[0], searchKey);
-                        }
-                    }
-                })
+                    app.$message({
+                        type:'success',
+                        message:'删除成功'
+                    });
+                });
             },
             send: function () {
                 post('/common/addms', {
