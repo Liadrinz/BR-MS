@@ -218,7 +218,8 @@
         },
         methods: {
             handleDateChange(){
-                var [s,e]=[...app.dateRange];
+                // var [s,e]=[...app.dateRange];
+                var s=app.dateRange[0],e=app.dateRange[1];
                 app.query.start_time=[s.getFullYear(),s.getMonth()+1<10?'0'+(s.getMonth()+1):s.getMonth()+1,s.getDate()<10?'0'+s.getDate():s.getDate()].join('-')+" 00:00:00";
                 app.query.end_time=[e.getFullYear(),e.getMonth()+1<10?'0'+(e.getMonth()+1):e.getMonth()+1,e.getDate()<10?'0'+e.getDate():e.getDate()].join('-')+" 00:00:00";
             },

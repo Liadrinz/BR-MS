@@ -177,10 +177,10 @@
                 delete searchKey.sender;
             }
         }
-        post('/common/getms', searchKey ? {...searchKey} : {
-            pageSize: pageSize,
-            pageNum: page, ...common
-        }, (data, err) => {
+        var obj1={},obj2={};
+        Object.assign(obj1,searchKey);
+        Object.assign(obj2,common,{pageSize:pageSize,pageNum:pageNum});
+        post('/common/getms', searchKey ? obj1 : obj2, (data, err) => {
             app.pageNum = page;
             app.initializing = false;
             console.log(data,err);
@@ -231,10 +231,13 @@
             common1['isRead'] = 1;
             common2['isRead'] = 1;
         }
-        post('/common/getms', searchKey ? {...needed, ...common1} : common1, (data) => {
+        var obj3={},obj4={};
+        Object.assign(obj3,needed,common1);
+        Object.assign(obj4,needed,common2);
+        post('/common/getms', searchKey ? obj3 : common1, (data) => {
             maxPage = data.allPages;
             common2['pageNum'] = maxPage;
-            post('/common/getms', searchKey ? {...needed, ...common2} : common2, (data) => {
+            post('/common/getms', searchKey ? obj4 : common2, (data) => {
                 var arr = [], msg = data.SysMessage;
                 if(app.checked===4){
                     for (var key in msg) {

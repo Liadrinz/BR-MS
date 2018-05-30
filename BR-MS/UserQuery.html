@@ -125,9 +125,10 @@
                 <el-button type="primary" size="mini" @click="()=>{changePassword(props.row.userId)}">重置密码</el-button>
                 <el-button size="mini" @click="()=>{
                     props.row.dialogVisible=true;
-                    var c={...props.row};
+                    var c={};
+                    Object.assign(c,props.row);
                     delete c.userId;
-                    editedForm={...c};
+                    Object.assign(editedForm,c);
                     editedForm.id=props.row.userId;
                 }">修改信息
                 </el-button>
