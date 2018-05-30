@@ -311,10 +311,10 @@
                                         <el-form-item label="身份识别码" prop="localId" required>
                                             <el-input v-model="resGeneralForm.localId" placeholder="身份识别码"></el-input>
                                         </el-form-item>
-                                        <el-form-item label="物资类型">
-                                            <el-ext-foldable :options="resTypeList" v-model="resGeneralForm.type"></el-ext-foldable>
-                                        </el-form-item>
-                                        <!-- el-form-item label="物资类型" prop="type" required>
+                                        <!--<el-form-item label="物资类型">-->
+                                            <!--<el-ext-foldable :options="resTypeList" v-model="resGeneralForm.type"></el-ext-foldable>-->
+                                        <!--</el-form-item>-->
+                                        <el-form-item label="物资类型" prop="type" required>
                                             <el-select v-model="resGeneralForm.type" placeholder="物资类型">
                                                 <el-option value="电脑整机">电脑整机</el-option>
                                                 <el-option value="大型家电">大型家电</el-option>
@@ -342,7 +342,7 @@
                                                 <el-option value="交通工具">交通工具</el-option>
                                                 <el-option value="其他">其他</el-option>
                                             </el-select>
-                                        </el-form-item -->
+                                        </el-form-item>
                                         <el-form-item label="关键字" prop="keywords">
                                             <el-input v-model="resGeneralForm.keywords" placeholder="关键字"></el-input>
                                         </el-form-item>
@@ -1020,7 +1020,8 @@
                 app.$refs['dialogEditForm'].validate((valid) => {
                     if (valid) {
                         app.editFormVisible = false;
-                        app.resInfo[app.resInfo.indexOf(row)] = {...app.singleResEditInfo};
+                        // app.resInfo[app.resInfo.indexOf(row)] = {...app.singleResEditInfo};
+                        Object.assign(app.resInfo[app.resInfo.indexOf(row)],app.singleResEditInfo);
                         app.singleResEditInfo = new generalSingle();
                     } else {
                         app.$message.error('信息填写错误，请重新填写');
@@ -1030,7 +1031,8 @@
 
             },
             handleEdit(index, rows) {
-                app.singleResEditInfo = {...rows[index]};
+                // app.singleResEditInfo = {...rows[index]};
+                Object.assign(app.singleResEditInfo,rows[index]);
                 app.editFormVisible = true;
             },
             save() {
@@ -1069,7 +1071,7 @@
                                 }
                             }
                             ((e) => {
-                                post('/depot/add_newinbound', {...toPost}, (data, err) => {
+                                post('/depot/add_newinbound', (()=>{let obj={};Object.assign(obj,toPost);return obj;})(), (data, err) => {
                                     if (err) {
                                         app.$message.error('未填写货品信息');
                                         return;
@@ -1117,7 +1119,9 @@
                             delete obj.goodId;
                             delete obj.warehouseId;
                             delete obj.canView;
-                            app.toPrint.push({...obj});
+                            var toPush={};
+                            Object.assign(toPush,obj);
+                            app.toPrint.push(toPush);
                         }
                         app.state = 3;
                     }
@@ -1160,7 +1164,9 @@
                     }
                     obj['key'] = app.translation[i];
                     if (obj['val']) {
-                        app.detailToDisplay.push({...obj});
+                        var toPush={};
+                        Object.assign(toPush,obj);
+                        app.detailToDisplay.push(toPush);
                     }
                 }
             },
@@ -1171,8 +1177,12 @@
                     warehouseChoice.pop();
                 }
                 var country = app.resGeneralForm.country;
-                var [province, city, county] = [...app.selectedLocations];
-                [app.resGeneralForm['province'], app.resGeneralForm['city'], app.resGeneralForm['county']] = [...app.selectedLocations];
+                // var [province, city, county] = [...app.selectedLocations];
+                var province=app.selectedLocations[0],city=app.selectedLocations[1],county=selectedLocations[2];
+                // [app.resGeneralForm['province'], app.resGeneralForm['city'], app.resGeneralForm['county']] = [...app.selectedLocations];
+                app.resGeneralForm['province']=app.selectedLocations[0];
+                app.resGeneralForm['city']=app.selectedLocations[1];
+                app.resGeneralForm['county']=app.selectedLocations[2];
                 post('/common/allwarehouse', {
                     country: country,
                     province: province,
@@ -1195,8 +1205,12 @@
                     warehouseChoice.pop();
                 }
                 var country = app.resGeneralForm.country;
-                var [province, city, county] = [...app.selectedLocations];
-                [app.resGeneralForm['province'], app.resGeneralForm['city'], app.resGeneralForm['county']] = [...app.selectedLocations];
+                // var [province, city, county] = [...app.selectedLocations];
+                var province=app.selectedLocations[0],city=app.selectedLocations[1],county=selectedLocations[2];
+                // [app.resGeneralForm['province'], app.resGeneralForm['city'], app.resGeneralForm['county']] = [...app.selectedLocations];
+                app.resGeneralForm['province']=app.selectedLocations[0];
+                app.resGeneralForm['city']=app.selectedLocations[1];
+                app.resGeneralForm['county']=app.selectedLocations[2];
                 post('/common/allwarehouse', {
                     country: country,
                     province: province,

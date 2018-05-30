@@ -21,384 +21,521 @@
 </head>
 <body>
 <div id="app" v-cloak>
-    <el-form>
-        <el-form-item label="物资状态：" size="mini">
-            <el-radio-group v-model="stateId">
-                <el-radio :label="null" border>不限</el-radio>
-                <el-radio :label="1" border>占用</el-radio>
-                <el-radio :label="2" border>调配</el-radio>
-                <el-radio :label="3" border>使用</el-radio>
-                <el-radio :label="4" border>空闲</el-radio>
-            </el-radio-group>
-        </el-form-item>
-        <el-form-item label="物资类别：" size="mini">
-            <el-select v-model="type" placeholder="物资类型">
-                <el-option value="电脑整机">电脑整机</el-option>
-                <el-option value="大型家电">大型家电</el-option>
-                <el-option value="网络产品">网络产品</el-option>
-                <el-option value="厨房电器">厨房电器</el-option>
-                <el-option value="电脑配件">电脑配件</el-option>
-                <el-option value="五金装饰">五金装饰</el-option>
-                <el-option value="摄影摄像">摄影摄像</el-option>
-                <el-option value="健康卫生">健康卫生</el-option>
-                <el-option value="数码配件">数码配件</el-option>
-                <el-option value="通信器材">通信器材</el-option>
-                <el-option value="办公设备">办公设备</el-option>
-                <el-option value="家具">家具</el-option>
-                <el-option value="文具耗材">文具耗材</el-option>
-                <el-option value="生活电器">生活电器</el-option>
-                <el-option value="生活用品">生活用品</el-option>
-                <el-option value="汽车用品">汽车用品</el-option>
-                <el-option value="文体器材">文体器材</el-option>
-                <el-option value="学习书籍">学习书籍</el-option>
-                <el-option value="粮油食品">粮油食品</el-option>
-                <el-option value="工程建材">工程建材</el-option>
-                <el-option value="医疗卫生">医疗卫生</el-option>
-                <el-option value="油品">油品</el-option>
-                <el-option value="军队服装">军队服装</el-option>
-                <el-option value="交通工具">交通工具</el-option>
-                <el-option value="其他">其他</el-option>
-            </el-select>
-        </el-form-item>
-        <el-form-item label="地理位置：" size="mini">
-            <el-radio v-model="locationRadio" label="1" @change="(val)=>{
+    <div>
+        <el-form>
+            <el-form-item label="物资状态：" size="mini">
+                <el-radio-group v-model="stateId" :disabled="tempVisible">
+                    <el-radio :label="null" border>不限</el-radio>
+                    <el-radio :label="1" border>占用</el-radio>
+                    <el-radio :label="2" border>调配</el-radio>
+                    <el-radio :label="3" border>使用</el-radio>
+                    <el-radio :label="4" border>空闲</el-radio>
+                </el-radio-group>
+            </el-form-item>
+            <el-form-item label="物资类别：" size="mini">
+                <el-select v-model="type" placeholder="物资类型" :disabled="tempVisible">
+                    <el-option value="电脑整机">电脑整机</el-option>
+                    <el-option value="大型家电">大型家电</el-option>
+                    <el-option value="网络产品">网络产品</el-option>
+                    <el-option value="厨房电器">厨房电器</el-option>
+                    <el-option value="电脑配件">电脑配件</el-option>
+                    <el-option value="五金装饰">五金装饰</el-option>
+                    <el-option value="摄影摄像">摄影摄像</el-option>
+                    <el-option value="健康卫生">健康卫生</el-option>
+                    <el-option value="数码配件">数码配件</el-option>
+                    <el-option value="通信器材">通信器材</el-option>
+                    <el-option value="办公设备">办公设备</el-option>
+                    <el-option value="家具">家具</el-option>
+                    <el-option value="文具耗材">文具耗材</el-option>
+                    <el-option value="生活电器">生活电器</el-option>
+                    <el-option value="生活用品">生活用品</el-option>
+                    <el-option value="汽车用品">汽车用品</el-option>
+                    <el-option value="文体器材">文体器材</el-option>
+                    <el-option value="学习书籍">学习书籍</el-option>
+                    <el-option value="粮油食品">粮油食品</el-option>
+                    <el-option value="工程建材">工程建材</el-option>
+                    <el-option value="医疗卫生">医疗卫生</el-option>
+                    <el-option value="油品">油品</el-option>
+                    <el-option value="军队服装">军队服装</el-option>
+                    <el-option value="交通工具">交通工具</el-option>
+                    <el-option value="其他">其他</el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item label="地理位置：" size="mini">
+                <el-radio v-model="locationRadio" label="1" @change="(val)=>{
                 if(val==='1'){
                     while(selectedLocations[0]!==undefined){
                         selectedLocations.pop();
                     }
                 }
-            }" border>不限
-            </el-radio>
-            <el-cascader :options="areaData" v-model="selectedLocations"
-                         @change="handleChange"></el-cascader>
-        </el-form-item>
-        <el-form-item label="生产日期：" size="mini">
-            <el-date-picker v-model="produceTime" type="date" placeholder="选择日期" format="yyyy年MM月dd日"
-                            value-format="yyyy-MM-dd"></el-date-picker>
-            <span>后</span>
-        </el-form-item>
-        <el-form-item>
-            <el-button type="primary" @click="search">查询</el-button>
-            <el-button @click="reset">重置</el-button>
-        </el-form-item>
-    </el-form>
-
-    <!--  查询结果 Table  -->
-    <el-table
-        ref="multipleTable" :data="resultData"
-        tooltip-effect="dark" stripe
-        @selection-change="handleSelectionChange">
-        <el-table-column type="selection" width="55"></el-table-column>
-        <el-table-column type="index" :index="indexMethod" label="序号"></el-table-column>
-        <el-table-column prop="localId" label="物资编号"></el-table-column>
-        <el-table-column prop="goodsName" label="物资名称"></el-table-column>
-        <el-table-column prop="producerName" label="生产厂商"></el-table-column><!--无接口名-->
-        <el-table-column prop="norms" label="规格"></el-table-column>            <!--无接口名-->
-        <el-table-column prop="warehouseName" label="所在仓库"></el-table-column>
-        <el-table-column prop="quantity" label="库存数量"></el-table-column>   <!--无接口名-->
-        <el-table-column prop="address" label="仓库地址"></el-table-column>     <!--无接口名-->
-        <el-table-column prop="state" label="状态"></el-table-column>          <!--无接口名-->
-        <el-table-column label="" width="200">
-            <template slot-scope="props">
-                <el-button size="mini" type="text" @click="()=>{detail(props.row)}">详情</el-button>
-                <el-button size="mini" type="text" @click="()=>{allocate(props.row)}">申请调配</el-button>
-                <el-dialog title="申请信息" :visible.sync="props.row.dialogVisible" width="70%"
-                           :before-close="()=>{props.row.dialogVisible=false;clearFilledForm();}">
-                    <!--申请信息表单-->
-                    <el-form>
-                        <el-form :inline="true" :rules="applyRules.rule1" :model="singleForm">
-                            <el-form-item label="申请人" size="mini">
-                                <el-input v-model="singleForm.userRealName" :disabled="true"></el-input>
-                            </el-form-item>
-                            <el-form-item label="申请单位" size="mini">
-                                <el-input v-model="singleForm.companyName" :disabled="true"></el-input>
-                            </el-form-item>
-                        </el-form>
-
-                        <!--可删除表单-->  <!--?如何多选时生成相应数量的此表单-->
+            }" :disabled="tempVisible" border>不限
+                </el-radio>
+                <el-cascader :options="areaData" v-model="selectedLocations"
+                             @change="handleChange" :disabled="tempVisible"></el-cascader>
+            </el-form-item>
+            <el-form-item label="生产日期：" size="mini">
+                <el-date-picker v-model="produceTime" type="date" placeholder="选择日期" format="yyyy年MM月dd日"
+                                value-format="yyyy-MM-dd" :disabled="tempVisible"></el-date-picker>
+                <span>后</span>
+            </el-form-item>
+            <el-form-item>
+                <el-button type="primary" @click="search" :disabled="tempVisible">查询</el-button>
+                <el-button @click="reset" :disabled="tempVisible">重置</el-button>
+                <el-button type="success" @click="viewTemp">{{tempVisible?'返回':'查看暂存申请'}}</el-button>
+            </el-form-item>
+        </el-form>
+        <div v-show="!tempVisible">
+        <!--  查询结果 Table  -->
+        <el-table
+            ref="multipleTable" :data="resultData"
+            tooltip-effect="dark" stripe
+            @selection-change="handleSelectionChange">
+            <el-table-column type="selection" width="55"></el-table-column>
+            <el-table-column type="index" :index="indexMethod" label="序号"></el-table-column>
+            <el-table-column prop="localId" label="物资编号"></el-table-column>
+            <el-table-column prop="goodsName" label="物资名称"></el-table-column>
+            <el-table-column prop="producerName" label="生产厂商"></el-table-column><!--无接口名-->
+            <el-table-column prop="norms" label="规格"></el-table-column>            <!--无接口名-->
+            <el-table-column prop="warehouseName" label="所在仓库"></el-table-column>
+            <el-table-column prop="quantity" label="库存数量"></el-table-column>   <!--无接口名-->
+            <el-table-column prop="address" label="仓库地址"></el-table-column>     <!--无接口名-->
+            <el-table-column prop="state" label="状态"></el-table-column>          <!--无接口名-->
+            <el-table-column label="" width="200">
+                <template slot-scope="props">
+                    <el-button size="mini" type="text" @click="()=>{detail(props.row)}">详情</el-button>
+                    <el-button size="mini" type="text" @click="()=>{allocate(props.row)}">申请调配</el-button>
+                    <el-dialog title="申请信息" :visible.sync="props.row.dialogVisible" width="70%"
+                               :before-close="()=>{props.row.dialogVisible=false;clearFilledForm();}">
+                        <!--申请信息表单-->
                         <el-form>
-                            <el-form :inline="true" :rules="applyRules.rule2" :model="singleForm"><!--从后台生成-->
-                                <el-form-item label="申请物资名称" size="mini">
-                                    <el-input v-model="singleForm.goodName" :disabled="true"></el-input>
+                            <el-form :inline="true" :rules="applyRules.rule1" :model="singleForm">
+                                <el-form-item label="申请人" size="mini">
+                                    <el-input v-model="singleForm.userRealName" :disabled="true"></el-input>
                                 </el-form-item>
-                                <el-form-item label="申请物资ID" size="mini">
-                                    <el-input v-model="singleForm.goodId" :disabled="true"></el-input>
-                                </el-form-item>
-                                <el-form-item label="所在仓库" size="mini">
-                                    <el-input v-model="singleForm.startWarehouseName"
-                                              :disabled="true"></el-input>
+                                <el-form-item label="申请单位" size="mini">
+                                    <el-input v-model="singleForm.companyName" :disabled="true"></el-input>
                                 </el-form-item>
                             </el-form>
-                            <el-form :inline="true" :rules="applyRules.rule3" ref="form1" :model="singleForm"><!--可清空Input输入框-->
-                                <el-form-item label="用途说明" size="mini" prop="description" required>
-                                    <el-input v-model="singleForm.description" clearable></el-input>
-                                </el-form-item>
-                            </el-form>
-                            <el-form :inline="true" :rules="applyRules.rule4" ref="form2" :model="singleForm">
-                                <el-form-item label="调配数量" size="mini" prop="amount" required>
-                                    <el-input v-model="singleForm.amount" clearable></el-input>
-                                </el-form-item>
-                                <el-form-item label="单位" size="mini" prop="unit" required><!--无对应接口名-->
-                                    <el-input v-model="singleForm.unit"></el-input>
-                                </el-form-item>
-                            </el-form>
-                            <el-form :inline="true" :rules="applyRules.rule0" ref="form3" :model="singleForm">
-                                <el-form-item label="预计调配时间" size="mini">
-                                    <el-input v-model="singleForm.time" :disabled="true"
-                                              style="width: 150px"></el-input>
-                                    <span class="postfix">小时</span>
-                                </el-form-item>
-                                <el-form-item label="需求类型" size="mini" prop="transport" required>
-                                    <el-select v-model="singleForm.transport" @change="()=>{
+
+                            <!--可删除表单-->  <!--?如何多选时生成相应数量的此表单-->
+                            <el-form>
+                                <el-form :inline="true" :rules="applyRules.rule2" :model="singleForm"><!--从后台生成-->
+                                    <el-form-item label="申请物资名称" size="mini">
+                                        <el-input v-model="singleForm.goodName" :disabled="true"></el-input>
+                                    </el-form-item>
+                                    <el-form-item label="申请物资ID" size="mini">
+                                        <el-input v-model="singleForm.goodId" :disabled="true"></el-input>
+                                    </el-form-item>
+                                    <el-form-item label="所在仓库" size="mini">
+                                        <el-input v-model="singleForm.startWarehouseName"
+                                                  :disabled="true"></el-input>
+                                    </el-form-item>
+                                </el-form>
+                                <el-form :inline="true" :rules="applyRules.rule3" ref="form1" :model="singleForm"><!--可清空Input输入框-->
+                                    <el-form-item label="用途说明" size="mini" prop="description" required>
+                                        <el-input v-model="singleForm.description" clearable></el-input>
+                                    </el-form-item>
+                                </el-form>
+                                <el-form :inline="true" :rules="applyRules.rule4" ref="form2" :model="singleForm">
+                                    <el-form-item label="调配数量" size="mini" prop="amount" required>
+                                        <el-input v-model="singleForm.amount" clearable></el-input>
+                                    </el-form-item>
+                                </el-form>
+                                <el-form :inline="true" :rules="applyRules.rule0" ref="form3" :model="singleForm">
+                                    <el-form-item label="预计调配时间" size="mini">
+                                        <el-input v-model="singleForm.time" :disabled="true"
+                                                  style="width: 150px"></el-input>
+                                        <span class="postfix">小时</span>
+                                    </el-form-item>
+                                    <el-form-item label="需求类型" size="mini" prop="transport" required>
+                                        <el-select v-model="singleForm.transport" @change="()=>{
                                                 singleForm.time=360/singleForm.transport;
                                                 }">
+                                            <el-option label="应急" :value="20"></el-option>
+                                            <el-option label="普通" :value="4"></el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                    <el-form-item label="期望时间成本" size="mini" prop="expectTime" required>
+                                        <el-select v-model="singleForm.expectTime">
+                                            <el-option label="高" value="高"></el-option>
+                                            <el-option label="中" value="中"></el-option>
+                                            <el-option label="低" value="低"></el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                </el-form>
+                            </el-form>
+
+                            <!--目的地地址 目的仓库-->
+                            <el-form :inline="true" :rules="applyRules.rule7" ref="form4" :model="{
+                            address:selectedLocations,
+                            detailA:singleForm.destinationAddress
+                        }">
+                                <el-form-item label="目的地地址：" size="mini" prop="address" required>
+                                    <el-cascader :options="areaData" v-model="selectedLocations"
+                                                 @change="handleChange"></el-cascader>
+                                </el-form-item>
+                                <el-form-item size="mini" prop="detailA" required>
+                                    <el-input v-model="singleForm.destinationAddress"></el-input>
+                                </el-form-item>
+                                <el-form :rules="applyRules.rule71" ref="form41" :model="singleForm">
+                                    <el-form-item label="目的仓库" size="mini" prop="endWarehouseName" required>
+                                        <el-select v-model="singleForm.endWarehouseName" clearable>
+                                            <el-option v-for="warehouse in warehouseChoice"
+                                                       :value="warehouse.warehouseId"
+                                                       :label="warehouse.warehouseName">
+                                                {{warehouse.warehouseName}}
+                                            </el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                </el-form>
+                            </el-form>
+                            <hr>
+                        </el-form>
+                        <el-form>
+                            <!--联系人 联系电话 备注-->
+                            <el-form :inline="true" :rules="applyRules.ruleB" ref="form5" :model="singleForm">
+                                <!--如果联系人就是申请人的话 否则没有接口名-->
+                                <p>
+                                    <el-form-item label="联系人" size="mini" prop="userRealName" required>
+                                        <el-input v-model="singleForm.userRealName" clearable></el-input>
+                                    </el-form-item>
+                                </p>
+                                <p>
+                                    <el-form-item label="联系电话" size="mini" prop="tel" required>
+                                        <el-input v-model="singleForm.tel" clearable></el-input>
+                                    </el-form-item>
+                                </p>
+                                <p>
+                                    <el-form-item label="备注" size="mini" prop="ps" required>
+                                        <el-input v-model="singleForm.ps" :rows="3" placeholder="请输入备注"
+                                                  clearable></el-input>
+                                    </el-form-item>
+                                </p>
+                            </el-form>
+                        </el-form>
+
+                        <span slot="footer" class="dialog-footer">
+            <el-button size="mini" @click="()=>{submitSingle(props.row,'temp')}">暂存</el-button>
+            <el-button size="mini" @click="()=>{submitSingle(props.row)}">提交</el-button>
+            <el-button @click="()=>{props.row.dialogVisible=false;clearFilledForm();}" size="mini">返回</el-button>
+        </span>
+                    </el-dialog>
+                </template>
+            </el-table-column>
+        </el-table>
+        <p style="text-align: center">
+            <el-pagination @current-change="handleCurrentChange" :current-page="pageNum"
+                           :page-size="6" layout="total,prev,pager,next,jumper" :total="totalNum"></el-pagination>
+        </p>
+        <div>
+            <el-button size="mini" @click="allocateAll">申请调配所选项</el-button>
+        </div>
+    </div>
+
+    <div v-show="tempVisible">
+        <el-table
+            ref="multipleTable2" :data="resultData2"
+            tooltip-effect="dark" stripe
+            @selection-change="handleSelectionChange2">
+            <el-table-column type="selection" width="55"></el-table-column>
+            <el-table-column prop="goodsId" label="物资编号"></el-table-column>
+            <el-table-column prop="goodsName" label="物资名称"></el-table-column>
+            <el-table-column prop="startWarehouseName" label="所在仓库"></el-table-column>
+            <el-table-column label="" width="200">
+                <template slot-scope="props">
+                    <el-button size="mini" type="text" @click="()=>{allocate(props.row,'frtmp')}">编辑并提交</el-button>
+                    <el-button size="mini" type="text" @click="()=>{delTemp(props.row)}">删除</el-button>
+                    <el-dialog title="申请信息" :visible.sync="props.row.dialogVisible" width="70%"
+                               :before-close="()=>{props.row.dialogVisible=false;clearFilledForm();}">
+                        <!--申请信息表单-->
+                        <el-form>
+                            <el-form :inline="true" :rules="applyRules.rule1" :model="singleForm">
+                                <el-form-item label="申请人" size="mini">
+                                    <el-input v-model="singleForm.userRealName" :disabled="true"></el-input>
+                                </el-form-item>
+                                <el-form-item label="申请单位" size="mini">
+                                    <el-input v-model="singleForm.companyName" :disabled="true"></el-input>
+                                </el-form-item>
+                            </el-form>
+
+                            <!--可删除表单-->  <!--?如何多选时生成相应数量的此表单-->
+                            <el-form>
+                                <el-form :inline="true" :rules="applyRules.rule2" :model="singleForm"><!--从后台生成-->
+                                    <el-form-item label="申请物资名称" size="mini">
+                                        <el-input v-model="singleForm.goodName" :disabled="true"></el-input>
+                                    </el-form-item>
+                                    <el-form-item label="申请物资ID" size="mini">
+                                        <el-input v-model="singleForm.goodId" :disabled="true"></el-input>
+                                    </el-form-item>
+                                    <el-form-item label="所在仓库" size="mini">
+                                        <el-input v-model="singleForm.startWarehouseName"
+                                                  :disabled="true"></el-input>
+                                    </el-form-item>
+                                </el-form>
+                                <el-form :inline="true" :rules="applyRules.rule3" ref="form1" :model="singleForm"><!--可清空Input输入框-->
+                                    <el-form-item label="用途说明" size="mini" prop="description" required>
+                                        <el-input v-model="singleForm.description" clearable></el-input>
+                                    </el-form-item>
+                                </el-form>
+                                <el-form :inline="true" :rules="applyRules.rule4" ref="form2" :model="singleForm">
+                                    <el-form-item label="调配数量" size="mini" prop="amount" required>
+                                        <el-input v-model="singleForm.amount" clearable></el-input>
+                                    </el-form-item>
+                                </el-form>
+                                <el-form :inline="true" :rules="applyRules.rule0" ref="form3" :model="singleForm">
+                                    <el-form-item label="预计调配时间" size="mini">
+                                        <el-input v-model="singleForm.time" :disabled="true"
+                                                  style="width: 150px"></el-input>
+                                        <span class="postfix">小时</span>
+                                    </el-form-item>
+                                    <el-form-item label="需求类型" size="mini" prop="transport" required>
+                                        <el-select v-model="singleForm.transport" @change="()=>{
+                                                singleForm.time=360/singleForm.transport;
+                                                }">
+                                            <el-option label="应急" :value="20"></el-option>
+                                            <el-option label="普通" :value="4"></el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                    <el-form-item label="期望时间成本" size="mini" prop="expectTime" required>
+                                        <el-select v-model="singleForm.expectTime">
+                                            <el-option label="高" value="高"></el-option>
+                                            <el-option label="中" value="中"></el-option>
+                                            <el-option label="低" value="低"></el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                </el-form>
+                            </el-form>
+
+                            <!--目的地地址 目的仓库-->
+                            <el-form :inline="true" :rules="applyRules.rule7" ref="form4" :model="{
+                            address:selectedLocations,
+                            detailA:singleForm.destinationAddress
+                        }">
+                                <el-form-item label="目的地地址：" size="mini" prop="address" required>
+                                    <el-cascader :options="areaData" v-model="selectedLocations"
+                                                 @change="handleChange"></el-cascader>
+                                </el-form-item>
+                                <el-form-item size="mini" prop="detailA" required>
+                                    <el-input v-model="singleForm.destinationAddress"></el-input>
+                                </el-form-item>
+                                <el-form :rules="applyRules.rule71" ref="form41" :model="singleForm">
+                                    <el-form-item label="目的仓库" size="mini" prop="endWarehouseName" required>
+                                        <el-select v-model="singleForm.endWarehouseName" clearable>
+                                            <el-option v-for="warehouse in warehouseChoice"
+                                                       :value="warehouse.warehouseId"
+                                                       :label="warehouse.warehouseName">
+                                                {{warehouse.warehouseName}}
+                                            </el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                </el-form>
+                            </el-form>
+                            <hr>
+                        </el-form>
+                        <el-form>
+                            <!--联系人 联系电话 备注-->
+                            <el-form :inline="true" :rules="applyRules.ruleB" ref="form5" :model="singleForm">
+                                <!--如果联系人就是申请人的话 否则没有接口名-->
+                                <p>
+                                    <el-form-item label="联系人" size="mini" prop="userRealName" required>
+                                        <el-input v-model="singleForm.userRealName" clearable></el-input>
+                                    </el-form-item>
+                                </p>
+                                <p>
+                                    <el-form-item label="联系电话" size="mini" prop="tel" required>
+                                        <el-input v-model="singleForm.tel" clearable></el-input>
+                                    </el-form-item>
+                                </p>
+                                <p>
+                                    <el-form-item label="备注" size="mini" prop="ps" required>
+                                        <el-input v-model="singleForm.ps" :rows="3" placeholder="请输入备注"
+                                                  clearable></el-input>
+                                    </el-form-item>
+                                </p>
+                            </el-form>
+                        </el-form>
+
+                        <span slot="footer" class="dialog-footer">
+            <el-button size="mini" @click="()=>{submitSingle(props.row,'temp')}">暂存</el-button>
+            <el-button size="mini" @click="()=>{submitSingle(props.row)}">提交</el-button>
+            <el-button @click="()=>{props.row.dialogVisible=false;clearFilledForm();}" size="mini">返回</el-button>
+        </span>
+                    </el-dialog>
+                </template>
+            </el-table-column>
+        </el-table>
+    </div>
+        <!-- 与物资详情、申请物资有关的对话框 -->
+        <el-dialog title="物资详情" :visible.sync="dialogs.detail" width="98%">
+            <el-table :data="detailForm">
+                <el-table-column prop="key1" :width="150">
+                    <template slot-scope="props">
+                        <b>{{props.row.key1}}</b>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="val1" :width="200">
+                    <template slot-scope="props">
+                        <p style="margin: 0;">{{props.row.val1}}</p>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="key2" :width="150">
+                    <template slot-scope="props">
+                        <b>{{props.row.key2}}</b>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="val2" :width="275">
+                    <template slot-scope="props">
+                        <p style="margin: 0;">{{props.row.val2}}</p>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="key3" :width="150">
+                    <template slot-scope="props">
+                        <b>{{props.row.key3}}</b>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="val3" :width="220">
+                    <template slot-scope="props">
+                        <p style="margin: 0;">{{props.row.val3}}</p>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <span slot="footer" class="dialog-footer">
+            <el-button @click="dialogs.detail=false" size="mini">关闭</el-button>
+        </span>
+        </el-dialog>
+        <el-dialog title="申请信息" :visible.sync="dialogs.allocateAll" width="70%">
+            <!--改动不确定-->
+            <div v-for="i in (()=>{
+            var arr=[];
+            for(var i of multipleSelection.keys()){
+            arr.push(i);
+            }
+            return arr;
+            })()">
+                <el-form>
+                    <el-form :inline="true" :rules="applyRules.rule1" :model="singleForm">
+                        <el-form-item label="申请人" size="mini">
+                            <el-input v-model="singleForm.userRealName" :disabled="true"></el-input>
+                        </el-form-item>
+                        <el-form-item label="申请单位" size="mini">
+                            <el-input v-model="singleForm.companyName" :disabled="true"></el-input>
+                        </el-form-item>
+                    </el-form>
+
+                    <!--可删除表单-->  <!--?如何多选时生成相应数量的此表单-->
+                    <el-form>
+                        <el-form :inline="true" :rules="applyRules.rule2" :model="applicationForm[i]"><!--从后台生成-->
+                            <el-form-item label="申请物资名称" size="mini">
+                                <el-input v-model="applicationForm[i].goodName" :disabled="true"></el-input>
+                            </el-form-item>
+                            <el-form-item label="申请物资ID" size="mini">
+                                <el-input v-model="applicationForm[i].goodId" :disabled="true"></el-input>
+                            </el-form-item>
+                            <el-form-item label="所在仓库" size="mini">
+                                <el-input v-model="applicationForm[i].startWarehouseName"
+                                          :disabled="true"></el-input>
+                            </el-form-item>
+                        </el-form>
+                        <el-form :inline="true" :rules="applyRules.rule3" ref="form6" :model="applicationForm[i]"><!--可清空Input输入框-->
+                            <el-form-item label="用途说明" size="mini" prop="description" required>
+                                <el-input v-model="applicationForm[i].description" clearable></el-input>
+                            </el-form-item>
+                        </el-form>
+                        <el-form :inline="true" :rules="applyRules.rule4" ref="form7" :model="applicationForm[i]">
+                            <el-form-item label="调配数量" size="mini" prop="amount" required>
+                                <el-input v-model="applicationForm[i].amount" clearable></el-input>
+                            </el-form-item>
+                        </el-form>
+                        <el-form :inline="true">
+                            <el-form-item label="预计调配时间" size="mini"><!--无对应接口名-->
+                                <el-input v-model="applicationForm[i].time" :disabled="true"
+                                          style="width: 150px"></el-input>
+                                <span class="postfix">小时</span>
+                            </el-form-item>
+                            <el-form :rules="applyRules.rule5" ref="form8" :model="applicationForm[i]">
+                                <el-form-item label="需求类型" size="mini" prop="transport" required><!--无对应接口名-->
+                                    <el-select v-model="selectedTransport[i]" @change="()=>{
+                                applicationForm[i].transport=selectedTransport[i];
+                                applicationForm[i].time=360/selectedTransport[i];
+                            }">
                                         <el-option label="应急" :value="20"></el-option>
                                         <el-option label="普通" :value="4"></el-option>
                                     </el-select>
                                 </el-form-item>
+                            </el-form>
+                            <el-form :rules="applyRules.rule6" ref="form9" :model="applicationForm[i]">
                                 <el-form-item label="期望时间成本" size="mini" prop="expectTime" required>
-                                    <el-select v-model="singleForm.expectTime">
+                                    <el-select v-model="selectedExpectTime[i]" @change="(value)=>{applicationForm[i].expectTime=value;}">
                                         <el-option label="高" value="高"></el-option>
                                         <el-option label="中" value="中"></el-option>
                                         <el-option label="低" value="低"></el-option>
                                     </el-select>
                                 </el-form-item>
                             </el-form>
-                        </el-form>
 
-                        <!--目的地地址 目的仓库-->
-                        <el-form :inline="true" :rules="applyRules.rule7" ref="form4" :model="{
-                            address:selectedLocations,
-                            detailA:singleForm.destinationAddress
-                        }">
-                            <el-form-item label="目的地地址：" size="mini" prop="address" required>
-                                <el-cascader :options="areaData" v-model="selectedLocations"
-                                             @change="handleChange"></el-cascader>
-                            </el-form-item>
-                            <el-form-item size="mini" prop="detailA" required>
-                                <el-input v-model="singleForm.destinationAddress"></el-input>
-                            </el-form-item>
-                            <el-form :rules="applyRules.rule71" ref="form41" :model="singleForm">
-                                <el-form-item label="目的仓库" size="mini" prop="endWarehouseName" required>
-                                    <el-select v-model="singleForm.endWarehouseName" clearable>
-                                        <el-option v-for="warehouse in warehouseChoice"
-                                                   :value="warehouse.warehouseId"
-                                                   :label="warehouse.warehouseName">
-                                            {{warehouse.warehouseName}}
-                                        </el-option>
-                                    </el-select>
-                                </el-form-item>
-                            </el-form>
-                        </el-form>
-                        <hr>
-                    </el-form>
-                    <el-form>
-                        <!--联系人 联系电话 备注-->
-                        <el-form :inline="true" :rules="applyRules.ruleB" ref="form5" :model="singleForm">
-                            <!--如果联系人就是申请人的话 否则没有接口名-->
-                            <p>
-                                <el-form-item label="联系人" size="mini" prop="userRealName" required>
-                                    <el-input v-model="singleForm.userRealName" clearable></el-input>
-                                </el-form-item>
-                            </p>
-                            <p>
-                                <el-form-item label="联系电话" size="mini" prop="tel" required>
-                                    <el-input v-model="singleForm.tel" clearable></el-input>
-                                </el-form-item>
-                            </p>
-                            <p>
-                                <el-form-item label="备注" size="mini" prop="ps" required>
-                                    <el-input v-model="singleForm.ps" :rows="3" placeholder="请输入备注"
-                                              clearable></el-input>
-                                </el-form-item>
-                            </p>
                         </el-form>
                     </el-form>
 
-                    <span slot="footer" class="dialog-footer">
-            <el-button size="mini">暂存</el-button>
-            <el-button size="mini" @click="()=>{submitSingle(props.row)}">提交</el-button>
-            <el-button @click="()=>{props.row.dialogVisible=false;clearFilledForm();}" size="mini">返回</el-button>
-        </span>
-                </el-dialog>
-            </template>
-        </el-table-column>
-    </el-table>
-    <p style="text-align: center">
-        <el-pagination @current-change="handleCurrentChange" :current-page="pageNum"
-                       :page-size="6" layout="total,prev,pager,next,jumper" :total="totalNum"></el-pagination>
-    </p>
-    <div>
-        <el-button size="mini" @click="allocateAll">申请调配所选项</el-button>
-    </div>
-
-    <!-- 与物资详情、申请物资有关的对话框 -->
-    <el-dialog title="物资详情" :visible.sync="dialogs.detail" width="98%">
-        <el-table :data="detailForm">
-            <el-table-column prop="key1" :width="150">
-                <template slot-scope="props">
-                    <b>{{props.row.key1}}</b>
-                </template>
-            </el-table-column>
-            <el-table-column prop="val1" :width="200">
-                <template slot-scope="props">
-                    <p style="margin: 0;">{{props.row.val1}}</p>
-                </template>
-            </el-table-column>
-            <el-table-column prop="key2" :width="150">
-                <template slot-scope="props">
-                    <b>{{props.row.key2}}</b>
-                </template>
-            </el-table-column>
-            <el-table-column prop="val2" :width="275">
-                <template slot-scope="props">
-                    <p style="margin: 0;">{{props.row.val2}}</p>
-                </template>
-            </el-table-column>
-            <el-table-column prop="key3" :width="150">
-                <template slot-scope="props">
-                    <b>{{props.row.key3}}</b>
-                </template>
-            </el-table-column>
-            <el-table-column prop="val3" :width="220">
-                <template slot-scope="props">
-                    <p style="margin: 0;">{{props.row.val3}}</p>
-                </template>
-            </el-table-column>
-        </el-table>
-        <span slot="footer" class="dialog-footer">
-            <el-button @click="dialogs.detail=false" size="mini">关闭</el-button>
-        </span>
-    </el-dialog>
-    <el-dialog title="申请信息" :visible.sync="dialogs.allocateAll" width="70%">
-        <!--申请信息表单-->
-        <div v-for="i in [...multipleSelection.keys()]">
-            <el-form>
-                <el-form :inline="true" :rules="applyRules.rule1" :model="singleForm">
-                    <el-form-item label="申请人" size="mini">
-                        <el-input v-model="singleForm.userRealName" :disabled="true"></el-input>
-                    </el-form-item>
-                    <el-form-item label="申请单位" size="mini">
-                        <el-input v-model="singleForm.companyName" :disabled="true"></el-input>
-                    </el-form-item>
-                </el-form>
-
-                <!--可删除表单-->  <!--?如何多选时生成相应数量的此表单-->
-                <el-form>
-                    <el-form :inline="true" :rules="applyRules.rule2" :model="applicationForm[i]"><!--从后台生成-->
-                        <el-form-item label="申请物资名称" size="mini">
-                            <el-input v-model="applicationForm[i].goodName" :disabled="true"></el-input>
-                        </el-form-item>
-                        <el-form-item label="申请物资ID" size="mini">
-                            <el-input v-model="applicationForm[i].goodId" :disabled="true"></el-input>
-                        </el-form-item>
-                        <el-form-item label="所在仓库" size="mini">
-                            <el-input v-model="applicationForm[i].startWarehouseName"
-                                      :disabled="true"></el-input>
-                        </el-form-item>
-                    </el-form>
-                    <el-form :inline="true" :rules="applyRules.rule3" ref="form6" :model="applicationForm[i]"><!--可清空Input输入框-->
-                        <el-form-item label="用途说明" size="mini" prop="description" required>
-                            <el-input v-model="applicationForm[i].description" clearable></el-input>
-                        </el-form-item>
-                    </el-form>
-                    <el-form :inline="true" :rules="applyRules.rule4" ref="form7" :model="applicationForm[i]">
-                        <el-form-item label="调配数量" size="mini" prop="amount" required>
-                            <el-input v-model="applicationForm[i].amount" clearable></el-input>
-                        </el-form-item>
-                        <el-form-item label="单位" size="mini" prop="unit" required><!--无对应接口名-->
-                            <el-input v-model="applicationForm[i].unit"></el-input>
-                        </el-form-item>
-                    </el-form>
-                    <el-form :inline="true">
-                        <el-form-item label="预计调配时间" size="mini"><!--无对应接口名-->
-                            <el-input v-model="applicationForm[i].time" :disabled="true"
-                                      style="width: 150px"></el-input>
-                            <span class="postfix">小时</span>
-                        </el-form-item>
-                        <el-form :rules="applyRules.rule5" ref="form8" :model="applicationForm[i]">
-                            <el-form-item label="需求类型" size="mini" prop="transport" required><!--无对应接口名-->
-                                <el-select v-model="selectedTransport[i]" @change="()=>{
-                                applicationForm[i].transport=selectedTransport[i];
-                                applicationForm[i].time=360/selectedTransport[i];
-                            }">
-                                    <el-option label="应急" :value="20"></el-option>
-                                    <el-option label="普通" :value="4"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-form>
-                        <el-form :rules="applyRules.rule6" ref="form9" :model="applicationForm[i]">
-                            <el-form-item label="期望时间成本" size="mini" prop="expectTime" required>
-                                <el-select v-model="selectedExpectTime[i]" @change="(value)=>{applicationForm[i].expectTime=value;}">
-                                    <el-option label="高" value="高"></el-option>
-                                    <el-option label="中" value="中"></el-option>
-                                    <el-option label="低" value="低"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-form>
-
-                    </el-form>
-                </el-form>
-
-                <!--目的地地址 目的仓库-->
-                <el-form :inline="true" :rules="applyRules.rule7" ref="form10" :model="applicationForm[i]">
-                    <el-form-item label="目的地地址：" size="mini" prop="destinationProvince" required>
-                        <el-cascader :options="areaData" v-model="selectedLocationsList[i]"
-                                     @change="()=>{
+                    <!--目的地地址 目的仓库-->
+                    <el-form :inline="true" :rules="applyRules.rule7" ref="form10" :model="applicationForm[i]">
+                        <el-form-item label="目的地地址：" size="mini" prop="destinationProvince" required>
+                            <el-cascader :options="areaData" v-model="selectedLocationsList[i]"
+                                         @change="()=>{
                                      handleChange();
                                      applicationForm[i].destinationProvince=selectedLocationsList[i][0];
                                      applicationForm[i].destinationAddress=selectedLocationList[i];
                                      }"></el-cascader>
-                    </el-form-item>
-                    <el-form-item size="mini" prop="destinationAddress" required>
-                        <el-input v-model="applicationForm[i].destinationAddress" @change="()=>{
+                        </el-form-item>
+                        <el-form-item size="mini" prop="destinationAddress" required>
+                            <el-input v-model="applicationForm[i].destinationAddress" @change="()=>{
 
                         }"></el-input>
-                    </el-form-item>
-                </el-form>
-                <el-form :inline="true" :rules="applyRules.rule8" ref="form11" :model="applicationForm[i]">
-                    <el-form-item label="目的仓库" size="mini" prop="endWarehouseName" required>
-                        <el-select v-model="selectedWarehouse[i]" @change="()=>{
+                        </el-form-item>
+                    </el-form>
+                    <el-form :inline="true" :rules="applyRules.rule8" ref="form11" :model="applicationForm[i]">
+                        <el-form-item label="目的仓库" size="mini" prop="endWarehouseName" required>
+                            <el-select v-model="selectedWarehouse[i]" @change="()=>{
                         applicationForm[i].endWarehouseName=selectedWarehouse[i]
                         }" clearable>
-                            <el-option v-for="warehouse in warehouseChoiceList[i]" :value="warehouse.warehouseId"
-                                       :label="warehouse.warehouseName">
-                                {{warehouse.warehouseName}}
-                            </el-option>
-                        </el-select>
-                    </el-form-item>
+                                <el-option v-for="warehouse in warehouseChoiceList[i]" :value="warehouse.warehouseId"
+                                           :label="warehouse.warehouseName">
+                                    {{warehouse.warehouseName}}
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-form>
+                    <hr>
                 </el-form>
-                <hr>
+            </div>
+            <el-form>
+                <!--联系人 联系电话 备注-->
+                <el-form :inline="true" :rules="applyRules.ruleB" ref="form12" :model="singleForm">
+                    <!--如果联系人就是申请人的话 否则没有接口名-->
+                    <p>
+                        <el-form-item label="联系人" size="mini" prop="userRealName" required>
+                            <el-input v-model="singleForm.userRealName" clearable></el-input>
+                        </el-form-item>
+                    </p>
+                    <p>
+                        <el-form-item label="联系电话" size="mini" prop="tel" required>
+                            <el-input v-model="singleForm.tel" clearable></el-input>
+                        </el-form-item>
+                    </p>
+                    <p>
+                        <el-form-item label="备注" size="mini" prop="ps" required>
+                            <el-input v-model="singleForm.ps" :rows="3" placeholder="请输入备注"
+                                      clearable></el-input>
+                        </el-form-item>
+                    </p>
+                </el-form>
             </el-form>
-        </div>
-        <el-form>
-            <!--联系人 联系电话 备注-->
-            <el-form :inline="true" :rules="applyRules.ruleB" ref="form12" :model="singleForm">
-                <!--如果联系人就是申请人的话 否则没有接口名-->
-                <p>
-                    <el-form-item label="联系人" size="mini" prop="userRealName" required>
-                        <el-input v-model="singleForm.userRealName" clearable></el-input>
-                    </el-form-item>
-                </p>
-                <p>
-                    <el-form-item label="联系电话" size="mini" prop="tel" required>
-                        <el-input v-model="singleForm.tel" clearable></el-input>
-                    </el-form-item>
-                </p>
-                <p>
-                    <el-form-item label="备注" size="mini" prop="ps" required>
-                        <el-input v-model="singleForm.ps" :rows="3" placeholder="请输入备注"
-                                  clearable></el-input>
-                    </el-form-item>
-                </p>
-            </el-form>
-        </el-form>
-        <span slot="footer" class="dialog-footer">
-            <el-button size="mini">暂存</el-button>
-            <el-button size="mini" @click="submitAll">提交</el-button>
+            <span slot="footer" class="dialog-footer">
+            <el-button size="mini" @click="()=>{SubmitAll('temp')}">暂存</el-button>
+            <el-button size="mini" @click="()=>{submitAll()}">提交</el-button>
             <el-button @click="()=>{dialogs.allocateAll=false;clearFilledForm();}" size="mini">返回</el-button>
         </span>
-    </el-dialog>
+        </el-dialog>
+    </div>
 </div>
 </body>
 <script src="lib/vue.js"></script>
@@ -408,6 +545,7 @@
     //交互没写
     var post = require('/mods/backend');
     var CTT = require('element-china-area-data').CodeToText;
+    var TTC=require('element-china-area-data').TextToCode;
     var searchKey = {};
     var items = [];
     var pageNum = 1, pageSize = 6, maxPage = 0;
@@ -448,7 +586,6 @@
         startWarehouseName: "",
         description: "",
         amount: "",
-        unit: "",
         time: "",
         price: "",
         transport: "",
@@ -462,12 +599,20 @@
         ps: ""
     }
 
-    var generalList = [{...generalApplicationForm}, {...generalApplicationForm}, {...generalApplicationForm},
-        {...generalApplicationForm}, {...generalApplicationForm}, {...generalApplicationForm}];
+    // var generalList = [{...generalApplicationForm}, {...generalApplicationForm}, {...generalApplicationForm},
+    //     {...generalApplicationForm}, {...generalApplicationForm}, {...generalApplicationForm}];
+
+    var generalList=[];
+    for(let i=0;i<6;i++){
+        let obj={};
+        Object.assign(obj,generalApplicationForm);
+        generalList.push(obj);
+    }
 
     var app = new Vue({
         el: '#app',
         data: {
+            tempVisible:false,
             pageNum: 1,
             totalNum: 0,
             stateId: '',
@@ -486,6 +631,7 @@
             selectedExpectTime: [],
             selectedWarehouse: [],
             multipleSelection: [],
+            multipleSelection2:[],
             areaData: ChinaAreaData,
             dialogs: {
                 detail: false,
@@ -493,6 +639,7 @@
                 allocateAll: false
             },
             resultData: items,
+            resultData2:[],
             detailForm: [],
             applicationForm: generalList,
             singleForm: generalApplicationForm,
@@ -538,11 +685,9 @@
                 rule3: {
                     description: {required: true, message: '请输入描述'},
                     amount: {required: true, message: '请输入数量'},
-                    unit: {required: true, message: '请输入单位'}
                 },
                 rule4: {
-                    amount:{required:true,message:'请输入数量'},
-                    unit:{required:true,message:'请输入单位'}
+                    amount:{required:true,message:'请输入数量'}
                 },
                 rule5: {
                     p:{required:true,message:'请选择需求类型'}
@@ -573,6 +718,26 @@
             });
         },
         methods: {
+            viewTemp(){
+
+                if(app.tempVisible===false){
+                    while(app.resultData2[0]!==undefined){
+                        app.resultData2.pop();
+                    }
+                    post('/common/user_goods/get_saved_apply',{},(data,err)=>{
+                        if(err){
+                            return;
+                        }
+                        for(let obj of data){
+                            app.resultData2.push(obj);
+                        }
+                    });
+                    app.tempVisible=true;
+                }else{
+                    app.tempVisible=false;
+                }
+
+            },
             clearFilledForm() {
                 while (app.selectedLocations[0] != undefined) {
                     app.selectedLocations.pop();
@@ -645,7 +810,7 @@
                 });
                 app.dialogs.detail = true;
             },
-            allocate(row) {
+            allocate(row,frtmp) {
                 post('/common/allwarehouse', {}, (data) => {
                     for (let warehouse of data) {
                         app.warehouseChoice.push(warehouse);
@@ -653,21 +818,47 @@
                 });
                 row.dialogVisible = true;
                 currentRow = row;
-                app.singleForm = {...generalApplicationForm};
+                // app.singleForm = {...generalApplicationForm};
+                Object.assign(app.singleForm,generalApplicationForm)
                 app.singleForm.userRealName = userInfo.realName;
                 app.singleForm.companyName = userInfo.companyName;
                 app.singleForm.goodId = row.goodsId;
                 app.singleForm.goodName = row.goodsName;
                 app.singleForm.startWarehouseName = row.warehouseName;
-                app.singleForm.unit = row.unit;
+                if(frtmp==='frtmp'){
+                    [
+                        app.singleForm.startWarehouseId,
+                        app.singleForm.description,
+                        app.singleForm.amount,
+                        app.singleForm.transport,
+                        app.singleForm.expectTime,
+                        app.selectedLocations,
+                        app.singleForm.destinationAddress,
+                        app.singleForm.endWarehouseName,
+                        app.singleForm.tel,
+                        app.singleForm.ps
+                    ]=[
+                        app.singleForm.startWarehouseId,
+                        row.description,
+                        row.amount,
+                        row.requestType,
+                        row.expectTime,
+                        [row.destinationProvince,row.destinationCity],
+                        row.destinationAddress,
+                        row.endWarehouseName,
+                        row.tel,
+                        row.ps
+                    ]
+                }
             },
-            allocateAll() {
+            allocateAll(frtmp) {
                 if (app.multipleSelection.length <= 0) {
                     app.$message.error('没有选择任何条目');
                     return;
                 }
                 app.dialogs.allocateAll = true;
-                app.singleForm = {...generalApplicationForm};
+                // app.singleForm = {...generalApplicationForm};
+                Object.assign(app.singleForm,generalApplicationForm);
                 app.singleForm.userRealName = userInfo.realName;
                 app.singleForm.companyName = userInfo.companyName;
                 for (var choice in app.multipleSelection) {
@@ -678,11 +869,11 @@
                             }
                         });
                     })(choice)
-                    app.applicationForm[choice] = {...generalApplicationForm};
+                    // app.applicationForm[choice] = {...generalApplicationForm};
+                    Object.assign(app.applicationForm[choice],generalApplicationForm);
                     app.applicationForm[choice].goodId = app.multipleSelection[choice].goodsId;
                     app.applicationForm[choice].goodName = app.multipleSelection[choice].goodsName;
                     app.applicationForm[choice].startWarehouseName = app.multipleSelection[choice].warehouseName;
-                    app.applicationForm[choice].unit = app.multipleSelection[choice].unit;
                 }
             },
             handleCurrentChange(page) {
@@ -699,6 +890,9 @@
             },
             handleSelectionChange(val) {
                 app.multipleSelection = val;
+            },
+            handleSelectionChange2(val){
+                app.multipleSelection2=val;
             },
             search: function () {
                 var data = {
@@ -729,7 +923,7 @@
                 app.produceTime = "";
                 getData(searchKey);
             },
-            submitSingle: function (row) {
+            submitSingle: function (row,tmp) {
                 let promise=new Promise((resolve,reject)=>{
                     let total=0,real=0;
                     for(let index=1;index<=5;index++){
@@ -800,7 +994,7 @@
                         app.singleForm['userRealName'],
                         app.singleForm['tel'],
                         app.singleForm['ps'],
-                        1
+                        tmp==='temp'?0:1
                     ]
                     console.log(toPost);
                     post('/common/user_goods/submit', toPost, (data, err) => {
@@ -816,7 +1010,7 @@
                     });
                 });
             },
-            submitAll: function () {
+            submitAll: function (tmp) {
                 var toPost = {};
                 var postList = [];
                 for (var form in app.applicationForm) {
@@ -870,7 +1064,7 @@
                             app.singleForm['userRealName'],
                             app.singleForm['tel'],
                             app.singleForm['ps'],
-                            1
+                            tmp==='temp'?0:1
                         ];
                         ((d) => {
                             post('/common/user_goods/submit', d, (data, err) => {
@@ -884,8 +1078,11 @@
                                     message: '申请提交成功'
                                 });
                             });
-                        })({...toPost});
-                        console.log({...toPost});
+                        })((()=>{
+                            var obj={};
+                            Object.assign(obj,toPost);
+                            return obj;
+                        })());
                     }
                 }
             }
