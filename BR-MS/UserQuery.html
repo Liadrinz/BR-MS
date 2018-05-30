@@ -73,16 +73,16 @@
         <el-table-column type="expand">
             <template slot-scope="props">
                 <el-form label-position="left" inline class="demo-table-expand">
-                    <el-form-item label="员工ID">
+                    <el-form-item label="员工ID" v-show="props.row.employeeId">
                         <span>{{props.row.employeeId}}</span>
                     </el-form-item>
-                    <el-form-item label="职务">
+                    <el-form-item label="职务" v-show="props.row.title">
                         <span>{{props.row.title}}</span>
                     </el-form-item>
                     <el-form-item label="手机号码">
                         <span>{{props.row.phoneNumber}}</span>
                     </el-form-item>
-                    <el-form-item label="固定电话">
+                    <el-form-item label="固定电话" v-show="props.row.tel">
                         <span>{{props.row.tel}}</span>
                     </el-form-item>
                     <el-form-item label="电子邮箱">
@@ -91,15 +91,21 @@
                     <el-form-item label="联系地址">
                         <span>{{props.row.address}}</span>
                     </el-form-item>
-                    <el-form-item label="所管仓库编号">
-                        <span>{{props.row.repoId}}</span>
-                    </el-form-item>
-                    <el-form-item label="所管仓库地址">
-                        <span>{{props.row.repoAddr}}</span>
-                    </el-form-item>
-                    <el-form-item label="所管仓库经纬度">
-                        <span>{{props.row.repoCoord}}</span>
-                    </el-form-item>
+                    <div v-show="props.row.warehouseId">
+                        <el-form-item label="仓库ID">
+                            <span>{{props.row.warehouseId}}</span>
+                        </el-form-item>
+                        <el-form-item label="仓库编号">
+                            <span>{{props.row.warehouseCode}}</span>
+                        </el-form-item>
+                        <el-form-item label="仓库名称">
+                            <span>{{props.row.warehouseName}}</span>
+                        </el-form-item>
+                        <el-form-item label="仓库地址">
+                            <span>{{props.row.warehouseAddress}}</span>
+                        </el-form-item>
+                    </div>
+
                 </el-form>
             </template>
         </el-table-column>
@@ -107,7 +113,11 @@
         <el-table-column prop="userId" label="用户ID" width="125px"></el-table-column>
         <el-table-column prop="username" label="用户名" width="125px"></el-table-column>
         <el-table-column prop="role" label="用户类型" width="125px"></el-table-column>
-        <el-table-column prop="iDType" label="证件类型" width="125px"></el-table-column>
+        <el-table-column prop="iDType" label="证件类型" width="125px">
+            <template slot-scope="props">
+                {{['公民身份证','护照','军官证'][parseInt(props.row.iDType)-1]}}
+            </template>
+        </el-table-column>
         <el-table-column prop="iDNumber" label="证件号码" width="125px"></el-table-column>
         <el-table-column prop="companyName" label="单位名称" width="150px"></el-table-column>
         <el-table-column label="操作">
@@ -130,7 +140,7 @@
                             <el-input v-model="editedForm.id" :value="props.row.userId"
                                       :disabled="true"></el-input>
                         </el-form-item>
-                        <el-form-item class="hide" label="用户名" prop="userId">
+                        <el-form-item class="hide" label="用户名" prop="username">
                             <el-input v-model="editedForm.username" :value="props.row.username"
                                       :disabled="true"></el-input>
                         </el-form-item>
@@ -154,7 +164,7 @@
                             <el-input v-model="editedForm.realName" :value="props.row.realName" required></el-input>
                             <span class="tips">请务必输入正确的姓名</span>
                         </el-form-item>
-                        <el-form-item label="单位名称" prop="companyName">
+                        <el-form-item label="单位名称" prop="companyName" required>
                             <el-input v-model="editedForm.companyName"></el-input>
                             <span class="tips">请务必输入正确的单位名称</span>
                         </el-form-item>
@@ -175,11 +185,11 @@
                             <el-input v-model="editedForm.tel" :value="props.row.tel"></el-input>
                             <span class="tips">示例：010-66668888</span>
                         </el-form-item>
-                        <el-form-item label="电子邮箱" required>
+                        <el-form-item label="电子邮箱" prop="email" required>
                             <el-input v-model="editedForm.email" :value="props.row.email"></el-input>
                             <span class="tips">示例：zhangsan@example.com</span>
                         </el-form-item>
-                        <el-form-item label="联系地址" required>
+                        <el-form-item label="联系地址" prop="address" required>
                             <el-input v-model="editedForm.address" :value="props.row.address"></el-input>
                             <span class="tips">请输入正确详细的地址</span>
                         </el-form-item>
@@ -209,11 +219,11 @@
             app.initializing = false;
             console.log(data);
             if (err) {
-                app.$message.error(err.msg);
-                app.initializing = false;
-                if (err.id === post.NOT_LOGIN) {
-                    
+                console.log(err);
+                if(err.id!==5000&&err.id!==2001){
+                    app.$message.error(err.msg);
                 }
+                app.initializing = false;
                 return;
             }
             if (data instanceof Array) {
@@ -225,6 +235,19 @@
             for (var item in users) {
                 console.log(data[item]);
                 users[item]['dialogVisible'] = false;
+                if(users[item]['warehouseId']){
+                    ((i)=>{
+                        post('/system/get_warehouse',{
+                            pageNum:1,
+                            warehouse_id:users[i]['warehouseId']
+                        },(data)=>{
+                            let warehouse=data.warehouses[0];
+                            users[i]['warehouseName']=warehouse['warehouse_name'];
+                            users[i]['warehouseAddress']=warehouse['warehouse_location'];
+                            users[i]['warehouseCode']=warehouse['warehouse_code'];
+                        })
+                    })(item);
+                }
                 if(users[item].role!=='admin'){
                     items.push(users[item]);
                 }
@@ -232,8 +255,8 @@
         })
     }
 
-    var items = [];
     var pageNum = 1, pageSize = 6, maxPage = 0;
+    var items=[];
     var post = require('/mods/backend');
     var generalForm = {
         id: '',
@@ -260,6 +283,7 @@
         el: '#app',
         data: function () {
             return {
+                currWarehouse:[],
                 loading: false,
                 initializing: true,
                 dialogVisible: false,
@@ -271,12 +295,15 @@
                     companyName: ""
                 },
                 editedForm: generalForm,
-                editRule: {}
+                editRule: {
+
+                }
             }
         },
         mounted: function () {
             //从后端拉取数据
             getData({});
+
         },
         methods: {
             search: () => {
