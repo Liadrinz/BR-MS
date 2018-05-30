@@ -14,8 +14,8 @@
             font-size: 13px;
         }
 
-        [v-cloak]{
-            display:none;
+        [v-cloak] {
+            display: none;
         }
     </style>
 </head>
@@ -105,8 +105,8 @@
                 <el-dialog title="申请信息" :visible.sync="props.row.dialogVisible" width="70%"
                            :before-close="()=>{props.row.dialogVisible=false;clearFilledForm();}">
                     <!--申请信息表单-->
-                    <el-form :model="singleForm">
-                        <el-form :inline="true">
+                    <el-form>
+                        <el-form :inline="true" :rules="applyRules.rule1" :model="singleForm">
                             <el-form-item label="申请人" size="mini">
                                 <el-input v-model="singleForm.userRealName" :disabled="true"></el-input>
                             </el-form-item>
@@ -117,7 +117,7 @@
 
                         <!--可删除表单-->  <!--?如何多选时生成相应数量的此表单-->
                         <el-form>
-                            <el-form :inline="true"><!--从后台生成-->
+                            <el-form :inline="true" :rules="applyRules.rule2" :model="singleForm"><!--从后台生成-->
                                 <el-form-item label="申请物资名称" size="mini">
                                     <el-input v-model="singleForm.goodName" :disabled="true"></el-input>
                                 </el-form-item>
@@ -129,34 +129,34 @@
                                               :disabled="true"></el-input>
                                 </el-form-item>
                             </el-form>
-                            <el-form :inline="true"><!--可清空Input输入框-->
-                                <el-form-item label="用途说明" size="mini">
+                            <el-form :inline="true" :rules="applyRules.rule3" ref="form1" :model="singleForm"><!--可清空Input输入框-->
+                                <el-form-item label="用途说明" size="mini" prop="description" required>
                                     <el-input v-model="singleForm.description" clearable></el-input>
                                 </el-form-item>
                             </el-form>
-                            <el-form :inline="true">
-                                <el-form-item label="调配数量" size="mini">
+                            <el-form :inline="true" :rules="applyRules.rule4" ref="form2" :model="singleForm">
+                                <el-form-item label="调配数量" size="mini" prop="amount" required>
                                     <el-input v-model="singleForm.amount" clearable></el-input>
                                 </el-form-item>
-                                <el-form-item label="单位" size="mini"><!--无对应接口名-->
+                                <el-form-item label="单位" size="mini" prop="unit" required><!--无对应接口名-->
                                     <el-input v-model="singleForm.unit"></el-input>
                                 </el-form-item>
                             </el-form>
-                            <el-form :inline="true">
-                                <el-form-item label="调配时间" size="mini"><!--无对应接口名-->
+                            <el-form :inline="true" :rules="applyRules.rule0" ref="form3" :model="singleForm">
+                                <el-form-item label="预计调配时间" size="mini">
                                     <el-input v-model="singleForm.time" :disabled="true"
                                               style="width: 150px"></el-input>
                                     <span class="postfix">小时</span>
                                 </el-form-item>
-                                <el-form-item label="需求类型" size="mini"><!--无对应接口名-->
+                                <el-form-item label="需求类型" size="mini" prop="transport" required>
                                     <el-select v-model="singleForm.transport" @change="()=>{
-                        singleForm.time=singleForm.transport==0?'':360/singleForm.transport;
-                        }">
+                                                singleForm.time=360/singleForm.transport;
+                                                }">
                                         <el-option label="应急" :value="20"></el-option>
                                         <el-option label="普通" :value="4"></el-option>
                                     </el-select>
                                 </el-form-item>
-                                <el-form-item label="期望时间成本" size="mini">
+                                <el-form-item label="期望时间成本" size="mini" prop="expectTime" required>
                                     <el-select v-model="singleForm.expectTime">
                                         <el-option label="高" value="高"></el-option>
                                         <el-option label="中" value="中"></el-option>
@@ -167,44 +167,51 @@
                         </el-form>
 
                         <!--目的地地址 目的仓库-->
-                        <el-form :inline="true">
-                            <el-form-item label="目的地地址：" size="mini">
+                        <el-form :inline="true" :rules="applyRules.rule7" ref="form4" :model="{
+                            address:selectedLocations,
+                            detailA:singleForm.destinationAddress
+                        }">
+                            <el-form-item label="目的地地址：" size="mini" prop="address" required>
                                 <el-cascader :options="areaData" v-model="selectedLocations"
                                              @change="handleChange"></el-cascader>
                             </el-form-item>
-                            <el-form-item size="mini">
+                            <el-form-item size="mini" prop="detailA" required>
                                 <el-input v-model="singleForm.destinationAddress"></el-input>
                             </el-form-item>
-                        </el-form>
-                        <el-form :inline="true">
-                            <el-form-item label="目的仓库" size="mini">
-                                <el-select v-model="singleForm.endWarehouseName" clearable>
-                                    <el-option v-for="warehouse in warehouseChoice" :value="warehouse.warehouseId"
-                                               :label="warehouse.warehouseName">
-                                        {{warehouse.warehouseName}}
-                                    </el-option>
-                                </el-select>
-                            </el-form-item>
+                            <el-form :rules="applyRules.rule71" ref="form41" :model="singleForm">
+                                <el-form-item label="目的仓库" size="mini" prop="endWarehouseName" required>
+                                    <el-select v-model="singleForm.endWarehouseName" clearable>
+                                        <el-option v-for="warehouse in warehouseChoice"
+                                                   :value="warehouse.warehouseId"
+                                                   :label="warehouse.warehouseName">
+                                            {{warehouse.warehouseName}}
+                                        </el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-form>
                         </el-form>
                         <hr>
-
-                        <!--联系人 电话 备注-->
-                        <el-form :inline="true">
+                    </el-form>
+                    <el-form>
+                        <!--联系人 联系电话 备注-->
+                        <el-form :inline="true" :rules="applyRules.ruleB" ref="form5" :model="singleForm">
                             <!--如果联系人就是申请人的话 否则没有接口名-->
-                            <el-form-item label="联系人" size="mini">
-                                <el-input v-model="singleForm.userRealName" clearable></el-input>
-                            </el-form-item>
-                        </el-form>
-                        <el-form :inline="true"><!--无对应接口名-->
-                            <el-form-item label="电话" size="mini">
-                                <el-input v-model="singleForm.tel" clearable></el-input>
-                            </el-form-item>
-                        </el-form>
-                        <el-form :inline="true"><!--无对应接口名-->
-                            <el-form-item label="备注" size="mini">
-                                <el-input v-model="singleForm.ps" :rows="3" placeholder="请输入备注"
-                                          clearable></el-input>
-                            </el-form-item>
+                            <p>
+                                <el-form-item label="联系人" size="mini" prop="userRealName" required>
+                                    <el-input v-model="singleForm.userRealName" clearable></el-input>
+                                </el-form-item>
+                            </p>
+                            <p>
+                                <el-form-item label="联系电话" size="mini" prop="tel" required>
+                                    <el-input v-model="singleForm.tel" clearable></el-input>
+                                </el-form-item>
+                            </p>
+                            <p>
+                                <el-form-item label="备注" size="mini" prop="ps" required>
+                                    <el-input v-model="singleForm.ps" :rows="3" placeholder="请输入备注"
+                                              clearable></el-input>
+                                </el-form-item>
+                            </p>
                         </el-form>
                     </el-form>
 
@@ -226,16 +233,16 @@
     </div>
 
     <!-- 与物资详情、申请物资有关的对话框 -->
-    <el-dialog title="物资详情" :visible.sync="dialogs.detail" width="90%">
+    <el-dialog title="物资详情" :visible.sync="dialogs.detail" width="98%">
         <el-table :data="detailForm">
             <el-table-column prop="key1" :width="150">
                 <template slot-scope="props">
                     <b>{{props.row.key1}}</b>
                 </template>
             </el-table-column>
-            <el-table-column prop="val1" :width="260">
+            <el-table-column prop="val1" :width="200">
                 <template slot-scope="props">
-                    <p style="margin: 0 20px;">{{props.row.val1}}</p>
+                    <p style="margin: 0;">{{props.row.val1}}</p>
                 </template>
             </el-table-column>
             <el-table-column prop="key2" :width="150">
@@ -243,9 +250,9 @@
                     <b>{{props.row.key2}}</b>
                 </template>
             </el-table-column>
-            <el-table-column prop="val2" :width="260">
+            <el-table-column prop="val2" :width="275">
                 <template slot-scope="props">
-                    <p style="margin: 0 20px;">{{props.row.val2}}</p>
+                    <p style="margin: 0;">{{props.row.val2}}</p>
                 </template>
             </el-table-column>
             <el-table-column prop="key3" :width="150">
@@ -253,9 +260,9 @@
                     <b>{{props.row.key3}}</b>
                 </template>
             </el-table-column>
-            <el-table-column prop="val3" :width="260">
+            <el-table-column prop="val3" :width="220">
                 <template slot-scope="props">
-                    <p style="margin: 0 20px;">{{props.row.val3}}</p>
+                    <p style="margin: 0;">{{props.row.val3}}</p>
                 </template>
             </el-table-column>
         </el-table>
@@ -267,7 +274,7 @@
         <!--申请信息表单-->
         <div v-for="i in [...multipleSelection.keys()]">
             <el-form>
-                <el-form :inline="true">
+                <el-form :inline="true" :rules="applyRules.rule1" :model="singleForm">
                     <el-form-item label="申请人" size="mini">
                         <el-input v-model="singleForm.userRealName" :disabled="true"></el-input>
                     </el-form-item>
@@ -278,7 +285,7 @@
 
                 <!--可删除表单-->  <!--?如何多选时生成相应数量的此表单-->
                 <el-form>
-                    <el-form :inline="true"><!--从后台生成-->
+                    <el-form :inline="true" :rules="applyRules.rule2" :model="applicationForm[i]"><!--从后台生成-->
                         <el-form-item label="申请物资名称" size="mini">
                             <el-input v-model="applicationForm[i].goodName" :disabled="true"></el-input>
                         </el-form-item>
@@ -290,17 +297,17 @@
                                       :disabled="true"></el-input>
                         </el-form-item>
                     </el-form>
-                    <el-form :inline="true"><!--可清空Input输入框-->
-                        <el-form-item label="用途说明" size="mini">
+                    <el-form :inline="true" :rules="applyRules.rule3" ref="form6" :model="applicationForm[i]"><!--可清空Input输入框-->
+                        <el-form-item label="用途说明" size="mini" prop="description" required>
                             <el-input v-model="applicationForm[i].description" clearable></el-input>
                         </el-form-item>
                     </el-form>
-                    <el-form :inline="true">
-                        <el-form-item label="调配数量" size="mini">
+                    <el-form :inline="true" :rules="applyRules.rule4" ref="form7" :model="applicationForm[i]">
+                        <el-form-item label="调配数量" size="mini" prop="amount" required>
                             <el-input v-model="applicationForm[i].amount" clearable></el-input>
                         </el-form-item>
-                        <el-form-item label="单位" size="mini"><!--无对应接口名-->
-                            <el-input v-model="applicationForm[i].unit" :disabled="true"></el-input>
+                        <el-form-item label="单位" size="mini" prop="unit" required><!--无对应接口名-->
+                            <el-input v-model="applicationForm[i].unit"></el-input>
                         </el-form-item>
                     </el-form>
                     <el-form :inline="true">
@@ -309,37 +316,51 @@
                                       style="width: 150px"></el-input>
                             <span class="postfix">小时</span>
                         </el-form-item>
-                        <el-form-item label="需求类型" size="mini"><!--无对应接口名-->
-                            <el-select v-model="selectedTransport[i]" @change="()=>{
-                            applicationForm[i].time=360/selectedTransport[i];
+                        <el-form :rules="applyRules.rule5" ref="form8" :model="applicationForm[i]">
+                            <el-form-item label="需求类型" size="mini" prop="transport" required><!--无对应接口名-->
+                                <el-select v-model="selectedTransport[i]" @change="()=>{
+                                applicationForm[i].transport=selectedTransport[i];
+                                applicationForm[i].time=360/selectedTransport[i];
                             }">
-                                <el-option label="应急" :value="20"></el-option>
-                                <el-option label="普通" :value="4"></el-option>
-                            </el-select>
-                        </el-form-item>
-                        <el-form-item label="期望时间成本" size="mini">
-                            <el-select v-model="selectedExpectTime[i]">
-                                <el-option label="高" value="高"></el-option>
-                                <el-option label="中" value="中"></el-option>
-                                <el-option label="低" value="低"></el-option>
-                            </el-select>
-                        </el-form-item>
+                                    <el-option label="应急" :value="20"></el-option>
+                                    <el-option label="普通" :value="4"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-form>
+                        <el-form :rules="applyRules.rule6" ref="form9" :model="applicationForm[i]">
+                            <el-form-item label="期望时间成本" size="mini" prop="expectTime" required>
+                                <el-select v-model="selectedExpectTime[i]" @change="(value)=>{applicationForm[i].expectTime=value;}">
+                                    <el-option label="高" value="高"></el-option>
+                                    <el-option label="中" value="中"></el-option>
+                                    <el-option label="低" value="低"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-form>
+
                     </el-form>
                 </el-form>
 
                 <!--目的地地址 目的仓库-->
-                <el-form :inline="true">
-                    <el-form-item label="目的地地址：" size="mini">
+                <el-form :inline="true" :rules="applyRules.rule7" ref="form10" :model="applicationForm[i]">
+                    <el-form-item label="目的地地址：" size="mini" prop="destinationProvince" required>
                         <el-cascader :options="areaData" v-model="selectedLocationsList[i]"
-                                     @change="handleChange"></el-cascader>
+                                     @change="()=>{
+                                     handleChange();
+                                     applicationForm[i].destinationProvince=selectedLocationsList[i][0];
+                                     applicationForm[i].destinationAddress=selectedLocationList[i];
+                                     }"></el-cascader>
                     </el-form-item>
-                    <el-form-item size="mini">
-                        <el-input v-model="applicationForm[i].destinationAddress"></el-input>
+                    <el-form-item size="mini" prop="destinationAddress" required>
+                        <el-input v-model="applicationForm[i].destinationAddress" @change="()=>{
+
+                        }"></el-input>
                     </el-form-item>
                 </el-form>
-                <el-form :inline="true">
-                    <el-form-item label="目的仓库" size="mini">
-                        <el-select v-model="selectedWarehouse[i]" clearable>
+                <el-form :inline="true" :rules="applyRules.rule8" ref="form11" :model="applicationForm[i]">
+                    <el-form-item label="目的仓库" size="mini" prop="endWarehouseName" required>
+                        <el-select v-model="selectedWarehouse[i]" @change="()=>{
+                        applicationForm[i].endWarehouseName=selectedWarehouse[i]
+                        }" clearable>
                             <el-option v-for="warehouse in warehouseChoiceList[i]" :value="warehouse.warehouseId"
                                        :label="warehouse.warehouseName">
                                 {{warehouse.warehouseName}}
@@ -351,23 +372,25 @@
             </el-form>
         </div>
         <el-form>
-            <!--联系人 电话 备注-->
-            <el-form :inline="true">
+            <!--联系人 联系电话 备注-->
+            <el-form :inline="true" :rules="applyRules.ruleB" ref="form12" :model="singleForm">
                 <!--如果联系人就是申请人的话 否则没有接口名-->
-                <el-form-item label="联系人" size="mini">
-                    <el-input v-model="singleForm.userRealName" clearable></el-input>
-                </el-form-item>
-            </el-form>
-            <el-form :inline="true"><!--无对应接口名-->
-                <el-form-item label="电话" size="mini">
-                    <el-input v-model="singleForm.tel" clearable></el-input>
-                </el-form-item>
-            </el-form>
-            <el-form :inline="true"><!--无对应接口名-->
-                <el-form-item label="备注" size="mini">
-                    <el-input v-model="singleForm.ps" :rows="3" placeholder="请输入备注"
-                              clearable></el-input>
-                </el-form-item>
+                <p>
+                    <el-form-item label="联系人" size="mini" prop="userRealName" required>
+                        <el-input v-model="singleForm.userRealName" clearable></el-input>
+                    </el-form-item>
+                </p>
+                <p>
+                    <el-form-item label="联系电话" size="mini" prop="tel" required>
+                        <el-input v-model="singleForm.tel" clearable></el-input>
+                    </el-form-item>
+                </p>
+                <p>
+                    <el-form-item label="备注" size="mini" prop="ps" required>
+                        <el-input v-model="singleForm.ps" :rows="3" placeholder="请输入备注"
+                                  clearable></el-input>
+                    </el-form-item>
+                </p>
             </el-form>
         </el-form>
         <span slot="footer" class="dialog-footer">
@@ -404,7 +427,7 @@
             //TODO
             app.totalNum = data.totalNum;
             for (var i in data.overview) {
-                data.overview[i]['dialogVisible']=false;
+                data.overview[i]['dialogVisible'] = false;
                 items.push(data.overview[i]);
             }
         })
@@ -429,7 +452,7 @@
         time: "",
         price: "",
         transport: "",
-        expectTime:"",
+        expectTime: "",
         province: "",
         city: "",
         county: "",
@@ -460,7 +483,7 @@
                 [], [], [], [], [], []
             ],
             selectedTransport: [],
-            selectedExpectTime:[],
+            selectedExpectTime: [],
             selectedWarehouse: [],
             multipleSelection: [],
             areaData: ChinaAreaData,
@@ -506,6 +529,42 @@
                 state_type: '状态类型',
                 state_value: '状态值',
                 quantity: '数量'
+            },
+            applyRules: {
+                rule0:{
+                    transport:{required:true,message:'请选择需求类型'},
+                    expectTime:{required:true,message:'请选择期望时间成本'}
+                },
+                rule3: {
+                    description: {required: true, message: '请输入描述'},
+                    amount: {required: true, message: '请输入数量'},
+                    unit: {required: true, message: '请输入单位'}
+                },
+                rule4: {
+                    amount:{required:true,message:'请输入数量'},
+                    unit:{required:true,message:'请输入单位'}
+                },
+                rule5: {
+                    p:{required:true,message:'请选择需求类型'}
+                },
+                rule6: {
+                    p:{required:true,message:'请选择期望时间成本'}
+                },
+                rule7:{
+                    address:{required:true,message:'请选择省市区'},
+                    detailA:{required:true,message:'请填写详细地址'},
+                },
+                rule71:{
+                    endWarehouseName:{required:true,message:'请选择目的仓库'}
+                },
+                rule8:{
+                    p:{required:true,message:'请选择目的仓库'}
+                },
+                ruleB:{
+                    userRealName:{required:true,message:'请输入联系人'},
+                    tel:{required:true,message:'请输入联系电话'},
+                    ps:{required:true,message:'请输入备注，若没有请输入无'}
+                }
             }
         },
         mounted: function () {
@@ -524,7 +583,7 @@
                 while (app.selectedTransport[0] != undefined) {
                     app.selectedTransport.pop();
                 }
-                while(app.selectedExpectTime[0]!=undefined){
+                while (app.selectedExpectTime[0] != undefined) {
                     app.selectedExpectTime.pop();
                 }
                 while (app.selectedWarehouse[0] != undefined) {
@@ -532,7 +591,7 @@
                 }
             },
             detail(row) {
-                var tmp=[];
+                var tmp = [];
                 while (app.detailForm[0] !== undefined) {
                     app.detailForm.pop();
                 }
@@ -563,23 +622,23 @@
                             tmp.push(obj);
                         }
                     }
-                    for(let i=0;tmp[i]!==undefined;i+=3){
-                        var obj={};
-                        obj['key1']=tmp[i]['key'];
-                        obj['val1']=tmp[i]['val'];
-                        if(tmp[i+1]){
-                            obj['key2']=tmp[i+1]['key'];
-                            obj['val2']=tmp[i+1]['val'];
-                        }else{
-                            obj['key2']="";
-                            obj['val2']="";
+                    for (let i = 0; tmp[i] !== undefined; i += 3) {
+                        var obj = {};
+                        obj['key1'] = tmp[i]['key'];
+                        obj['val1'] = tmp[i]['val'];
+                        if (tmp[i + 1]) {
+                            obj['key2'] = tmp[i + 1]['key'];
+                            obj['val2'] = tmp[i + 1]['val'];
+                        } else {
+                            obj['key2'] = "";
+                            obj['val2'] = "";
                         }
-                        if(tmp[i+2]){
-                            obj['key3']=tmp[i+2]['key'];
-                            obj['val3']=tmp[i+2]['val'];
-                        }else{
-                            obj['key3']="";
-                            obj['val3']="";
+                        if (tmp[i + 2]) {
+                            obj['key3'] = tmp[i + 2]['key'];
+                            obj['val3'] = tmp[i + 2]['val'];
+                        } else {
+                            obj['key3'] = "";
+                            obj['val3'] = "";
                         }
                         app.detailForm.push(obj);
                     }
@@ -593,7 +652,7 @@
                     }
                 });
                 row.dialogVisible = true;
-                currentRow=row;
+                currentRow = row;
                 app.singleForm = {...generalApplicationForm};
                 app.singleForm.userRealName = userInfo.realName;
                 app.singleForm.companyName = userInfo.companyName;
@@ -671,75 +730,27 @@
                 getData(searchKey);
             },
             submitSingle: function (row) {
-                var toPost = {};
-                [
-                    toPost['goodsId'],
-                    toPost['description'],
-                    toPost['amount'],
-                    toPost['endWarehouseId'],
-                    toPost['endWarehouseName'],
-                    toPost['applyTime'],
-                    toPost['destinationProvince'],
-                    toPost['destinationCity'],
-                    toPost['destinationAddress'],
-                    toPost['requestType'],
-                    toPost['expectTime'],
-                    toPost['validTime'],
-                    toPost['contractPerson'],
-                    toPost['contractTel'],
-                    toPost['note'],
-                    toPost['isSubmit']
-                ]=[
-                    app.singleForm['goodId'],
-                    app.singleForm['description'],
-                    parseInt(app.singleForm['amount']),
-                    app.singleForm['endWarehouseName'],
-                    (()=>{
-                        for(let i of app.warehouseChoice){
-                            if(i.warehouseId===app.singleForm['endWarehouseName']){
-                                return i.warehouseName;
-                            }
-                        }
-                    })(),
-                    (()=>{
-                        var day=new Date();
-                        var [year,month,date]=[day.getFullYear(),day.getMonth()+1,day.getDate()];
-                        if(month<10){
-                            month='0'+month;
-                        }
-                        if(date<10){
-                            date='0'+date;
-                        }
-                        return [year,month,date].join('-');
-                    })(),
-                    app.selectedLocations[0],
-                    app.selectedLocations[1],
-                    app.singleForm['destinationAddress'],
-                    {"20":"应急","4":"普通"}[String(app.singleForm['transport'])],
-                    app.singleForm['expectTime'],
-                    7,
-                    app.singleForm['userRealName'],
-                    app.singleForm['tel'],
-                    app.singleForm['ps'],
-                    1
-                ]
-                console.log(toPost);
-                post('/common/user_goods/submit',toPost,(data,err)=>{
-                    if(err){
-                        app.$message.error(err.msg);
-                        return;
+                let promise=new Promise((resolve,reject)=>{
+                    let total=0,real=0;
+                    for(let index=1;index<=5;index++){
+                        ((i)=>{
+                            app.$refs['form'+i].validate((valid)=>{
+                                total++;
+                                if(valid){
+                                    real++;
+                                }
+                                if(total!==real){
+                                    app.$message.error('信息填写错误，请重新填写');
+                                    reject();
+                                    return false;
+                                }
+                            })
+                        })(index);
                     }
-                    currentRow.dialogVisible=false;
-                    app.$message({
-                        type:'success',
-                        message:'申请提交成功'
-                    });
+                    resolve();
                 });
-            },
-            submitAll: function () {
-                var toPost = {};
-                var postList = [];
-                for (var form in app.applicationForm) {
+                promise.then(()=>{
+                    var toPost = {};
                     [
                         toPost['goodsId'],
                         toPost['description'],
@@ -757,54 +768,125 @@
                         toPost['contractTel'],
                         toPost['note'],
                         toPost['isSubmit']
-                    ]=[
-                        app.applicationForm[form]['goodId'],
-                        app.applicationForm[form]['description'],
-                        parseInt(app.applicationForm[form]['amount']),
-                        app.selectedWarehouse[form],
-                        (()=>{
-                            for(let i of app.warehouseChoiceList[form]){
-                                if(i.warehouseId===app.selectedWarehouse[form]){
+                    ] = [
+                        app.singleForm['goodId'],
+                        app.singleForm['description'],
+                        parseInt(app.singleForm['amount']),
+                        app.singleForm['endWarehouseName'],
+                        (() => {
+                            for (let i of app.warehouseChoice) {
+                                if (i.warehouseId === app.singleForm['endWarehouseName']) {
                                     return i.warehouseName;
                                 }
                             }
                         })(),
-                        (()=>{
-                            var day=new Date();
-                            var [year,month,date]=[day.getFullYear(),day.getMonth()+1,day.getDate()];
-                            if(month<10){
-                                month='0'+month;
+                        (() => {
+                            var day = new Date();
+                            var [year, month, date] = [day.getFullYear(), day.getMonth() + 1, day.getDate()];
+                            if (month < 10) {
+                                month = '0' + month;
                             }
-                            if(date<10){
-                                date='0'+date;
+                            if (date < 10) {
+                                date = '0' + date;
                             }
-                            return [year,month,date].join('-');
+                            return [year, month, date].join('-');
                         })(),
-                        app.selectedLocationsList[form][0],
-                        app.selectedLocationsList[form][1],
-                        app.applicationForm[form]['destinationAddress'],
-                        {"20":"应急","4":"普通"}[String(app.selectedTransport[form])],
-                        app.selectedExpectTime[form],
+                        app.selectedLocations[0],
+                        app.selectedLocations[1],
+                        app.singleForm['destinationAddress'],
+                        {"20": "应急", "4": "普通"}[String(app.singleForm['transport'])],
+                        app.singleForm['expectTime'],
                         7,
                         app.singleForm['userRealName'],
                         app.singleForm['tel'],
                         app.singleForm['ps'],
                         1
-                    ];
-                    ((d)=>{
-                        post('/common/user_goods/submit',d,(data,err)=>{
-                            if(err){
-                                app.$message.error(err.msg);
-                                return;
-                            }
-                            app.dialogs.allocateAll=false;
-                            app.$message({
-                                type:'success',
-                                message:'申请提交成功'
-                            });
+                    ]
+                    console.log(toPost);
+                    post('/common/user_goods/submit', toPost, (data, err) => {
+                        if (err) {
+                            app.$message.error(err.msg);
+                            return;
+                        }
+                        currentRow.dialogVisible = false;
+                        app.$message({
+                            type: 'success',
+                            message: '申请提交成功'
                         });
-                    })({...toPost});
-                    console.log({...toPost});
+                    });
+                });
+            },
+            submitAll: function () {
+                var toPost = {};
+                var postList = [];
+                for (var form in app.applicationForm) {
+                    if(app.selectedWarehouse[form]){
+                        [
+                            toPost['goodsId'],
+                            toPost['description'],
+                            toPost['amount'],
+                            toPost['endWarehouseId'],
+                            toPost['endWarehouseName'],
+                            toPost['applyTime'],
+                            toPost['destinationProvince'],
+                            toPost['destinationCity'],
+                            toPost['destinationAddress'],
+                            toPost['requestType'],
+                            toPost['expectTime'],
+                            toPost['validTime'],
+                            toPost['contractPerson'],
+                            toPost['contractTel'],
+                            toPost['note'],
+                            toPost['isSubmit']
+                        ] = [
+                            app.applicationForm[form]['goodId'],
+                            app.applicationForm[form]['description'],
+                            parseInt(app.applicationForm[form]['amount']),
+                            app.selectedWarehouse[form],
+                            (() => {
+                                for (let i of app.warehouseChoiceList[form]) {
+                                    if (i.warehouseId === app.selectedWarehouse[form]) {
+                                        return i.warehouseName;
+                                    }
+                                }
+                            })(),
+                            (() => {
+                                var day = new Date();
+                                var [year, month, date] = [day.getFullYear(), day.getMonth() + 1, day.getDate()];
+                                if (month < 10) {
+                                    month = '0' + month;
+                                }
+                                if (date < 10) {
+                                    date = '0' + date;
+                                }
+                                return [year, month, date].join('-');
+                            })(),
+                            app.selectedLocationsList[form][0],
+                            app.selectedLocationsList[form][1],
+                            app.applicationForm[form]['destinationAddress'],
+                            {"20": "应急", "4": "普通"}[String(app.selectedTransport[form])],
+                            app.selectedExpectTime[form],
+                            7,
+                            app.singleForm['userRealName'],
+                            app.singleForm['tel'],
+                            app.singleForm['ps'],
+                            1
+                        ];
+                        ((d) => {
+                            post('/common/user_goods/submit', d, (data, err) => {
+                                if (err) {
+                                    app.$message.error(err.msg);
+                                    return;
+                                }
+                                app.dialogs.allocateAll = false;
+                                app.$message({
+                                    type: 'success',
+                                    message: '申请提交成功'
+                                });
+                            });
+                        })({...toPost});
+                        console.log({...toPost});
+                    }
                 }
             }
         }

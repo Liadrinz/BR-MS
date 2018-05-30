@@ -20,6 +20,7 @@
 <script src="res/dependencies.js"></script>
 <script>
     var post = require('/mods/backend');
+    var catchData=require('/mods/pagination').getData;
     var a = null;
     var app = new Vue({
         el: '#app',
@@ -31,13 +32,20 @@
         },
         methods: {
             test: function () {
-                post('/common/getnowsche', {
+                catchData({
+                    url:'/depot/get_apply',
+                    app:app,
+                    refresh:[],
                     pageNum:1,
-                    startWarehouseId:1
-                }, (data,err)=>{
-                    console.log(err);
-                    console.log(data);
-                })
+                    pageSize:6,
+                    searchKey:{},
+                    itemName:'schedules',
+                    total:(totalNum)=>{
+                       console.log(totalNum);
+                    }
+                },(allPages,data)=>{
+                    console.log(allPages,data);
+                });
                 // $.ajax({
                 //     type:'post',
                 //     url:"http://10.112.128.63:8080/dispatch/system/get_user_info",
