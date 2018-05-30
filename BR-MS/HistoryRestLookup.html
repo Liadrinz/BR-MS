@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>历史数据查询</title>
+    <link rel="stylesheet" href="lib/eleme-index.css">
+    <style>
+        .el-form-item{
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <template>
+        <el-card>
+            <el-tabs v-model="activeName" @tab-click="handleClick">
+                <!--入库查询分页-->
+                <el-tab-pane label="入库查询" name="first">
+                    <el-card>
+                        <el-form :model="inSelection1">
+                            <el-form :inline="true">
+                                <el-form-item label="入库单号：" size="mini"><el-input></el-input></el-form-item>
+                                <el-form-item label="货品编号：" size="mini"><el-input></el-input></el-form-item>
+                                <el-form-item label="责任人：" size="mini"><el-input></el-input></el-form-item>
+                            </el-form>
+                            <el-form :inline="true">
+                                <el-form-item label="仓库：" size="mini"><span>XXXX</span></el-form-item>
+                                <el-form-item label="入库时间范围：" size="mini">
+                                    <el-date-picker v-model="timeSelect" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期">{{timeSelect}}</el-date-picker>
+                                </el-form-item>
+                                <el-form-item size="mini">
+                                    <el-button style="background-color: #ececec">查询</el-button>
+                                </el-form-item>
+                            </el-form>
+                        </el-form>
+                    </el-card>
+                    <el-table :data="queryResult1" size="mini" max-height="250" :default-sort="{prop: 'rukushijian', order: 'descending'}">
+                        <el-table-column type="expand"><!--折叠部分项-->
+                            <template slot-scope="props">
+                                <el-form label-position="right" class="demo-table-expand">
+                                    <el-form :inline="true">
+                                        <el-form-item label="货品名称：" size="mini">
+                                            <span>{{ props.row.name }}</span>
+                                        </el-form-item>
+                                        <el-form-item label="货品编号：" size="mini">
+                                            <span>{{ props.row.shop }}</span>
+                                        </el-form-item>
+                                        <el-form-item label="供应商：" size="mini">
+                                            <span>{{ props.row.id }}</span>
+                                        </el-form-item>
+                                    </el-form>
+                                    <el-form :inline="true">
+                                        <el-form-item label="单位：" size="mini">
+                                            <span>{{ props.row.shopId }}</span>
+                                        </el-form-item>
+                                        <el-form-item label="数量：" size="mini">
+                                            <span>{{ props.row.category }}</span>
+                                        </el-form-item>
+                                    </el-form>
+                                    <el-form :inline="true">
+                                        <el-form-item label="责任人：" size="mini">
+                                            <span>{{ props.row.desc }}</span>
+                                        </el-form-item>
+                                        <el-form-item label="存放库位：" size="mini">
+                                            <span>{{ props.row.address }}</span>
+                                        </el-form-item>
+                                    </el-form>
+                                </el-form>
+                            </template>
+                        </el-table-column>
+                        <el-table-column type="index" width="50" label="序号"></el-table-column>
+                        <el-table-column prop="rukudanhao" label="入库单号" width="100"></el-table-column>
+                        <el-table-column prop="huopinmingcheng" label="货品名称" width="100"></el-table-column>
+                        <el-table-column prop="huopinbianhao" label="货品编号" width="100"></el-table-column>
+                        <el-table-column prop="xiangxixinxi" label="货品信息" width="80">
+                            <!--点击查看当前物资详细信息-->
+                            <template slot-scope="scope">
+                                <el-button size="mini" style="background-color: #ececec" @click="dialogVisible=true">查看
+                                </el-button>
+                                <el-dialog title="货品详细信息" :visible.sync="dialogVisible" width="50%" :before-close="handleClose">
+                                    <span>这里应该是所选货品的详细信息</span>
+                                    <span slot="footer" class="dialog-footer">
+                                        <el-button @click="dialogVisible = false" size="mini" style="background-color: #ececec">关闭</el-button>
+                                    </span>
+                                </el-dialog>
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="rukushijian" label="入库时间"width="100"></el-table-column>
+                        <el-table-column prop="ruku" label="">
+                            <!--点击入库 复制转移所有当前货品编号至 inResult-->
+                            <template slot-scope="scope">
+                                <el-button size="mini" style="background-color: #ececec">查看入库单</el-button>
+                                <el-button size="mini" style="background-color: #ececec">查看货品清单</el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </el-tab-pane>
+                <!--出库查询分页-->
+                <el-tab-pane label="出库查询" name="second">
+                    <el-card>
+                        <el-form :model="inSelection2">
+                            <el-form :inline="true">
+                                <el-form-item label="出库单号：" size="mini"><el-input></el-input></el-form-item>
+                                <el-form-item label="货品编号：" size="mini"><el-input></el-input></el-form-item>
+                                <el-form-item label="责任人：" size="mini"><el-input></el-input></el-form-item>
+                            </el-form>
+                            <el-form :inline="true">
+                                <el-form-item label="仓库：" size="mini"><span>XXXX</span></el-form-item>
+                                <el-form-item label="出库时间范围：" size="mini">
+                                    <el-date-picker v-model="timeSelect" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期">{{timeSelect}}</el-date-picker>
+                                </el-form-item>
+                                <el-form-item size="mini">
+                                    <el-button style="background-color: #ececec">查询</el-button>
+                                </el-form-item>
+                            </el-form>
+                        </el-form>
+                    </el-card>
+                    <el-table :data="queryResult2" size="mini" max-height="250">
+                        <el-table-column type="expand"><!--折叠部分项-->
+                            <template slot-scope="props">
+                                <el-form label-position="right" class="demo-table-expand">
+                                    <el-form :inline="true">
+                                        <el-form-item label="货品名称：" size="mini">
+                                            <span>{{ props.row.name }}</span>
+                                        </el-form-item>
+                                        <el-form-item label="货品编号：" size="mini">
+                                            <span>{{ props.row.shop }}</span>
+                                        </el-form-item>
+                                        <el-form-item label="供应商：" size="mini">
+                                            <span>{{ props.row.id }}</span>
+                                        </el-form-item>
+                                    </el-form>
+                                    <el-form :inline="true">
+                                        <el-form-item label="单位：" size="mini">
+                                            <span>{{ props.row.shopId }}</span>
+                                        </el-form-item>
+                                        <el-form-item label="数量：" size="mini">
+                                            <span>{{ props.row.category }}</span>
+                                        </el-form-item>
+                                    </el-form>
+                                    <el-form :inline="true">
+                                        <el-form-item label="责任人：" size="mini">
+                                            <span>{{ props.row.desc }}</span>
+                                        </el-form-item>
+                                        <el-form-item label="存放库位：" size="mini">
+                                            <span>{{ props.row.address }}</span>
+                                        </el-form-item>
+                                    </el-form>
+                                </el-form>
+                            </template>
+                        </el-table-column>
+                        <el-table-column type="index" width="50" label="序号"></el-table-column>
+                        <el-table-column prop="rukudanhao" label="出库单号" width="100"></el-table-column>
+                        <el-table-column prop="huopinmingcheng" label="货品名称" width="100"></el-table-column>
+                        <el-table-column prop="huopinbianhao" label="货品编号" width="100"></el-table-column>
+                        <el-table-column prop="xiangxixinxi" label="货品信息" width="80">
+                            <!--点击查看当前物资详细信息-->
+                            <template slot-scope="scope">
+                                <el-button size="mini" style="background-color: #ececec" @click="dialogVisible=true">查看
+                                </el-button>
+                                <el-dialog title="货品详细信息" :visible.sync="dialogVisible" width="50%" :before-close="handleClose">
+                                    <span>这里应该是所选货品的详细信息</span>
+                                    <span slot="footer" class="dialog-footer">
+                                        <el-button @click="dialogVisible = false" size="mini" style="background-color: #ececec">关闭</el-button>
+                                    </span>
+                                </el-dialog>
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="rukushijian" label="出库时间"width="100"></el-table-column>
+                        <el-table-column prop="ruku" label="">
+                            <!--点击入库 复制转移所有当前货品编号至 inResult-->
+                            <template slot-scope="scope">
+                                <el-button size="mini" style="background-color: #ececec">查看出库单</el-button>
+                                <el-button size="mini" style="background-color: #ececec">查看货品清单</el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </el-tab-pane>
+                <!--调配事件查询分页-->
+                <el-tab-pane label="调配事件查询" name="third">
+                    <el-card>
+                        <el-form :model="inSelection3">
+                            <el-form :inline="true">
+                                <el-form-item label="事件类型：" size="mini"><el-input></el-input></el-form-item>
+                                <el-form-item label="仓库：" size="mini"><span>XXXX</span></el-form-item>
+                            </el-form>
+                            <el-form :inline="true">
+                                <el-form-item label="调配时间范围：" size="mini">
+                                    <el-date-picker v-model="timeSelect" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期">{{timeSelect}}</el-date-picker>
+                                </el-form-item>
+                                <el-form-item size="mini">
+                                    <el-button style="background-color: #ececec">查询</el-button>
+                                </el-form-item>
+                            </el-form>
+                        </el-form>
+                    </el-card>
+                    <el-table :data="queryResult3" size="mini" max-height="250">
+                        <el-table-column type="index" width="50" label="序号"></el-table-column>
+                        <el-table-column prop="huopinmingcheng" label="状态" width="100"></el-table-column>
+                        <el-table-column prop="huopinbianhao" label="时间" width="100"></el-table-column>
+                        <el-table-column prop="rukushijian" label="操作人员"width="100"></el-table-column>
+                        <el-table-column prop="ruku" label="详细信息">
+                            <!--点击入库 复制转移所有当前货品编号至 inResult-->
+                            <template slot-scope="scope">
+                                <el-button size="mini" style="background-color: #ececec">查看申请表单</el-button>
+                                <el-button size="mini" style="background-color: #ececec">查看系统记录</el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </el-tab-pane>
+                <!--历史库存查询分页-->
+                <el-tab-pane label="历史库存查询" name="fourth">
+                    <el-card>
+                        <el-form :model="inSelection1">
+                            <el-form :inline="true">
+                                <el-form-item label="货品类别：" size="mini"><el-input></el-input></el-form-item>
+                                <el-form-item label="入库类别：" size="mini"><el-input></el-input></el-form-item>
+                                <el-form-item label="责任人：" size="mini"><el-input></el-input></el-form-item>
+                            </el-form>
+                            <el-form :inline="true">
+                                <el-form-item label="仓库：" size="mini"><span>XXXX</span></el-form-item>
+                                <el-form-item label="入库时间范围：" size="mini">
+                                    <el-date-picker v-model="timeSelect" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期">{{timeSelect}}</el-date-picker>
+                                </el-form-item>
+                                <el-form-item size="mini">
+                                    <el-button style="background-color: #ececec">查询</el-button>
+                                </el-form-item>
+                            </el-form>
+                        </el-form>
+                    </el-card>
+                    <el-table :data="queryResult4" size="mini" max-height="250">
+                        <el-table-column type="expand"><!--折叠部分项-->
+                            <template slot-scope="props">
+                                <el-form label-position="right" class="demo-table-expand">
+                                    <el-form :inline="true">
+                                        <el-form-item label="货品名称：" size="mini">
+                                            <span>{{ props.row.name }}</span>
+                                        </el-form-item>
+                                        <el-form-item label="货品编号：" size="mini">
+                                            <span>{{ props.row.shop }}</span>
+                                        </el-form-item>
+                                    </el-form>
+                                    <el-form :inline="true">
+                                        <el-form-item label="单位：" size="mini">
+                                            <span>{{ props.row.shopId }}</span>
+                                        </el-form-item>
+                                        <el-form-item label="数量：" size="mini">
+                                            <span>{{ props.row.category }}</span>
+                                        </el-form-item>
+                                    </el-form>
+                                    <el-form :inline="true">
+                                        <el-form-item label="责任人：" size="mini">
+                                            <span>{{ props.row.desc }}</span>
+                                        </el-form-item>
+                                        <el-form-item label="存放库位：" size="mini">
+                                            <el-input></el-input>
+                                        </el-form-item>
+                                    </el-form>
+                                </el-form>
+                            </template>
+                        </el-table-column>
+                        <el-table-column type="index" width="50" label="序号"></el-table-column>
+                        <el-table-column prop="huopinbianhao" label="货品编号" width="100"></el-table-column>
+                        <el-table-column prop="huopinmingcheng" label="货品名称" width="100"></el-table-column>
+                        <el-table-column prop="rukushijian" label="入库时间"width="100"></el-table-column>
+                        <el-table-column prop="xiangxixinxi" label="货品信息" width="80">
+                            <!--点击查看当前物资详细信息-->
+                            <template slot-scope="scope">
+                                <el-button size="mini" style="background-color: #ececec" @click="dialogVisible=true">查看
+                                </el-button>
+                                <el-dialog title="货品详细信息" :visible.sync="dialogVisible" width="50%" :before-close="handleClose">
+                                    <span>这里应该是所选货品的详细信息</span>
+                                    <span slot="footer" class="dialog-footer">
+                                        <el-button @click="dialogVisible = false" size="mini" style="background-color: #ececec">关闭</el-button>
+                                    </span>
+                                </el-dialog>
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="rukushijian" label="备注" width="400"></el-table-column>
+                    </el-table>
+                </el-tab-pane>
+            </el-tabs>
+        </el-card>
+    </template>
+</div>
+</body>
+<script src="lib/vue.js"></script>
+<script src="lib/eleme-index.js"></script>
+
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: function(){
+            return{
+                activeName: 'first',/*显示分页默认值*/
+                timeSelect:'',/*时间选择器*/
+                dialogVisible: false, /*查看当前货品详细信息 查看 button*/
+
+                inSelection1:{/*入库筛选框*/
+                },
+                inSelection2:{/*出库筛选框*/
+                },
+                inSelection3:{/*调配事件筛选框*/
+                },
+                inSelection4:{/*历史库存筛选框*/
+
+                },
+
+                queryResult1:[{/*入库历史查询结果*/
+                }],
+                queryResult2:[{/*出库历史查询结果*/
+                }],
+                queryResult3:[{/*调配事件历史查询结果*/
+                }],
+                queryResult4:[{/*历史库存查询结果*/
+                }]
+            }
+        },
+        methods: {
+            handleClick(tab, event) {
+                console.log(tab, event);
+            },
+        }
+    });
+</script>
+
+</html>
