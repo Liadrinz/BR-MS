@@ -75,7 +75,11 @@
         <el-table-column prop="realName" label="姓名" width="100px"></el-table-column>
         <el-table-column prop="username" label="用户名" width="125px"></el-table-column>
         <el-table-column prop="role" label="用户类型" width="125px"></el-table-column>
-        <el-table-column prop="idtype" label="证件类型" width="125px"></el-table-column>
+        <el-table-column prop="idtype" label="证件类型" width="125px">
+            <template slot-scope="props">
+                {{['公民身份证','护照','军官证'][parseInt(props.row.idtype)-1]}}
+            </template>
+        </el-table-column>
         <el-table-column prop="idnumber" label="证件号码" width="225px"></el-table-column>
         <el-table-column prop="companyName" label="单位名称" width="225px"></el-table-column>
         <el-table-column label="操作" v-if="!queryParams.isPass">
@@ -128,8 +132,9 @@
                 post('/system/get_detail_info', {
                     id: Number(data[i]['id'])
                 }, (data2) => {
-                    console.log(data2);
-                    items.push({...data, ...data2});
+                    var obj1={};
+                    Object.assign(obj1,data,data2);
+                    items.push(obj1);
                 })
             }
         });

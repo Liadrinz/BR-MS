@@ -27,7 +27,8 @@
 </head>
 <body>
 <div id="app" v-cloak>
-    <el-form>
+    <el-form v-loading.fullscreen="initializing" element-loading-text="加载中"
+             element-loading-background="rgba(0,0,0,0.8)">
         <el-form-item label="时间范围">
             <el-date-picker
                 @change="handleDateChange"
@@ -39,15 +40,16 @@
                 end-placeholder="结束日期">
             </el-date-picker>
         </el-form-item>
-        <el-form-item label="发货仓库">
-            <el-select v-model="query.startWarehouseName">
-                <el-option label="不限" :value="undefined">不限</el-option>
-                <el-option v-for="warehouse in warehouseChoices" :label="warehouse.warehouseName" :value="warehouse.warehouseName">
-                    {{warehouse.warehouseName}}
-                </el-option>
-            </el-select>
-        </el-form-item>
-        <el-form-item>
+        <el-form :inline="true">
+            <el-form-item label="货物名称">
+                <el-input v-model="query.goodsName"></el-input>
+            </el-form-item>
+            <el-form-item label="货物编号">
+                <el-input v-model="query.goodLocalId"></el-input>
+            </el-form-item>
+        </el-form>
+
+        <el-form-item label="状态">
             <el-radio v-model="query.state" :label="undefined">不限</el-radio>
             <el-radio v-model="query.state" :label="0">申请中</el-radio>
             <el-radio v-model="query.state" :label="1">已撤销</el-radio>
@@ -183,15 +185,17 @@
         el: '#app',
         data:function() {
             return {
+                initializing:false,
                 management:manageItems,
                 dateRange:"",
                 pageNum:1,
                 total:0,
                 warehouseChoices:[],
                 query:{
-                    startWarehouseName:undefined,
                     start_time:undefined,
-                    end_time:undefined
+                    end_time:undefined,
+                    goodsName:undefined,
+                    goodLocalId:undefined
                 },
             };
         },
@@ -199,7 +203,13 @@
             getData(searchKey,1);
             post('/common/relatehouse',{},(data,err)=>{
                 if(err){
-                    app.$message.error(err.msg);
+                    if(err.id!==5000){
+                        app.$message.error(err.msg);
+                    }else{
+                        app.$message.error('数据获取失败');
+                    }
+                    app.initializing = false;
+                    return;
                 }
                 for(let warehouse of data){
                     app.warehouseChoices.push(warehouse);
@@ -208,7 +218,8 @@
         },
         methods: {
             handleDateChange(){
-                var [s,e]=[...app.dateRange];
+                // var [s,e]=[...app.dateRange];
+                var s=app.dateRange[0],e=app.dateRange[1];
                 app.query.start_time=[s.getFullYear(),s.getMonth()+1<10?'0'+(s.getMonth()+1):s.getMonth()+1,s.getDate()<10?'0'+s.getDate():s.getDate()].join('-')+" 00:00:00";
                 app.query.end_time=[e.getFullYear(),e.getMonth()+1<10?'0'+(e.getMonth()+1):e.getMonth()+1,e.getDate()<10?'0'+e.getDate():e.getDate()].join('-')+" 00:00:00";
             },
@@ -221,28 +232,40 @@
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(()=>{
+                    app.initializing=true;
                     post('/common/delsche',{
                         scheduleId:row.schedule_id
                     },(data,err)=>{
                         if(err){
-                            app.$message.error(err.msg);
+                            if(err.id!==5000){
+                                app.$message.error(err.msg);
+                            }else{
+                                app.$message.error('数据获取失败');
+                            }
+                            app.initializing = false;
                             return;
                         }
                         getData(searchKey,1);
+                        app.initializing = false;
                     })
                 })
             },
             search(){
                 var obj={};
+                app.pageNum=1;
                 Object.assign(obj,app.query);
                 Object.assign(searchKey,obj);
+                app.initializing=true;
                 getData(obj,1);
+                app.initializing=false;
             },
             reset(){
                 searchKey={};
                 app.query={};
                 app.dateRange="";
+                app.initializing=true;
                 getData(searchKey,1);
+                app.initializing=false;
             }
 
         }

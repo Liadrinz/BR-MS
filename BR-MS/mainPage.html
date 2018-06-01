@@ -183,6 +183,7 @@
 <script src="lib/eleme-index.js"></script>
 <script src="res/dependencies.js"></script>
 <script>
+    var post=require('/mods/backend');
     function judgeLogin(){
         post('/common/getms',{
             pageNum:1
@@ -195,7 +196,6 @@
         })
     }
     var roles = require('/mods/roles');
-    var post=require('/mods/backend');
     var app = new Vue({
         el: '#app',
         data: {

@@ -8,7 +8,6 @@
         #search .el-input {
             width: 140px;
         }
-
         [v-cloak]{
             display: none;
         }
@@ -152,7 +151,6 @@
 <script src="res/dependencies.js"></script>
 <script>
     var pageNum = 1, pageSize = 6, maxPage = 0;
-
     function getData(page, searchKey, unchanged) {
         clearData(unchanged);
         var common = {};
@@ -179,10 +177,10 @@
                 delete searchKey.sender;
             }
         }
-        post('/common/getms', searchKey ? {...searchKey} : {
-            pageSize: pageSize,
-            pageNum: page, ...common
-        }, (data, err) => {
+        var obj1={},obj2={};
+        Object.assign(obj1,searchKey);
+        Object.assign(obj2,common,{pageSize:pageSize,pageNum:pageNum});
+        post('/common/getms', searchKey ? obj1 : obj2, (data, err) => {
             app.pageNum = page;
             app.initializing = false;
             console.log(data,err);
@@ -190,9 +188,6 @@
                 if (err.id !== 4003 && err.id !== 5005) {
                     app.$message.error(err.msg);
                     app.initializing = false;
-                }
-                if (err.id === post.NOT_LOGIN) {
-
                 }
                 return;
             }
@@ -217,7 +212,6 @@
             }
         });
     }
-
     function totalCompute(searchKey) {
         if (searchKey) {
             var needed = {
@@ -237,10 +231,13 @@
             common1['isRead'] = 1;
             common2['isRead'] = 1;
         }
-        post('/common/getms', searchKey ? {...needed, ...common1} : common1, (data) => {
+        var obj3={},obj4={};
+        Object.assign(obj3,needed,common1);
+        Object.assign(obj4,needed,common2);
+        post('/common/getms', searchKey ? obj3 : common1, (data) => {
             maxPage = data.allPages;
             common2['pageNum'] = maxPage;
-            post('/common/getms', searchKey ? {...needed, ...common2} : common2, (data) => {
+            post('/common/getms', searchKey ? obj4 : common2, (data) => {
                 var arr = [], msg = data.SysMessage;
                 if(app.checked===4){
                     for (var key in msg) {
@@ -259,7 +256,6 @@
             });
         });
     }
-
     function clearData(unchanged) {
         for (let i = 0; i < pageSize; i++) {
             items.pop();
@@ -273,15 +269,12 @@
             }
         }
     }
-
     function clearForm() {
         for (var i in app.formInput1) {
             app.formInput1[i] = "";
         }
     }
-
     function pageControl(control, searchKey) {
-
         if (control === 'previous') {
             if (pageNum <= 1) {
                 return;
@@ -304,7 +297,6 @@
             getData.call(app, pageNum, searchKey);
         }
     }
-
     var delList = [];
     var read = [null, null, 0, 1];
     var items = [];
@@ -401,9 +393,6 @@
                         if (err) {
                             app.$message.error(err.msg);
                             app.initializing = false;
-                            if (err.id === post.NOT_LOGIN) {
-
-                            }
                             return;
                         }
                         if (app.pageNum !== maxPageRef[0]) {
@@ -415,6 +404,10 @@
                                 getData(maxPageRef[0], searchKey)
                             }
                         }
+                        app.$message({
+                            type:'success',
+                            message:'删除成功'
+                        });
                     });
                 })
             },
@@ -433,33 +426,37 @@
                     }
                     delList = idToDel;
                     for (let i in idToDel) {
-                        post('/common/deletems', {
-                            msg_Id: idToDel[i]
-                        }, (data, err) => {
-                            console.log(i);
-                            if (err) {
-                                app.$message.error(err.msg);
-                                app.initializing = false;
-                                return;
-                            }
-                        });
+                        ((e)=>{
+                            post('/common/deletems', {
+                                msg_Id: idToDel[e]
+                            }, (data, err) => {
+                                if (err) {
+                                    app.$message.error(err.msg);
+                                    app.initializing = false;
+                                    return;
+                                }
+                                var len = delList.length;
+                                if (app.pageNum !== maxPageRef[0]) {
+                                    getData(maxPageRef[0], searchKey);
+                                } else {
+                                    if (len == lastPageItems) {
+                                        if (app.pageNum !== 1) {
+                                            getData(maxPageRef[0] - 1, searchKey);
+                                        } else {
+                                            getData(maxPageRef[0], searchKey);
+                                        }
+                                    } else {
+                                        getData(maxPageRef[0], searchKey);
+                                    }
+                                }
+                            });
+                        })(i);
                     }
-                }).then(() => {
-                    var len = delList.length;
-                    if (app.pageNum !== maxPageRef[0]) {
-                        getData(maxPageRef[0], searchKey);
-                    } else {
-                        if (len == lastPageItems) {
-                            if (app.pageNum !== 1) {
-                                getData(maxPageRef[0] - 1, searchKey);
-                            } else {
-                                getData(maxPageRef[0], searchKey);
-                            }
-                        } else {
-                            getData(maxPageRef[0], searchKey);
-                        }
-                    }
-                })
+                    app.$message({
+                        type:'success',
+                        message:'删除成功'
+                    });
+                });
             },
             send: function () {
                 post('/common/addms', {
@@ -473,7 +470,6 @@
                         app.$message.error(err.msg);
                         app.initializing = false;
                         if (err.id === post.NOT_LOGIN) {
-
                         }
                         return;
                     }
@@ -498,7 +494,6 @@
                             app.$message.error(err.msg);
                             app.initializing = false;
                             if (err.id === post.NOT_LOGIN) {
-
                             }
                             app.initializing = false;
                             return;

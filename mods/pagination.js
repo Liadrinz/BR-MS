@@ -38,7 +38,12 @@ function totalCompute(url,callback,searchKey,attrName){
             for(var key in items){
                 arr.push(items[key]);
             }
-            var total=6*(maxPage-1)+arr.length;
+            var total;
+            if(maxPage!==0){
+                total=searchKey['pageSize']*(maxPage-1)+arr.length;
+            }else{
+                total=0;
+            }
             callback(total);
         })
     })

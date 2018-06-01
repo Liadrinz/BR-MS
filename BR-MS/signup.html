@@ -148,17 +148,18 @@
                                                   placeholder="示例：xx省xx市xx区/县xxxx详细地址"></el-input>
                                     </el-form-item>
                                     <el-form-item label="用户类型" prop="role" required>
-                                        <el-select v-model="form1.role">
+                                        <el-select v-model="form1.role" @change="getWarehouse">
                                             <el-option label="普通用户" value="user"></el-option>
                                             <el-option label="仓库管理员" value="manager"></el-option>
-                                            <span class="tips">&nbsp;</span>
                                         </el-select>
                                     </el-form-item>
                                     <transition name="el-zoom-in-top">
                                         <div v-if="form1.role==='manager'">
-                                            <el-form-item label="仓库id" prop="warehouseId" required>
-                                                <el-input v-model="form1.warehouseId"
-                                                          placeholder="必须是现有仓库的id"></el-input>
+                                            <el-form-item label="仓库" prop="warehouseId" required>
+                                                <el-select v-model="form1.warehouseId"
+                                                          placeholder="请选择仓库">
+                                                    <el-option v-for="warehouse in warehouseChoice" :label="warehouse.warehouseName" :value="warehouse.warehouseId">{{warehouse.warehouseName+' (ID='+String(warehouse.warehouseId)+')'}}</el-option>
+                                                </el-select>
                                             </el-form-item>
                                         </div>
                                     </transition>
@@ -210,6 +211,7 @@
             return {
                 state: 0,
                 loading: false,
+                warehouseChoice:[],
                 form1: {
                     username: '',
                     initPassword: '',
@@ -323,6 +325,19 @@
                         return false;
                     }
                 })
+            },
+            getWarehouse:function(){
+                if(app.form1.role=='manager'){
+                    post('/getwarehouse',{},(data,err)=>{
+                        if(err){
+                            return;
+                        }
+                        for(var warehouse of data){
+                            app.warehouseChoice.push(warehouse);
+                        }
+                    })
+                }
+
             },
             register: function () {
                 this.loading = true;

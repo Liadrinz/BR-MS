@@ -109,7 +109,7 @@
             <template slot-scope="props">
                 <el-button type="warning" size="mini" @click="()=>{
                     props.row.dialogVisible=true;
-                    editedForm={...props.row};
+                    Object.assign(editedFrom,props.row);
                     handleEditionClick(props.row);
                 }">修改信息
                 </el-button>
@@ -255,10 +255,14 @@
     var post = require('/mods/backend');
 
     function totalCompute(searchKey) {
-        post('/system/get_warehouse', searchKey ? {...searchKey} : {pageNum: 1}, (data) => {
+        var obj1={};
+        Object.assign(obj1,searchKey);
+        post('/system/get_warehouse', searchKey ? obj1 : {pageNum: 1}, (data) => {
             maxPage = data.allPages;
             searchKey['pageNum'] = maxPage;
-            post('/system/get_warehouse', searchKey ? {...searchKey} : {pageNum: maxPage}, (data) => {
+            var obj2={};
+            Object.assign(obj2,searchKey);
+            post('/system/get_warehouse', searchKey ? obj2 : {pageNum: maxPage}, (data) => {
                 var arr = [], warehouses = data.warehouses;
                 for (var key in warehouses) {
                     arr.push(warehouses[key]);
