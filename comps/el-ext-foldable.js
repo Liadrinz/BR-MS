@@ -25,7 +25,7 @@
 
 var template = 
 `<div :style="style">
-  <div style="float: right; z-index: 1;">
+  <div style="float: right; z-index: 1; margin-left:5px">
   <el-button
     type="info" size="mini" plain round
     @click="fold = false"
@@ -48,7 +48,7 @@ var template =
     :key="op"
     border size="mini"></el-checkbox>
   </el-checkbox-group>
-  <div style="float: right; z-index: 1;">
+  <div style="float: right; z-index: 1; margin-left:5px">
   <el-button
     type="info" size="mini" plain round
     @click="fold = true"

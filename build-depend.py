@@ -27,5 +27,5 @@ import os
 requires = ["-r "+x for x in npm_modules] + ["-r ./mods/"+x for x in local_modules] + ["-r ./comps/"+x for x in custom_components]
 os.system(r"browserify " +
                 " ".join(requires) +
-                r" -t [babelify --presets env --plugins add-module-exports]"
+                r" -t [babelify]"
                 + uglifyJs)
