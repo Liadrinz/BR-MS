@@ -16,6 +16,10 @@
         .el-card {
             margin-bottom:5px;
         }
+
+        p.form-item {
+            margin: 2px 0 5px;
+        }
     </style>
 </head>
 <body>
@@ -23,24 +27,24 @@
     <!--入库业务-->
     <el-card>
         <span slot="header">入库单填写</span>
-        <el-form :model="inGoing">
-            <el-form :inline="true">
+        <el-form :model="inGoing" inline>
+            <p class="form-item">
                 <el-form-item label="操作员：" size="mini">
                     <el-input v-model="inGoing.caozuoyuan" :disabled="true"></el-input>
                 </el-form-item>
                 <el-form-item label="仓库：" size="mini">
                     <el-input v-model="inGoing.cangku" :disabled="true"></el-input>
                 </el-form-item>
-            </el-form>
-            <el-form :inline="true">
+            </p>
+            <p class="form-item">
                 <el-form-item label="建单人：" size="mini">
                     <el-input v-model="inGoing.jiandanren"></el-input>
                 </el-form-item>
                 <el-form-item label="建单日期：" size="mini">
                     <el-input v-model="inGoing.jiandanriqi"></el-input>
                 </el-form-item>
-            </el-form>
-            <el-form :inline="true">
+            </p>
+            <p class="form-item">
                 <el-form-item label="入库单号：" size="mini">
                     <el-input v-model="inGoing.rukudanhao"></el-input>
                 </el-form-item>
@@ -49,16 +53,18 @@
                         <el-option label="正常入库" value="type1"></el-option>
                     </el-select>
                 </el-form-item>
-            </el-form>
-            <!--点击上传文件-->
-            <!--<el-form :inline="true">
-                <el-form-item label="入库单上传：" size="mini" :inline="true">
-                    <el-upload action="https://jsonplaceholder.typicode.com/posts/" :on-preview="handlePreview" :on-remove="handleRemove" :before-remove="beforeRemove" multiple :limit="3" :on-exceed="handleExceed" :file-list="fileList">
-                        <el-button size="mini" type="primary">点击上传</el-button>
-                    </el-upload>
-                </el-form-item>
-            </el-form>-->
-            <hr style="height:1px; border:none; border-top:1px dashed #c0c4cc">
+            </p>
+        </el-form>
+        <!--点击上传文件-->
+        <!--<el-form :inline="true">
+            <el-form-item label="入库单上传：" size="mini" :inline="true">
+                <el-upload action="https://jsonplaceholder.typicode.com/posts/" :on-preview="handlePreview" :on-remove="handleRemove" :before-remove="beforeRemove" multiple :limit="3" :on-exceed="handleExceed" :file-list="fileList">
+                    <el-button size="mini" type="primary">点击上传</el-button>
+                </el-upload>
+            </el-form-item>
+        </el-form>-->
+        <hr style="height:1px; border:none; border-top:1px dashed #c0c4cc">
+        <p class="form-item">
             <el-table :data="inResult" size="mini" max-height="250">
                 <el-table-column type="index" width="44" label="序号"></el-table-column>
                 <el-table-column prop="huopinbianhao" label="货品编号"></el-table-column>
@@ -88,27 +94,25 @@
                     </template>
                 </el-table-column>
             </el-table>
+        </p>
+        <p class="form-item">
             <!--保存 生成货品清单-->
-            <el-form>
-                <el-form-item size="medium">
-                    <el-button style="background-color: #ececec">保存</el-button>
-                    <!--点击调用打印机 打印inResult表格清单-->
-                    <el-button style="background-color: #ececec">生成货品清单</el-button>
-                </el-form-item>
-            </el-form>
-        </el-form>
+            <el-button style="background-color: #ececec">保存</el-button>
+            <!--点击调用打印机 打印inResult表格清单-->
+            <el-button style="background-color: #ececec">生成货品清单</el-button>
+        </p>
     </el-card>
     <!--查找-->
     <el-card>
-        <span slot="header">选择填进入库单的物品</span>
-        <el-form :model="queryCondition">
-            <el-form :inline="true">
+        <span slot="header">选择用来填写的物品</span>
+        <el-form :model="queryCondition" inline>
+            <p class="form-item">
                 <!-- TODO: 放入组件 -->
                 <el-form-item label="货品类别">
                     <el-ext-foldable :options="[1,2,3,4]"></el-ext-foldable>
                 </el-form-item>
-            </el-form>
-            <el-form :inline="true">
+            </p>
+            <p class="form-item">
                 <el-form-item label="货品名称：" size="mini">
                     <el-input v-model="queryCondition.huopinmingcheng"></el-input>
                 </el-form-item>
@@ -118,47 +122,49 @@
                         <el-option label="二" value="JD"></el-option>
                     </el-select>
                 </el-form-item>
-            </el-form>
-            <el-form :inline="true">
+            </p>
+            <p class="form-item">
                 <el-form-item label="货品编号：" size="mini">
                     <el-input v-model="queryCondition.huopinbianhao"></el-input>
                 </el-form-item>
-            </el-form>
-            <el-form>
+            </p>
+            <p class="form-item">
                 <el-form-item size="mini">
                     <el-button style="background-color: #ececec">查找</el-button>
                 </el-form-item>
-            </el-form>
+            </p>
             <hr style="height:1px; border:none; border-top:1px dashed #c0c4cc">
-            <el-table :data="queryResult" size="mini" max-height="250">
-                <el-table-column type="index" width="50" label="序号"></el-table-column>
-                <el-table-column prop="huopinbianhao" label="货品编号"></el-table-column>
-                <el-table-column prop="huopinmingcheng" label="货品名称"></el-table-column>
-                <el-table-column prop="rukushijian" label="入库时间"></el-table-column>
-                <el-table-column prop="gongyingshang" label="供应商"></el-table-column>
-                <el-table-column prop="xiangxixinxi" label="详细信息" width="80">
-                    <!--点击查看当前物资详细信息-->
-                    <template slot-scope="scope">
-                        <el-button size="mini" style="background-color: #ececec" @click="dialogVisible=true">查看
-                        </el-button>
-                        <el-dialog title="货品详细信息" :visible.sync="dialogVisible" width="50%" :before-close="handleClose">
-                            <span>这里应该是所选货品的详细信息</span>
-                            <span slot="footer" class="dialog-footer">
+            <p class="form-item">
+                <el-table :data="queryResult" size="mini" max-height="250">
+                    <el-table-column type="index" width="50" label="序号"></el-table-column>
+                    <el-table-column prop="huopinbianhao" label="货品编号"></el-table-column>
+                    <el-table-column prop="huopinmingcheng" label="货品名称"></el-table-column>
+                    <el-table-column prop="rukushijian" label="入库时间"></el-table-column>
+                    <el-table-column prop="gongyingshang" label="供应商"></el-table-column>
+                    <el-table-column prop="xiangxixinxi" label="详细信息" width="80">
+                        <!--点击查看当前物资详细信息-->
+                        <template slot-scope="scope">
+                            <el-button size="mini" style="background-color: #ececec" @click="dialogVisible=true">查看
+                            </el-button>
+                            <el-dialog title="货品详细信息" :visible.sync="dialogVisible" width="50%"
+                                       :before-close="handleClose">
+                                <span>这里应该是所选货品的详细信息</span>
+                                <span slot="footer" class="dialog-footer">
                                 <el-button @click="dialogVisible = false" size="mini" style="background-color: #ececec">关闭</el-button>
                             </span>
-                        </el-dialog>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="zerenren" label="责任人"></el-table-column>
-                <el-table-column prop="lianxidianhua" label="联系电话"></el-table-column>
-                <el-table-column prop="ruku" label="">
-                    <!--点击入库 复制转移所有当前货品编号至 inResult-->
-                    <template slot-scope="scope">
-                        <el-button size="mini" style="background-color: #ececec">入库</el-button>
-                    </template>
-                </el-table-column>
-            </el-table>
-        </el-form>
+                            </el-dialog>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="zerenren" label="责任人"></el-table-column>
+                    <el-table-column prop="lianxidianhua" label="联系电话"></el-table-column>
+                    <el-table-column prop="ruku" label="">
+                        <!--点击入库 复制转移所有当前货品编号至 inResult-->
+                        <template slot-scope="scope">
+                            <el-button size="mini" style="background-color: #ececec">入库</el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+            </p>
         </el-form>
     </el-card>
 </div>
