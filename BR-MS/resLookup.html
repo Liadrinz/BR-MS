@@ -1029,7 +1029,7 @@
                             currentRow.dialogVisible = false;
                             app.$message({
                                 type: 'success',
-                                message: tmp==='temp'?'暂存成功':'申请提交成功'
+                                message: tmp === 'temp' ? '暂存成功' : '申请提交成功'
                             });
                         });
                     });
@@ -1057,9 +1057,9 @@
                             row.schedule_id,
                             app.singleForm.description,
                             app.singleForm.amount,
-                            (()=>{
-                                for(var warehouse of app.warehouseChoice){
-                                    if(warehouse.warehouseName===app.singleForm.endWarehouseName){
+                            (() => {
+                                for (var warehouse of app.warehouseChoice) {
+                                    if (warehouse.warehouseName === app.singleForm.endWarehouseName) {
                                         return warehouse.warehouseId;
                                     }
                                 }
@@ -1086,7 +1086,7 @@
                             app.clearFilledForm();
                             app.$message({
                                 type: 'success',
-                                message: tmp==='temp'?'暂存成功':'申请提交成功'
+                                message: tmp === 'temp' ? '暂存成功' : '申请提交成功'
                             });
                             app.viewTemp();
                             app.viewTemp();
@@ -1099,7 +1099,7 @@
                 var postList = [];
                 for (var form in app.applicationForm) {
                     if (app.selectedWarehouse[form]) {
-                        if(frtmp!=='frtmp'){
+                        if (frtmp !== 'frtmp') {
                             [
                                 toPost['goodsId'],
                                 toPost['description'],
@@ -1168,7 +1168,7 @@
                                 Object.assign(obj, toPost);
                                 return obj;
                             })());
-                        }else{
+                        } else {
                             [
                                 toPost['scheduleId'],
                                 toPost['description'],
@@ -1190,9 +1190,9 @@
                                 app.resultData2[form].schedule_id,
                                 app.applicationForm[form].description,
                                 app.applicationForm[form].amount,
-                                (()=>{
-                                    for(var warehouse of app.warehouseChoice){
-                                        if(warehouse.warehouseName===app.applicationForm[form].endWarehouseName){
+                                (() => {
+                                    for (var warehouse of app.warehouseChoice) {
+                                        if (warehouse.warehouseName === app.applicationForm[form].endWarehouseName) {
                                             return warehouse.warehouseId;
                                         }
                                     }
@@ -1209,7 +1209,8 @@
                                 app.applicationForm[form].tel,
                                 app.applicationForm[form].ps,
                                 tmp === 'temp' ? 0 : 1
-                            ];app.resultData2[form]
+                            ];
+                            app.resultData2[form]
                             ((d) => {
                                 post('/common/user_goods/update_apply', d, (data, err) => {
                                     if (err) {
@@ -1220,7 +1221,7 @@
                                     app.clearFilledForm();
                                     app.$message({
                                         type: 'success',
-                                        message: tmp==='temp'?'暂存成功':'申请提交成功'
+                                        message: tmp === 'temp' ? '暂存成功' : '申请提交成功'
                                     });
                                     app.viewTemp();
                                     app.viewTemp();

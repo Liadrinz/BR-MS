@@ -12,7 +12,7 @@ var pages = {
     "调配物资出库":"Export.html",
     "调配物资入库":"Import.html",
     "待审核申请":"PendingItems.html",
-    "库存盘点":"Kucunpandian.html",
+    "库存盘点":"HistoryRestLookup.html",
     "数据统计":"Shujutongji.html"
 };
 
