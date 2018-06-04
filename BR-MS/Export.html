@@ -15,9 +15,9 @@
 </head>
 <body>
 <div id="app" v-cloak>
-    <el-form>
-        <hr>
-        <!--出库业务-->
+    <!--出库业务-->
+    <el-card>
+        <span slot="header">入库单填写</span>
         <el-form :model="outGoing">
             <el-form :inline="true">
                 <el-form-item label="操作员：" size="mini"><el-input v-model="outGoing.realName" :disabled="true"></el-input></el-form-item>
@@ -72,8 +72,11 @@
                     <el-button style="background-color: #ececec">生成货品清单</el-button>
                 </el-form-item>
             </el-form>
-            <hr>
-            <!--查找-->
+        </el-form>
+    </el-card>
+    <!--查找-->
+    <el-card>
+        <span slot="header">选择用来填写的物品</span>
             <el-form :model="queryCondition">
                 <el-form :inline="true">
                     <!-- TODO: 放入组件 -->
@@ -121,7 +124,7 @@
                 </el-table>
             </el-form>
         </el-form>
-    </el-form>
+    </el-card>
 </div>
 </body>
 <script src="lib/vue.js"></script>
