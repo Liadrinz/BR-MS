@@ -308,7 +308,13 @@
                     list: (() => {
                         var newList = [];
                         for (var item of app.inResult) {
-                            newList.push(JSON.stringify(item));
+                            var obj={};
+                            Object.assign(obj,{
+                                scheduleId:item.scheduleId,
+                                amount:item.amount,
+                                createTime:item.createTime
+                            });
+                            newList.push(obj);
                         }
                         return newList;
                     })()

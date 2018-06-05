@@ -5,7 +5,7 @@
     <title>历史数据查询</title>
     <link rel="stylesheet" href="lib/eleme-index.css">
     <style>
-        .el-form-item{
+        .el-form-item {
             margin: 0;
         }
     </style>
@@ -20,74 +20,85 @@
                     <el-card>
                         <el-form :model="inSelection1">
                             <el-form :inline="true">
-                                <el-form-item label="入库单号：" size="mini"><el-input></el-input></el-form-item>
-                                <el-form-item label="货品编号：" size="mini"><el-input></el-input></el-form-item>
-                                <el-form-item label="责任人：" size="mini"><el-input></el-input></el-form-item>
+                                <el-form-item label="入库单号：" size="mini">
+                                    <el-input v-model="inSelection1.inboundNum"></el-input>
+                                </el-form-item>
+                                <el-form-item label="货品编号：" size="mini">
+                                    <el-input v-model="inSelection1.goodLocalId"></el-input>
+                                </el-form-item>
+                                <el-form-item label="责任人：" size="mini">
+                                    <el-input v-model="inSelection1.charity"></el-input>
+                                </el-form-item>
                             </el-form>
                             <el-form :inline="true">
-                                <el-form-item label="仓库：" size="mini"><span>XXXX</span></el-form-item>
+                                <el-form-item label="仓库：" size="mini"><span>{{currentWarehouse.warehouseName}}</span></el-form-item>
                                 <el-form-item label="入库时间范围：" size="mini">
-                                    <el-date-picker v-model="timeSelect" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期">{{timeSelect}}</el-date-picker>
+                                    <el-date-picker v-model="timeSelect" type="daterange" range-separator="至"
+                                                    start-placeholder="开始日期" end-placeholder="结束日期" @change="()=>{transferDate(inSelection1)}">{{timeSelect}}
+                                    </el-date-picker>
                                 </el-form-item>
                                 <el-form-item size="mini">
-                                    <el-button style="background-color: #ececec">查询</el-button>
+                                    <el-button style="background-color: #ececec" @click="search1">查询</el-button>
                                 </el-form-item>
                             </el-form>
                         </el-form>
                     </el-card>
-                    <el-table :data="queryResult1" size="mini" max-height="250" :default-sort="{prop: 'rukushijian', order: 'descending'}">
+                    <el-table :data="queryResult1" size="mini" max-height="250"
+                              :default-sort="{prop: 'rukushijian', order: 'descending'}">
                         <el-table-column type="expand"><!--折叠部分项-->
                             <template slot-scope="props">
                                 <el-form label-position="right" class="demo-table-expand">
                                     <el-form :inline="true">
                                         <el-form-item label="货品名称：" size="mini">
-                                            <span>{{ props.row.name }}</span>
+                                            <span>{{ props.row.goodName }}</span>
                                         </el-form-item>
                                         <el-form-item label="货品编号：" size="mini">
-                                            <span>{{ props.row.shop }}</span>
+                                            <span>{{ props.row.goodLocalId }}</span>
                                         </el-form-item>
                                         <el-form-item label="供应商：" size="mini">
-                                            <span>{{ props.row.id }}</span>
+                                            <span>{{ props.row.supplier }}</span>
                                         </el-form-item>
                                     </el-form>
                                     <el-form :inline="true">
                                         <el-form-item label="单位：" size="mini">
-                                            <span>{{ props.row.shopId }}</span>
+                                            <span>{{ props.row.unit }}</span>
                                         </el-form-item>
                                         <el-form-item label="数量：" size="mini">
-                                            <span>{{ props.row.category }}</span>
+                                            <span>{{ props.row.amount }}</span>
                                         </el-form-item>
                                     </el-form>
                                     <el-form :inline="true">
                                         <el-form-item label="责任人：" size="mini">
-                                            <span>{{ props.row.desc }}</span>
+                                            <span>{{ props.row.charity }}</span>
                                         </el-form-item>
                                         <el-form-item label="存放库位：" size="mini">
-                                            <span>{{ props.row.address }}</span>
+                                            <span>{{ props.row.warehouseRepository }}</span>
                                         </el-form-item>
                                     </el-form>
                                 </el-form>
                             </template>
                         </el-table-column>
                         <el-table-column type="index" width="50" label="序号"></el-table-column>
-                        <el-table-column prop="rukudanhao" label="入库单号" width="100"></el-table-column>
-                        <el-table-column prop="huopinmingcheng" label="货品名称" width="100"></el-table-column>
-                        <el-table-column prop="huopinbianhao" label="货品编号" width="100"></el-table-column>
-                        <el-table-column prop="xiangxixinxi" label="货品信息" width="80">
+                        <el-table-column prop="inboundNum" label="入库单号" width="150"></el-table-column>
+                        <el-table-column prop="goodName" label="货品名称" width="100"></el-table-column>
+                        <el-table-column prop="goodLocalId" label="货品编号" width="100"></el-table-column>
+                        <el-table-column label="货品信息" width="80">
                             <!--点击查看当前物资详细信息-->
                             <template slot-scope="scope">
                                 <el-button size="mini" style="background-color: #ececec" @click="dialogVisible=true">查看
                                 </el-button>
-                                <el-dialog title="货品详细信息" :visible.sync="dialogVisible" width="50%" :before-close="handleClose">
+                                <el-dialog title="货品详细信息" :visible.sync="dialogVisible" width="50%"
+                                           :before-close="handleClose">
                                     <span>这里应该是所选货品的详细信息</span>
                                     <span slot="footer" class="dialog-footer">
-                                        <el-button @click="dialogVisible = false" size="mini" style="background-color: #ececec">关闭</el-button>
+                                        <el-button @click="dialogVisible = false" size="mini"
+                                                   style="background-color: #ececec">关闭</el-button>
                                     </span>
                                 </el-dialog>
                             </template>
                         </el-table-column>
-                        <el-table-column prop="rukushijian" label="入库时间"width="100"></el-table-column>
-                        <el-table-column prop="ruku" label="">
+                        <el-table-column prop="createTime" label="入库时间" width="120"></el-table-column>
+                        <el-table-column label="操作">
                             <!--点击入库 复制转移所有当前货品编号至 inResult-->
                             <template slot-scope="scope">
                                 <el-button size="mini" style="background-color: #ececec">查看入库单</el-button>
@@ -95,23 +106,34 @@
                             </template>
                         </el-table-column>
                     </el-table>
+                    <el-pagination @current-change="()=>{handleCurrentChange1()}" :current-page="pagination1.pageNum"
+                                   :page-size="pagination1.pageSize" layout="total,prev,pager,next,jumper"
+                                   :total="pagination1.total[0]"></el-pagination>
                 </el-tab-pane>
                 <!--出库查询分页-->
                 <el-tab-pane label="出库查询" name="second">
                     <el-card>
                         <el-form :model="inSelection2">
                             <el-form :inline="true">
-                                <el-form-item label="出库单号：" size="mini"><el-input></el-input></el-form-item>
-                                <el-form-item label="货品编号：" size="mini"><el-input></el-input></el-form-item>
-                                <el-form-item label="责任人：" size="mini"><el-input></el-input></el-form-item>
+                                <el-form-item label="出库单号：" size="mini">
+                                    <el-input></el-input>
+                                </el-form-item>
+                                <el-form-item label="货品编号：" size="mini">
+                                    <el-input></el-input>
+                                </el-form-item>
+                                <el-form-item label="责任人：" size="mini">
+                                    <el-input></el-input>
+                                </el-form-item>
                             </el-form>
                             <el-form :inline="true">
-                                <el-form-item label="仓库：" size="mini"><span>XXXX</span></el-form-item>
+                                <el-form-item label="仓库：" size="mini"><span>{{currentWarehouse.warehouseName}}</span></el-form-item>
                                 <el-form-item label="出库时间范围：" size="mini">
-                                    <el-date-picker v-model="timeSelect" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期">{{timeSelect}}</el-date-picker>
+                                    <el-date-picker v-model="timeSelect" type="daterange" range-separator="至"
+                                                    start-placeholder="开始日期" end-placeholder="结束日期" @change="()=>{transferDate(inSelection2)}">{{timeSelect}}
+                                    </el-date-picker>
                                 </el-form-item>
                                 <el-form-item size="mini">
-                                    <el-button style="background-color: #ececec">查询</el-button>
+                                    <el-button style="background-color: #ececec" @click="search2">查询</el-button>
                                 </el-form-item>
                             </el-form>
                         </el-form>
@@ -159,15 +181,17 @@
                             <template slot-scope="scope">
                                 <el-button size="mini" style="background-color: #ececec" @click="dialogVisible=true">查看
                                 </el-button>
-                                <el-dialog title="货品详细信息" :visible.sync="dialogVisible" width="50%" :before-close="handleClose">
+                                <el-dialog title="货品详细信息" :visible.sync="dialogVisible" width="50%"
+                                           :before-close="handleClose">
                                     <span>这里应该是所选货品的详细信息</span>
                                     <span slot="footer" class="dialog-footer">
-                                        <el-button @click="dialogVisible = false" size="mini" style="background-color: #ececec">关闭</el-button>
+                                        <el-button @click="dialogVisible = false" size="mini"
+                                                   style="background-color: #ececec">关闭</el-button>
                                     </span>
                                 </el-dialog>
                             </template>
                         </el-table-column>
-                        <el-table-column prop="rukushijian" label="出库时间"width="100"></el-table-column>
+                        <el-table-column prop="rukushijian" label="出库时间" width="100"></el-table-column>
                         <el-table-column prop="ruku" label="">
                             <!--点击入库 复制转移所有当前货品编号至 inResult-->
                             <template slot-scope="scope">
@@ -176,21 +200,28 @@
                             </template>
                         </el-table-column>
                     </el-table>
+                    <el-pagination @current-change="()=>{handleCurrentChange2()}" :current-page="pagination2.pageNum"
+                                   :page-size="pagination2.pageSize" layout="total,prev,pager,next,jumper"
+                                   :total="pagination2.total[0]"></el-pagination>
                 </el-tab-pane>
                 <!--调配事件查询分页-->
                 <el-tab-pane label="调配事件查询" name="third">
                     <el-card>
                         <el-form :model="inSelection3">
                             <el-form :inline="true">
-                                <el-form-item label="事件类型：" size="mini"><el-input></el-input></el-form-item>
+                                <el-form-item label="事件类型：" size="mini">
+                                    <el-input></el-input>
+                                </el-form-item>
                                 <el-form-item label="仓库：" size="mini"><span>XXXX</span></el-form-item>
                             </el-form>
                             <el-form :inline="true">
                                 <el-form-item label="调配时间范围：" size="mini">
-                                    <el-date-picker v-model="timeSelect" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期">{{timeSelect}}</el-date-picker>
+                                    <el-date-picker v-model="timeSelect" type="daterange" range-separator="至"
+                                                    start-placeholder="开始日期" end-placeholder="结束日期">{{timeSelect}}
+                                    </el-date-picker>
                                 </el-form-item>
                                 <el-form-item size="mini">
-                                    <el-button style="background-color: #ececec">查询</el-button>
+                                    <el-button style="background-color: #ececec" @click="search3">查询</el-button>
                                 </el-form-item>
                             </el-form>
                         </el-form>
@@ -199,7 +230,7 @@
                         <el-table-column type="index" width="50" label="序号"></el-table-column>
                         <el-table-column prop="huopinmingcheng" label="状态" width="100"></el-table-column>
                         <el-table-column prop="huopinbianhao" label="时间" width="100"></el-table-column>
-                        <el-table-column prop="rukushijian" label="操作人员"width="100"></el-table-column>
+                        <el-table-column prop="rukushijian" label="操作人员" width="100"></el-table-column>
                         <el-table-column prop="ruku" label="详细信息">
                             <!--点击入库 复制转移所有当前货品编号至 inResult-->
                             <template slot-scope="scope">
@@ -208,23 +239,34 @@
                             </template>
                         </el-table-column>
                     </el-table>
+                    <el-pagination @current-change="()=>{handleCurrentChange3()}" :current-page="pagination3.pageNum"
+                                   :page-size="pagination3.pageSize" layout="total,prev,pager,next,jumper"
+                                   :total="pagination3.total[0]"></el-pagination>
                 </el-tab-pane>
                 <!--历史库存查询分页-->
                 <el-tab-pane label="历史库存查询" name="fourth">
                     <el-card>
-                        <el-form :model="inSelection1">
+                        <el-form :model="inSelection4">
                             <el-form :inline="true">
-                                <el-form-item label="货品类别：" size="mini"><el-input></el-input></el-form-item>
-                                <el-form-item label="入库类别：" size="mini"><el-input></el-input></el-form-item>
-                                <el-form-item label="责任人：" size="mini"><el-input></el-input></el-form-item>
+                                <el-form-item label="货品类别：" size="mini">
+                                    <el-input></el-input>
+                                </el-form-item>
+                                <el-form-item label="入库类别：" size="mini">
+                                    <el-input></el-input>
+                                </el-form-item>
+                                <el-form-item label="责任人：" size="mini">
+                                    <el-input v-model="inSelection4.charity"></el-input>
+                                </el-form-item>
                             </el-form>
                             <el-form :inline="true">
                                 <el-form-item label="仓库：" size="mini"><span>XXXX</span></el-form-item>
                                 <el-form-item label="入库时间范围：" size="mini">
-                                    <el-date-picker v-model="timeSelect" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期">{{timeSelect}}</el-date-picker>
+                                    <el-date-picker v-model="timeSelect" type="daterange" range-separator="至"
+                                                    start-placeholder="开始日期" end-placeholder="结束日期">{{timeSelect}}
+                                    </el-date-picker>
                                 </el-form-item>
                                 <el-form-item size="mini">
-                                    <el-button style="background-color: #ececec">查询</el-button>
+                                    <el-button style="background-color: #ececec" @click="search4">查询</el-button>
                                 </el-form-item>
                             </el-form>
                         </el-form>
@@ -235,50 +277,55 @@
                                 <el-form label-position="right" class="demo-table-expand">
                                     <el-form :inline="true">
                                         <el-form-item label="货品名称：" size="mini">
-                                            <span>{{ props.row.name }}</span>
+                                            <span>{{ props.row.goodName }}</span>
                                         </el-form-item>
                                         <el-form-item label="货品编号：" size="mini">
-                                            <span>{{ props.row.shop }}</span>
+                                            <span>{{ props.row.goodLocalId }}</span>
                                         </el-form-item>
                                     </el-form>
                                     <el-form :inline="true">
                                         <el-form-item label="单位：" size="mini">
-                                            <span>{{ props.row.shopId }}</span>
+                                            <span>{{ props.row.unit }}</span>
                                         </el-form-item>
                                         <el-form-item label="数量：" size="mini">
-                                            <span>{{ props.row.category }}</span>
+                                            <span>{{ props.row.amount }}</span>
                                         </el-form-item>
                                     </el-form>
                                     <el-form :inline="true">
                                         <el-form-item label="责任人：" size="mini">
-                                            <span>{{ props.row.desc }}</span>
+                                            <span>{{ props.row.charity }}</span>
                                         </el-form-item>
                                         <el-form-item label="存放库位：" size="mini">
-                                            <el-input></el-input>
+                                            <span>{{ props.row.warehouseRepository }}</span>
                                         </el-form-item>
                                     </el-form>
                                 </el-form>
                             </template>
                         </el-table-column>
                         <el-table-column type="index" width="50" label="序号"></el-table-column>
-                        <el-table-column prop="huopinbianhao" label="货品编号" width="100"></el-table-column>
-                        <el-table-column prop="huopinmingcheng" label="货品名称" width="100"></el-table-column>
-                        <el-table-column prop="rukushijian" label="入库时间"width="100"></el-table-column>
-                        <el-table-column prop="xiangxixinxi" label="货品信息" width="80">
+                        <el-table-column prop="goodLocalId" label="货品编号" width="100"></el-table-column>
+                        <el-table-column prop="goodName" label="货品名称" width="100"></el-table-column>
+                        <el-table-column prop="createTime" label="入库时间" width="100"></el-table-column>
+                        <el-table-column label="货品信息" width="80">
                             <!--点击查看当前物资详细信息-->
                             <template slot-scope="scope">
                                 <el-button size="mini" style="background-color: #ececec" @click="dialogVisible=true">查看
                                 </el-button>
-                                <el-dialog title="货品详细信息" :visible.sync="dialogVisible" width="50%" :before-close="handleClose">
+                                <el-dialog title="货品详细信息" :visible.sync="dialogVisible" width="50%"
+                                           :before-close="handleClose">
                                     <span>这里应该是所选货品的详细信息</span>
                                     <span slot="footer" class="dialog-footer">
-                                        <el-button @click="dialogVisible = false" size="mini" style="background-color: #ececec">关闭</el-button>
+                                        <el-button @click="dialogVisible = false" size="mini"
+                                                   style="background-color: #ececec">关闭</el-button>
                                     </span>
                                 </el-dialog>
                             </template>
                         </el-table-column>
-                        <el-table-column prop="rukushijian" label="备注" width="400"></el-table-column>
+                        <el-table-column prop="remark" label="备注" width="400"></el-table-column>
                     </el-table>
+                    <el-pagination @current-change="()=>{handleCurrentChange4()}" :current-page="pagination4.pageNum"
+                                   :page-size="pagination4.pageSize" layout="total,prev,pager,next,jumper"
+                                   :total="pagination4.total[0]"></el-pagination>
                 </el-tab-pane>
             </el-tabs>
         </el-card>
@@ -287,37 +334,212 @@
 </body>
 <script src="lib/vue.js"></script>
 <script src="lib/eleme-index.js"></script>
-
+<script src="res/dependencies.js"></script>
 <script>
+    var post = require('/mods/backend');
+
+    var totalPages = [[0],[0],[0],[0]];
+
+    var catchData = require('/mods/pagination').getData;
+
+    function getData1(app) {
+        catchData({
+            url: '/depot/get_inboundview',
+            app: app,
+            searchKey:()=>{
+                Object.assign(app.inSelection1,app.pagination1.pageSize);
+                return app.inSelection1;
+            },
+            refresh: [app.queryResult1,],
+            pageNum: app.pagination1.pageNum,
+            pageSize:app.pagination1.pageSize,
+            itemName: 'inbounds',
+            total: (totalNum) => {
+                while (totalPages[0][0] !== undefined) {
+                    totalPages[0].pop();
+                }
+                totalPages[0].push(totalNum);
+            }
+        }, (allPages, data) => {
+            for (var item of data) {
+                app.queryResult1.push(item);
+            }
+        });
+    }
+
+    function getData2(app){
+        catchData({
+            url: '/depot/get_outboundview',
+            app: app,
+            searchKey:()=>{
+                Object.assign(app.inSelection2,app.pagination2.pageSize);
+                return app.inSelection2;
+            },
+            refresh: [app.queryResult2,],
+            pageNum: app.pagination2.pageNum,
+            pageSize:app.pagination2.pageSize,
+            itemName: 'outboundViews',
+            total: (totalNum) => {
+                while (totalPages[1][0] !== undefined) {
+                    totalPages[1].pop();
+                }
+                totalPages[1].push(totalNum);
+            }
+        }, (allPages, data) => {
+            for (var item of data) {
+                app.queryResult2.push(item);
+            }
+        });
+    }
+
+    function getData3(app){
+        catchData({
+            url: '/depot/get_inboundview',
+            app: app,
+            searchKey:()=>{
+                Object.assign(app.inSelection3,app.pagination3.pageSize);
+                return app.inSelection3;
+            },
+            refresh: [app.queryResult3,],
+            pageNum: app.pagination3.pageNum,
+            pageSize:app.pagination3.pageSize,
+            itemName: 'inbounds',
+            total: (totalNum) => {
+                while (totalPages[2][0] !== undefined) {
+                    totalPages[2].pop();
+                }
+                totalPages[2].push(totalNum);
+            }
+        }, (allPages, data) => {
+            for (var item of data) {
+                app.queryResult3.push(item);
+            }
+        });
+    }
+
+    function getData4(app){
+        catchData({
+            url: '/depot/inventory',
+            app: app,
+            searchKey:()=>{
+                Object.assign(app.inSelection4,app.pagination4.pageSize);
+                return app.inSelection4;
+            },
+            refresh: [app.queryResult4,],
+            pageNum: app.pagination4.pageNum,
+            pageSize:app.pagination4.pageSize,
+            itemName: 'inventories',
+            total: (totalNum) => {
+                while (totalPages[3][0] !== undefined) {
+                    totalPages[3].pop();
+                }
+                totalPages[3].push(totalNum);
+            }
+        }, (allPages, data) => {
+            for (var item of data) {
+                app.queryResult4.push(item);
+            }
+        });
+    }
+
     var app = new Vue({
         el: '#app',
-        data: function(){
-            return{
-                activeName: 'first',/*显示分页默认值*/
-                timeSelect:'',/*时间选择器*/
+        data: function () {
+            return {
+                activeName:'first',
+                currentWarehouse:"",
+                pagination1:{
+                    total: totalPages[0],
+                    pageNum: 1,
+                    pageSize: 6,
+                },
+                pagination2:{
+                    total:totalPages[1],
+                    pageNum:1,
+                    pageSize:6
+                },
+                pagination3:{
+                    total:totalPages[2],
+                    pageNum:1,
+                    pageSize:6
+                },
+                pagination4:{
+                    total:totalPages[3],
+                    pageNum:1,
+                    pageSize:6
+                },
+                timeSelect: '', /*时间选择器*/
                 dialogVisible: false, /*查看当前货品详细信息 查看 button*/
 
-                inSelection1:{/*入库筛选框*/
+                inSelection1: {
+                    /*入库筛选框*/
                 },
-                inSelection2:{/*出库筛选框*/
+                inSelection2: {
+                    /*出库筛选框*/
                 },
-                inSelection3:{/*调配事件筛选框*/
+                inSelection3: {
+                    /*调配事件筛选框*/
                 },
-                inSelection4:{/*历史库存筛选框*/
-
+                inSelection4: {
+                    /*历史库存筛选框*/
                 },
-
-                queryResult1:[{/*入库历史查询结果*/
-                }],
-                queryResult2:[{/*出库历史查询结果*/
-                }],
-                queryResult3:[{/*调配事件历史查询结果*/
-                }],
-                queryResult4:[{/*历史库存查询结果*/
-                }]
+                queryResult1: [],
+                queryResult2: [],
+                queryResult3: [],
+                queryResult4: []
             }
         },
+        mounted(){
+            var app=this;
+            post('/depot/get_houselocate',{},(data,err)=>{
+                if(err){
+                    return;
+                }
+                app.currentWarehouse=data;
+            })
+        },
         methods: {
+            transferDate(form){
+                if(app.timeSelect!==null){
+                    let s=app.timeSelect[0],e=app.timeSelect[1];
+                    form.start_time=s.getFullYear()+'-'+(s.getMonth()+1<10?'0'+(s.getMonth()+1):(s.getMonth()+1))+'-'+(s.getDate()<10?('0'+s.getDate()):s.getDate())+' 00:00:00';
+                    form.end_time=e.getFullYear()+'-'+(e.getMonth()+1<10?'0'+(e.getMonth()+1):(e.getMonth()+1))+'-'+(e.getDate()<10?('0'+e.getDate()):e.getDate())+' 00:00:00';
+                }else{
+                    form.start_time=undefined;
+                    form.end_time=undefined;
+                }
+            },
+            handleCurrentChange1(page) {
+                app.pageNum = page;
+                getData1(app);
+            },
+            handleCurrentChange2(page) {
+                app.pageNum = page;
+                getData2(app);
+            },
+            handleCurrentChange3(page) {
+                app.pageNum = page;
+                getData3(app);
+            },
+            handleCurrentChange4(page) {
+                app.pageNum = page;
+                getData4(app);
+            },
+            handleClose() {
+                app.dialogVisible = false;
+            },
+            search1() {
+                getData1(app);
+            },
+            search2() {
+                getData2(app);
+            },
+            search3() {
+                getData3(app);
+            },
+            search4() {
+                getData4(app);
+            },
             handleClick(tab, event) {
                 console.log(tab, event);
             },
