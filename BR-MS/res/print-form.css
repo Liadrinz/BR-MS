@@ -1,0 +1,49 @@
+/*element自带表格对不齐,网上找的好看的表格样式*/
+
+.grid {
+    font-family: verdana, arial, sans-serif;
+    font-size: 11px;
+    color: #333333;
+    border-width: 1px;
+    border-color: #666666;
+    border-collapse: collapse;
+}
+
+.grid th {
+    border-width: 1px;
+    padding: 8px;
+    border-style: solid;
+    border-color: #666666;
+    background-color: #ffffff;
+}
+
+.grid td {
+    border-width: 1px;
+    padding: 8px;
+    border-style: solid;
+    border-color: #666666;
+    background-color: #ffffff;
+}
+
+.grid, #form-top {
+    display: block;
+}
+
+#form-top {
+    font-size: 6px;
+}
+
+#form-top span {
+    display: inline-block;
+    margin: 0 1%;
+}
+
+.noprint{
+    text-align: left;
+}
+
+@media print{
+    .noprint{
+        display: none;
+    }
+}

@@ -144,7 +144,7 @@
                                     </el-form-item>
                                     <el-form-item label="员工ID" prop="employeeId" required>
                                         <el-input v-model="form1.employeeId"
-                                                  placeholder="您单位的ID，若有则填"></el-input>
+                                                  placeholder="您单位的ID"></el-input>
                                     </el-form-item>
                                     <el-form-item label="手机号码" prop="phoneNumber" required>
                                         <el-input v-model="form1.phoneNumber"
@@ -303,7 +303,8 @@
                     //],
                     employeeId: [
                         {required: true, message: '请输入员工ID'},
-                        {pattern: /^\d+$/, message: '请输入正确的员工ID'}
+                        {pattern: /^\d+$/, message: '请输入正确的员工ID'},
+                        {pattern:/^\d{0,10}$/,message:'员工ID不能超过10位'}
                     ],
                     phoneNumber: [
                         {required: true, message: '请输入手机号码'},
