@@ -5,6 +5,20 @@
     <title>库存盘点</title>
     <link rel="stylesheet" href="lib/eleme-index.css">
     <style>
+        .demo-table-expand {
+            font-size: 0;
+        }
+
+        .demo-table-expand label {
+            width: 120px;
+            color: #99a9bf;
+        }
+
+        .demo-table-expand .el-form-item {
+            margin-right: 0;
+            margin-bottom: 0;
+            width: 50%;
+        }
     </style>
 </head>
 <body>
@@ -14,6 +28,7 @@
             <el-form :inline="true">
                 <el-form-item label="入库类型：" size="mini">
                     <el-select v-model="inSelection.inboundType">
+                        <el-option label="" value="">不限</el-option>
                         <el-option label="正常入库" value="正常入库">正常入库</el-option>
                     </el-select>
                 </el-form-item>
@@ -39,50 +54,74 @@
                 <el-form label-position="right" class="demo-table-expand">
                     <el-form :inline="true">
                         <el-form-item label="货品名称：" size="mini">
-                            <span>{{ props.row.name }}</span>
+                            <span>{{ props.row.goods_name }}</span>
                         </el-form-item>
                         <el-form-item label="货品编号：" size="mini">
-                            <span>{{ props.row.shop }}</span>
+                            <span>{{ props.row.local_id }}</span>
                         </el-form-item>
                     </el-form>
                     <el-form :inline="true">
                         <el-form-item label="单位：" size="mini">
-                            <span>{{ props.row.shopId }}</span>
+                            <span>{{ props.row.unit }}</span>
                         </el-form-item>
                         <el-form-item label="数量：" size="mini">
-                            <span>{{ props.row.category }}</span>
+                            <span>{{ props.row.amount }}</span>
                         </el-form-item>
                     </el-form>
                     <el-form :inline="true">
                         <el-form-item label="责任人：" size="mini">
-                            <span>{{ props.row.desc }}</span>
+                            <span>{{ props.row.charity }}</span>
                         </el-form-item>
                         <el-form-item label="存放库位：" size="mini">
-                            <span>{{ props.row.address }}</span>
+                            <span>{{ props.row.warehouse_repository }}</span>
                         </el-form-item>
                     </el-form>
                 </el-form>
             </template>
         </el-table-column>
         <el-table-column type="index" width="50" label="序号"></el-table-column>
-        <el-table-column prop="huopinmingcheng" label="货品名称" width="100"></el-table-column>
-        <el-table-column prop="huopinbianhao" label="货品编号" width="100"></el-table-column>
-        <el-table-column prop="xiangxixinxi" label="货品信息" width="80">
+        <el-table-column prop="goods_name" label="货品名称" width="100"></el-table-column>
+        <el-table-column prop="local_id" label="货品编号" width="100"></el-table-column>
+        <el-table-column label="货品信息" width="80">
             <!--点击查看当前物资详细信息-->
             <template slot-scope="scope">
-                <el-button size="mini" style="background-color: #ececec" @click="dialogVisible=true">查看
+                <el-button size="mini" style="background-color: #ececec" @click="viewDetail(scope.row)">查看
                 </el-button>
-                <el-dialog title="货品详细信息" :visible.sync="dialogVisible" width="50%" :before-close="handleClose">
-                    <span>这里应该是所选货品的详细信息</span>
-                    <span slot="footer" class="dialog-footer">
-                        <el-button @click="dialogVisible = false" size="mini" style="background-color: #ececec">关闭</el-button>
-                    </span>
-                </el-dialog>
             </template>
         </el-table-column>
-        <el-table-column prop="rukushijian" label="入库时间"width="100"></el-table-column>
-        <el-table-column prop="beizhu" label="备注"width="250"></el-table-column>
+        <el-table-column prop="inboundTime" label="入库时间"width="100"></el-table-column>
+        <el-table-column prop="remark" label="备注"width="250"></el-table-column>
     </el-table>
+    <el-dialog title="货品详细信息" :visible.sync="dialogVisible" width="95%" :before-close="handleClose">
+        <el-table :data="detailForm">
+            <el-table-column prop="key1">
+                <template slot-scope="props">
+                    <b>{{translate[props.row.key1]}}</b>
+                </template>
+            </el-table-column>
+            <el-table-column prop="val1"></el-table-column>
+            <el-table-column prop="key2">
+                <template slot-scope="props">
+                    <b>{{translate[props.row.key2]}}</b>
+                </template>
+            </el-table-column>
+            <el-table-column prop="val2"></el-table-column>
+            <el-table-column prop="key3">
+                <template slot-scope="props">
+                    <b>{{translate[props.row.key3]}}</b>
+                </template>
+            </el-table-column>
+            <el-table-column prop="val3"></el-table-column>
+        </el-table>
+        <span slot="footer" class="dialog-footer">
+                        <el-button @click="dialogVisible = false" size="mini" style="background-color: #ececec">关闭</el-button>
+                    </span>
+    </el-dialog>
+    <el-pagination @current-change="handleCurrentChange" :current-page="pageNum"
+                   :page-size="pageSize" layout="total,prev,pager,next,jumper"
+                   :total="total[0]">
+
+    </el-pagination>
     <el-form>
         <el-form-item size="mini">
             <el-button style="background-color: #ececec">生成货品清单</el-button>
@@ -101,27 +140,29 @@
 
     function getData(app){
         catchData({
-            url:'/depot/stocktaking/stocktaking',
-            app:app,
-            refresh:[app.queryResult,],
+            url: '/depot/stocktaking/stocktaking',
+            app: app,
             searchKey:(()=>{
-                var obj={};
-                Object.assign(obj,app.inSelection);
-                return obj;
+                for(var key in app.inSelection){
+                    if(!app.inSelection[key]){
+                        delete app.inSelection[key];
+                    }
+                }
+                return app.inSelection;
             })(),
-            pageNum:app.pageNum,
-            itemName:'goods',
-            total:(totalNum)=>{
-                while(totalPages[0]!==undefined){
+            refresh: [app.queryResult,],
+            pageNum: app.pageNum,
+            pageSize:app.pageSize,
+            itemName: 'goods',
+            total: (totalNum) => {
+                while (totalPages[0] !== undefined) {
                     totalPages.pop();
                 }
                 totalPages.push(totalNum);
             }
-        },(allPages,data)=>{
-            while(app.queryResult[0]!==undefined){
-                app.queryResult.pop();
-            }
-            for(var item of data){
+        }, (allPages, data) => {
+            console.log(data);
+            for (var item of data) {
                 app.queryResult.push(item);
             }
         });
@@ -133,14 +174,54 @@
         el: '#app',
         data: function(){
             return{
+                detailForm:[],
                 pageNum:1,
+                pageSize:6,
+                total:totalPages,
                 currentWarehouse:'',
                 timeSelect:[],/*时间选择器*/
                 dialogVisible: false, /*查看当前货品详细信息 查看 button*/
 
                 inSelection:{
                 },
-                queryResult:[]
+                queryResult:[],
+                translate:{
+                    goods_name:'物资名称',
+                    local_id:'物资编号',
+                    type:'物资类型',
+                    keywords:'关键字',
+                    norms:'规格',
+                    appearance:'外观',
+                    time_feature:'时间特征',
+                    safety_condition:'安全条件',
+                    carrier_size:'运载尺寸',
+                    temperature:'温度条件',
+                    humidity:'湿度条件',
+                    other_conditions:'其他条件',
+                    producer_name:'生产商',
+                    produce_time:'生产日期',
+                    produce_valid_time:'失效日期',
+                    warehouse_repository:'存放库位1',
+                    longitude:'经度',
+                    latitude:'纬度',
+                    altitude:'海拔',
+                    country_id:'国家',
+                    area:'战区',
+                    province_id:'省份',
+                    city_id:'城市',
+                    county_id:'区县',
+                    detail_location:'详细地址',
+                    department:'所属部门',
+                    allottedTime:'1',
+                    phone:'联系电话',
+                    is_managed:'是否受监管',
+                    official:'负责人',
+                    register_time:'2',
+                    state_id:'状态',
+                    state_type:'状态类型',
+                    state_value:'状态值',
+                    quantity:'数量'
+                }
             }
         },
         mounted(){
@@ -152,6 +233,40 @@
             })
         },
         methods: {
+            viewDetail(row){
+                while(app.detailForm[0]!==undefined){
+                    app.detailForm.pop();
+                }
+                app.dialogVisible=true;
+                var tmp=[];
+                for(var key in row){
+                    var obj={};
+                    obj['key']=key;
+                    obj['val']=row[key];
+                    if(key!=='warehouse_id'&&key!=='goods_id'&&key!=='ip_address'&&key!=='allottedTime'&&row[key])
+                        tmp.push(obj);
+                }
+                for(let i=0;tmp[i]!==undefined;i+=3){
+                    var obj={};
+                    obj['key1']=tmp[i]['key'];
+                    obj['val1']=tmp[i]['val'];
+                    if(tmp[i+1]){
+                        obj['key2']=tmp[i+1]['key'];
+                        obj['val2']=tmp[i+1]['val'];
+                    }
+                    if(tmp[i+2]){
+                        obj['key3']=tmp[i+2]['key'];
+                        obj['val3']=tmp[i+2]['val'];
+                    }
+                    app.detailForm.push(obj);
+                }
+            },
+            handleCurrentChange(){
+
+            },
+            handleClose(){
+                app.dialogVisible=false;
+            },
             transferDate(form){
                 if(app.timeSelect!==null){
                     let s=app.timeSelect[0],e=app.timeSelect[1];

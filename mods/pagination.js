@@ -49,7 +49,27 @@ function totalCompute(url,callback,searchKey,attrName){
                 }
                 callback(total);
             })
-        }else{
+        }else if(data.totalPage){
+            var maxPage=data.totalPage;
+            if(searchKey){
+                searchKey['pageNum']=maxPage;
+            }
+            post(url,searchKey?searchKey:{pageNum:maxPage},(data)=>{
+                var arr=[];
+                var items=attrName?data[attrName]:data;
+                for(var key in items){
+                    arr.push(items[key]);
+                }
+                var total;
+                if(maxPage!==0){
+                    total=searchKey['pageSize']*(maxPage-1)+arr.length;
+                }else{
+                    total=0;
+                }
+                callback(total);
+            })
+        }
+        else{
             callback(0);
         }
     })
