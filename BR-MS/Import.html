@@ -154,46 +154,6 @@
                         <template slot-scope="scope">
                             <el-button size="mini" style="background-color: #ececec" @click="viewDetail(scope.row)">查看
                             </el-button>
-                            <el-dialog title="货品详细信息" :visible.sync="dialogVisible" width="95%"
-                                       :before-close="handleClose">
-                                <el-table :data="detailForm">
-                                    <el-table-column prop="key1" :width="150">
-                                        <template slot-scope="props">
-                                            <b>{{props.row.key1}}</b>
-                                        </template>
-                                    </el-table-column>
-                                    <el-table-column prop="val1" :width="200">
-                                        <template slot-scope="props">
-                                            <span>{{props.row.val1}}</span>
-                                        </template>
-                                    </el-table-column>
-                                    <el-table-column prop="key2" :width="150">
-                                        <template slot-scope="props">
-                                            <b>{{props.row.key2}}</b>
-                                        </template>
-                                    </el-table-column>
-
-                                    <el-table-column prop="val2" :width="200">
-                                        <template slot-scope="props">
-                                            <span>{{props.row.val2}}</span>
-                                        </template>
-                                    </el-table-column>
-                                    <el-table-column prop="key3" :width="150">
-                                        <template slot-scope="props">
-                                            <b>{{props.row.key3}}</b>
-                                        </template>
-                                    </el-table-column>
-
-                                    <el-table-column prop="val3" :width="200">
-                                        <template slot-scope="props">
-                                            <span>{{props.row.val3}}</span>
-                                        </template>
-                                    </el-table-column>
-                                </el-table>
-                                <span slot="footer" class="dialog-footer">
-                                <el-button @click="dialogVisible = false" size="mini" style="background-color: #ececec">关闭</el-button>
-                            </span>
-                            </el-dialog>
                         </template>
                     </el-table-column>
                     <el-table-column prop="charity" label="责任人"></el-table-column>
@@ -210,6 +170,46 @@
                 <el-pagination @current-change="handleCurrentChange" :current-page="pageNum"
                                :page-size="pageSize" layout="total,prev,pager,next,jumper"
                                :total="total[0]"></el-pagination>
+                <el-dialog title="货品详细信息" :visible.sync="dialogVisible" width="95%"
+                           :before-close="handleClose">
+                    <el-table :data="detailForm">
+                        <el-table-column prop="key1" :width="150">
+                            <template slot-scope="props">
+                                <b>{{props.row.key1}}</b>
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="val1" :width="200">
+                            <template slot-scope="props">
+                                <span>{{props.row.val1}}</span>
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="key2" :width="150">
+                            <template slot-scope="props">
+                                <b>{{props.row.key2}}</b>
+                            </template>
+                        </el-table-column>
+
+                        <el-table-column prop="val2" :width="200">
+                            <template slot-scope="props">
+                                <span>{{props.row.val2}}</span>
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="key3" :width="150">
+                            <template slot-scope="props">
+                                <b>{{props.row.key3}}</b>
+                            </template>
+                        </el-table-column>
+
+                        <el-table-column prop="val3" :width="200">
+                            <template slot-scope="props">
+                                <span>{{props.row.val3}}</span>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                    <span slot="footer" class="dialog-footer">
+                                <el-button @click="dialogVisible = false" size="mini" style="background-color: #ececec">关闭</el-button>
+                            </span>
+                </el-dialog>
             </p>
         </el-form>
     </el-card>
@@ -219,7 +219,7 @@
 <script src="lib/eleme-index.js"></script>
 <script src="res/dependencies.js"></script>
 <script>
-    const CTT=require('element-china-area-data').CodeToText;
+    const CTT = require('element-china-area-data').CodeToText;
     const ElExtFoldable = require('/comps/el-ext-foldable');
     var post = require('/mods/backend');
 
@@ -401,7 +401,7 @@
                 })
             },
             viewDetail(row) {
-                while(app.detailForm[0]!==undefined){
+                while (app.detailForm[0] !== undefined) {
                     app.detailForm.pop();
                 }
                 var tmp = [];
