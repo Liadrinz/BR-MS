@@ -29,7 +29,6 @@ var post=require('./backend');
 function totalCompute(url,callback,searchKey,attrName){
     post(url,searchKey?searchKey:{pageNum:1},(data)=>{
         if(data.totalNum){
-            console.log(data.totalNum);
             callback(data.totalNum);
         }else if(data.allPages){
             var maxPage=data.allPages;
@@ -48,7 +47,6 @@ function totalCompute(url,callback,searchKey,attrName){
                 }else{
                     total=0;
                 }
-                console.log(total);
                 callback(total);
             })
         }else if(data.totalPage){
@@ -68,7 +66,6 @@ function totalCompute(url,callback,searchKey,attrName){
                 }else{
                     total=0;
                 }
-                console.log(total);
                 callback(total);
             })
         }
@@ -86,7 +83,7 @@ function clearData(listsToPop){
     }
 }
 
-function getData(params,dataCallback){
+function getData(params,dataCallback,no_alert){
     clearData(params.refresh);
     if(params.pageNum!==undefined){
         if(params.searchKey){
@@ -95,8 +92,17 @@ function getData(params,dataCallback){
         }
         post(params.url,params.searchKey?params.searchKey:{pageNum:params.pageNum,pageSize:params.pageSize},(data,err)=>{
             if(err){
-                params.app.$message.error(err.msg);
-                return;
+                if(!no_alert){
+                    params.app.$message.error(err.msg);
+                    return;
+                }else{
+                    try{
+                        getData(params,dataCallback,no_alert--)
+                    }catch(e){
+                        console.log(e);
+                        return;
+                    }
+                }
             }
             totalCompute(params.url,params.total,params.searchKey,params.itemName);
             dataCallback(data.allPages?data.allPages:data.totalPage,data[params.itemName]);
