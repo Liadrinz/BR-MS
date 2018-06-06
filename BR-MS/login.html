@@ -10,8 +10,8 @@
         }
 
         body {
-            background: url(res/bg-air.jpg) center top;
-            background-size: 100%;
+            background: url(res/login-bg.jpg);
+            background-size:1536px 768px;
         }
 
         .full-fill {
@@ -47,10 +47,12 @@
         }
 
         div#login-bg {
-            background: url(res/bg-ac.jpg) center top;
+            background: url(res/login-aside.png);
+            background-size: 105%;
         }
 
         #login-card-container {
+            margin-top: 75px;
             width: 850px;
             position: absolute;
             right: 50%;
@@ -60,12 +62,33 @@
             position: relative;
             right: -50%;
         }
+
+        .el-card__body{
+            padding:0;
+        }
+
+        #header{
+            z-index: 9999;
+            position:fixed;
+            left:0;
+            top:0;
+            width:100%;
+            height:85px;
+            background:#066efd;
+        }
+
     </style>
 </head>
 <body>
 <div id="app" v-cloak>
+    <div id="header">
+        <div style="padding:20px 25px;height:50px;">
+            <img src="res/text.png" style="height:90%;"/>
+        </div>
+    </div>
     <el-container>
-        <el-header></el-header>
+        <el-header>
+        </el-header>
         <el-main>
             <div id="login-card-container">
                 <el-card id="login-card">
@@ -76,16 +99,16 @@
                             <div id="login-form">
                                 <header>后勤物资<br>多维调度系统</header>
                                 <el-form :model="loginForm" ref="loginForm" :rules="rules" label-position="right"
-                                         label-width="80px">
-                                    <el-form-item prop="username" label="用户名" required>
-                                        <el-input v-model="loginForm.username"></el-input>
+                                         label-width="50px">
+                                    <el-form-item prop="username" required>
+                                        <el-input v-model="loginForm.username" placeholder="用户名"></el-input>
                                     </el-form-item>
-                                    <el-form-item prop="password" label="密码" required>
+                                    <el-form-item prop="password" required>
                                         <el-input type="password" v-model="loginForm.password"
-                                                  auto-complete="off"></el-input>
+                                                  auto-complete="off" placeholder="密码"></el-input>
                                     </el-form-item>
                                     <el-form-item>
-                                        <el-button type="primary" class="full-fill" @click="()=>{isLogging=true;loginPost()}" :loading="isLogging">{{isLogging?'登录中...':'登录'}}</el-button>
+                                        <el-button type="primary" class="full-fill" @click="loginPost" :loading="isLogging">{{isLogging?'登录中...':'登录'}}</el-button>
                                     </el-form-item>
                                     <el-form-item>
                                         <el-row :gutter="20">
@@ -138,49 +161,57 @@
         },
         methods: {
             loginPost: function(){
-                $.ajax({
-                    type: 'post',
-                    url: urlPrefix+'/login',
-                    headers:{'Content-Type':'application/json'},
-                    data: JSON.stringify({
-                        "username": this.loginForm.username,
-                        "password": this.loginForm.password
-                    }),
-                    beforeSend: function () {
-                        console.log('Prepared');
-                    },
-                    success: (data,result,XMLResponse) => {
-                        console.log(data.result);
-                        console.log(data);
-                        if (data.result === 1000) {
-                            var token=XMLResponse.getResponseHeader('token');
-                            localStorage.setItem('token',token);
-                            localStorage.setItem('realName',data.data.realName);
-                            localStorage.setItem('role',data.data.role);
-                            localStorage.setItem('username',data.data.username);
-                            localStorage.setItem('id',data.data.id);
-                            window.location.href="mainPage.html";
-                        }else if(data.result===4001){
-                            this.$alert('账号或密码错误');
-                            this.isLogging=false;
-                        }else if(data.result===4002){
-                            this.$alert('登录失败');
-                            this.isLogging=false;
-                        } else {
-                            this.$alert('登录失败');
-                            this.isLogging=false;
-                        }
-                    },
-                    complete: function () {
-                        console.log('Done');
-                    },
-                    error: () => {
-                        console.log();
-                        this.$alert('登录失败');
-                        this.isLogging=false;
-                    }
+                this.$refs['loginForm'].validate((valid)=>{
+                    if(valid){
+                        app.isLogging=true;
+                        $.ajax({
+                            type: 'post',
+                            url: urlPrefix+'/login',
+                            headers:{'Content-Type':'application/json'},
+                            data: JSON.stringify({
+                                "username": this.loginForm.username,
+                                "password": this.loginForm.password
+                            }),
+                            beforeSend: function () {
+                                console.log('Prepared');
+                            },
+                            success: (data,result,XMLResponse) => {
+                                console.log(data.result);
+                                console.log(data);
+                                if (data.result === 1000) {
+                                    var token=XMLResponse.getResponseHeader('token');
+                                    localStorage.setItem('token',token);
+                                    localStorage.setItem('realName',data.data.realName);
+                                    localStorage.setItem('role',data.data.role);
+                                    localStorage.setItem('username',data.data.username);
+                                    localStorage.setItem('id',data.data.id);
+                                    window.location.href="mainPage.html";
+                                }else if(data.result===4001){
+                                    this.$alert('账号或密码错误');
+                                    this.isLogging=false;
+                                }else if(data.result===4002){
+                                    this.$alert('登录失败');
+                                    this.isLogging=false;
+                                } else {
+                                    this.$alert('登录失败');
+                                    this.isLogging=false;
+                                }
+                            },
+                            complete: function () {
+                                console.log('Done');
+                            },
+                            error: () => {
+                                console.log();
+                                this.$alert('登录失败');
+                                this.isLogging=false;
+                            }
 
-                });
+                        });
+                    }else{
+                        return false;
+                    }
+                })
+
             }
         }
     });

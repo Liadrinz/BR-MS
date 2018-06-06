@@ -34,6 +34,7 @@
             </el-form-item>
             <el-form-item label="物资类别：" size="mini">
                 <el-select v-model="type" placeholder="物资类型" :disabled="tempVisible">
+                    <el-option :value="undefined">不限</el-option>
                     <el-option value="电脑整机">电脑整机</el-option>
                     <el-option value="大型家电">大型家电</el-option>
                     <el-option value="网络产品">网络产品</el-option>
@@ -171,11 +172,11 @@
                             address:selectedLocations,
                             detailA:singleForm.destinationAddress
                         }">
-                                    <el-form-item label="目的地地址：" size="mini" prop="address" required>
+                                    <el-form-item label="目的省市：" size="mini" prop="address" required>
                                         <el-cascader :options="areaData" v-model="selectedLocations"
                                                      @change="handleChange"></el-cascader>
                                     </el-form-item>
-                                    <el-form-item size="mini" prop="detailA" required>
+                                    <el-form-item label="详细地址：" size="mini" prop="detailA" required>
                                         <el-input v-model="singleForm.destinationAddress"></el-input>
                                     </el-form-item>
                                     <el-form :rules="applyRules.rule71" ref="form41" :model="singleForm">
@@ -313,11 +314,11 @@
                             address:selectedLocations,
                             detailA:singleForm.destinationAddress
                         }">
-                                    <el-form-item label="目的地地址：" size="mini" prop="address" required>
+                                    <el-form-item label="目的省市：" size="mini" prop="address" required>
                                         <el-cascader :options="areaData" v-model="selectedLocations"
                                                      @change="handleChange"></el-cascader>
                                     </el-form-item>
-                                    <el-form-item size="mini" prop="detailA" required>
+                                    <el-form-item label="详细地址：" size="mini" prop="detailA" required>
                                         <el-input v-model="singleForm.destinationAddress"></el-input>
                                     </el-form-item>
                                     <el-form :rules="applyRules.rule71" ref="form41" :model="singleForm">
@@ -482,7 +483,7 @@
 
                     <!--目的地地址 目的仓库-->
                     <el-form :inline="true" :rules="applyRules.rule7" ref="form10" :model="applicationForm[i]">
-                        <el-form-item label="目的地地址：" size="mini" prop="destinationProvince" required>
+                        <el-form-item label="省市：" size="mini" prop="destinationProvince" required>
                             <el-cascader :options="areaData" v-model="selectedLocationsList[i]"
                                          @change="()=>{
                                      handleChange();
@@ -549,7 +550,6 @@
     //交互没写
     var post = require('/mods/backend');
     var CTT = require('element-china-area-data').CodeToText;
-    var TTC = require('element-china-area-data').TextToCode;
     var searchKey = {};
     var items = [];
     var pageNum = 1, pageSize = 6, maxPage = 0;

@@ -9,8 +9,8 @@ getData({
     url:'/system/get_warehouses',//接口url
     app:app1,//所需操纵的Vue对象
     refresh:[items,],//每次获取数据需要清空的数组
+    searchKey:{},//搜索条件,需要包括pageSize
     pageNum:1,//你想获取第几页
-    pageSize:6,//每页条目数(后台默认为6,最好不改)
     itemName:'warehouses',//接口回参的Map对象中,你所想获取的数据的属性名
     total:(totalNum)=>{
         //回调,totalNum是所有条目的数量
@@ -28,24 +28,30 @@ var post=require('./backend');
 
 function totalCompute(url,callback,searchKey,attrName){
     post(url,searchKey?searchKey:{pageNum:1},(data)=>{
-        var maxPage=data.allPages;
-        if(searchKey){
-            searchKey['pageNum']=maxPage;
+        if(data.totalNum){
+            callback(data.totalNum);
+        }else if(data.allPages){
+            var maxPage=data.allPages;
+            if(searchKey){
+                searchKey['pageNum']=maxPage;
+            }
+            post(url,searchKey?searchKey:{pageNum:maxPage},(data)=>{
+                var arr=[];
+                var items=attrName?data[attrName]:data;
+                for(var key in items){
+                    arr.push(items[key]);
+                }
+                var total;
+                if(maxPage!==0){
+                    total=searchKey['pageSize']*(maxPage-1)+arr.length;
+                }else{
+                    total=0;
+                }
+                callback(total);
+            })
+        }else{
+            callback(0);
         }
-        post(url,searchKey?searchKey:{pageNum:maxPage},(data)=>{
-            var arr=[];
-            var items=attrName?data[attrName]:data;
-            for(var key in items){
-                arr.push(items[key]);
-            }
-            var total;
-            if(maxPage!==0){
-                total=searchKey['pageSize']*(maxPage-1)+arr.length;
-            }else{
-                total=0;
-            }
-            callback(total);
-        })
     })
 }
 
@@ -70,7 +76,7 @@ function getData(params,dataCallback){
                 return;
             }
             totalCompute(params.url,params.total,params.searchKey,params.itemName);
-            dataCallback(data.allPages,data[params.itemName]);
+            dataCallback(data.allPages?data.allPages:data.totalPage,data[params.itemName]);
         });
     }else{
         post(params.url,params.searchKey?params.searchKey:{},(data,err)=>{
