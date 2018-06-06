@@ -29,6 +29,7 @@ var post=require('./backend');
 function totalCompute(url,callback,searchKey,attrName){
     post(url,searchKey?searchKey:{pageNum:1},(data)=>{
         if(data.totalNum){
+            console.log(data.totalNum);
             callback(data.totalNum);
         }else if(data.allPages){
             var maxPage=data.allPages;
@@ -47,6 +48,7 @@ function totalCompute(url,callback,searchKey,attrName){
                 }else{
                     total=0;
                 }
+                console.log(total);
                 callback(total);
             })
         }else if(data.totalPage){
@@ -66,6 +68,7 @@ function totalCompute(url,callback,searchKey,attrName){
                 }else{
                     total=0;
                 }
+                console.log(total);
                 callback(total);
             })
         }
