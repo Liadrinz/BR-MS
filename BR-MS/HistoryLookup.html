@@ -226,7 +226,7 @@
         </el-table>
         <p style="text-align: center">
             <el-pagination @current-change="handleCurrentChange" :current-page="pageNum"
-                           :page-size="6" layout="total,prev,pager,next,jumper" :total="total[0]"></el-pagination>
+                           :page-size="pageSize" layout="total,prev,pager,next,jumper" :total="total[0]"></el-pagination>
         </p>
     </div>
 
@@ -247,8 +247,11 @@
             if (searchKey[i] !== "")
                 validate[i] = searchKey[i];
         }
+        validate['pageNum']=app.pageNum;
+        if(validate['warehouseId'])
+            validate['warehouseId']=String(validate['warehouseId']);
         console.log(validate);
-        if (app.eventTypes[app.formInput.eventType] == 1) {
+        if (app.eventTypes[app.formInput.eventType] === 1) {
             post('/common/enandex', validate, (data, err) => {
                 app.lookupDateText = app.dateText;
                 if(err){
@@ -267,7 +270,7 @@
                     scheduleItems2.push(Schedule[i]);
                 }
             });
-        } else if (app.eventTypes[app.formInput.eventType] == 2) {
+        } else if (app.eventTypes[app.formInput.eventType] === 2) {
             post('/common/allapply', validate, (data, err) => {
                 app.lookupDateText = app.dateText;
                 if(err){
@@ -286,7 +289,7 @@
                     scheduleItems.push(Schedule[i]);
                 }
             });
-        } else if (app.eventTypes[app.formInput.eventType] == 3) {
+        } else if (app.eventTypes[app.formInput.eventType] === 3) {
             post('/common/comdis', validate, (data, err) => {
                 app.lookupDateText = app.dateText;
                 if(err){
@@ -338,8 +341,9 @@
                 validate['pageNum'] = max;
                 post('/common/enandex', validate, (data) => {
                     var len = data.transViews.length;
-                    totalRef.pop();
-                    totalRef.push(len);
+                    while(totalRef[0]!==undefined)
+                        totalRef.pop();
+                    totalRef.push(len+6*(max-1));
                     searchKey['pageNum'] = temp;
                 })
             });
@@ -349,13 +353,24 @@
                 validate['pageNum'] = max;
                 post('/common/allapply', validate, (data) => {
                     var len = data.schedules.length;
-                    totalRef.pop();
-                    totalRef.push(len);
+                    while(totalRef[0]!==undefined)
+                        totalRef.pop();
+                    totalRef.push(len+6*(max-1));
                     searchKey['pageNum'] = temp;
                 })
             });
         } else if (app.eventTypes[app.formInput.eventType] == 3) {
-
+            post('/common/comdis', validate, (data) => {
+                var max = data.allPages;
+                validate['pageNum'] = max;
+                post('/common/comdis', validate, (data) => {
+                    var len = data.scheViews.length;
+                    while(totalRef[0]!==undefined)
+                        totalRef.pop();
+                    totalRef.push(len+6*(max-1));
+                    searchKey['pageNum'] = temp;
+                })
+            });
         } else {
             app.$message.error('请选择事件类型');
         }
@@ -391,6 +406,7 @@
         data: {
             initializing:false,
             pageNum: pageNum,
+            pageSize:6,
             total: totalRef,
             formInput: {
                 date: undefined,
@@ -447,8 +463,9 @@
         },
         methods: {
             search: function () {
+                app.pageNum=1;
                 searchKey = {
-                    warehouseid: app.formInput.repo,
+                    warehouseId: app.formInput.repo,
                     pageNum: app.pageNum,
                     start_time: app.dateText.slice(0, 19),
                     end_time: app.dateText.slice(22)
@@ -466,6 +483,7 @@
             },
             handleCurrentChange: function (page) {
                 searchKey['pageNum'] = page;
+                app.pageNum=page;
                 getData(searchKey);
             },
             getWarehouses: function () {

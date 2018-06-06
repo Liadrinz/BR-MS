@@ -56,7 +56,7 @@
         </el-form-item>
         <el-form-item>
             <el-button type="primary" @click="search">查询</el-button>
-            <el-button type="reset" @click="reset">重置</el-button>
+            <el-button type="reset" @click="reset">返回</el-button>
         </el-form-item>
     </el-form>
     <template>
@@ -64,34 +64,34 @@
             <el-table-column type="expand">
                 <template slot-scope="props">
                     <el-form label-position="left" inline class="demo-table-expand">
-                        <el-form-item label="用户真实姓名">
+                        <el-form-item label="申请号">
+                            <span>{{props.row.applicationNum}}</span>
+                        </el-form-item>
+                        <el-form-item label="申请人">
                             <span>{{props.row.userRealName}}</span>
                         </el-form-item>
-                        <el-form-item label="用户部门名称">
+                        <el-form-item label="申请人所在部门">
                             <span>{{props.row.companyName}}</span>
                         </el-form-item>
                         <el-form-item label="货物本地ID">
-                            <span>{{props.row.goodLocalId}}</span>
+                            <span>{{props.row.goodsId}}</span>
                         </el-form-item>
                         <el-form-item label="创建时间">
                             <span>{{props.row.createTime}}</span>
                         </el-form-item>
-                        <el-form-item label="更新时间">
-                            <span>{{props.row.updateTime}}</span>
-                        </el-form-item>
+                        <!--<el-form-item label="更新时间">-->
+                            <!--<span>{{props.row.updateTime}}</span>-->
+                        <!--</el-form-item>-->
                         <el-form-item label="期待时间成本">
                             <span>{{props.row.expectTime}}</span>
-                        </el-form-item>
-                        <el-form-item label="申请单有效时间">
-                            <span>{{validTime}}</span>
                         </el-form-item>
                         <el-form-item label="发货仓库">
                             <span>{{props.row.startWarehouseName}}</span>
                         </el-form-item>
-                        <el-form-item label="申请货物目的仓库">
+                        <el-form-item label="收货仓库">
                             <span>{{props.row.endWarehouseName}}</span>
                         </el-form-item>
-                        <el-form-item label="目的地址">
+                        <el-form-item label="收货地址">
                             <span>{{props.row.destinationAddress}}</span>
                         </el-form-item>
                         <el-form-item label="目的省">
@@ -100,13 +100,12 @@
                         <el-form-item label="目的城市">
                             <span>{{props.row.destinationCity}}</span>
                         </el-form-item>
-                        <el-form-item label="申请号">
-                            <span>{{props.row.applicationNum}}</span>
-                        </el-form-item>
                         <el-form-item label="申请描述">
                             <span>{{props.row.description}}</span>
                         </el-form-item>
-                    </el-form>
+                        <el-form-item label="申请有效时间">
+                            <span>{{props.row.validTime+'天'}}</span>
+                        </el-form-item>：disabled1</el-form>
                 </template>
             </el-table-column>
             <el-table-column prop="goodsName" label="货物名称">
@@ -134,8 +133,13 @@
             </el-table-column>
             <el-table-column label="操作" :width="250">
                 <template slot-scope="props">
-                    <el-button v-if="props.row.state==0" type="primary" size="mini" @click="()=>{viewRoute(props.row)}">跟踪</el-button>
-                    <el-button v-if="props.row.state==0" type="danger" size="mini" @click="()=>{cancelReq(props.row)}">撤销</el-button>
+                    <el-button :disabled="props.row.state==1" type="primary" size="mini" @click="()=>{viewRoute(props.row)}" :title="props.row.state==1?'该申请已撤销':''">跟踪</el-button>
+                    <el-button :disabled="props.row.state==1||props.row.isPass==1" type="danger" size="mini" @click="()=>{cancelReq(props.row)}" :title="(()=>{
+                    if(props.row.state===1)
+                        return '该申请已撤销'
+                    else if(props.row.isPass===1)
+                        return '该申请已被通过，无法撤销'
+                    })()">撤销</el-button>
                 </template>
             </el-table-column>
         </el-table>

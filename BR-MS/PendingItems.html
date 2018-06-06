@@ -53,7 +53,7 @@
                             type="success" plain size="mini"
                             @click="showAllowNum(scope.$index)"
                             :loading="states.buttonLoad.allow">审核通过</el-button>
-                    <el-button type="danger" plain size="mini">驳回申请</el-button>
+                    <el-button type="danger" plain size="mini" @click="refuse(scope.row)">驳回申请</el-button>
                 </span>
             </template>
         </el-table-column>
@@ -94,6 +94,9 @@
             <el-form
                     v-if="states.dataReady" class="items-shorter"
                     label-width="120px" label-position="left">
+                <el-form-item label="申请单号">
+                    {{ currentRow.applicationNum }}
+                </el-form-item>
                 <el-form-item label="申请人">
                     {{ currentRow.userRealName }}
                 </el-form-item>
@@ -221,6 +224,20 @@
             allowedNum: ''
         },
         methods: {
+            refuse(row){
+                post('/depot/allow_apply',{
+                    scheduleId:row.schedule_id,
+                    choose:-1
+                },(data,err)=>{
+                    if(err){
+                        return;
+                    }
+                    app.$message.success('已驳回请求');
+                    this.dialogs['allowNum'] = false;
+                    app.states.dataReady=false;
+                    getData(app);
+                })
+            },
             handleCurrentChange(newCurrPage){
                 app.pagination.currPage=newCurrPage;
                 getData(app);

@@ -40,7 +40,7 @@
         header {
             display: flex;
             justify-content: space-between;
-            flex: 0 0 110px;
+            flex: 0 0 90px;
             overflow: hidden;
             /*border-bottom: 1px solid #eee;*/
             box-shadow: 1px 1px 4px 0 rgba(0, 0, 0, 0.15);
@@ -65,7 +65,7 @@
             left: 134px;
             font-size: 28px;
             font-family: 'FZQuSong', 'Microsoft YaHei UI', sans-serif;
-            color: #508eca;
+            color: #eee;
         }
 
         header > #user-info {
@@ -77,14 +77,14 @@
 
         #user-info > img {
             position: absolute;
-            left: 43px;
+            left: 35px;
             top: 14px;
         }
 
         #user-info > div {
             position: absolute;
-            left: 135px;
-            top: 24px;
+            left: 100px;
+            top: 18px;
             width: 104px;
             height: 68px;
             text-align: center;
@@ -94,7 +94,7 @@
             display: inline-block;
             font-size: 18px;
             line-height: 32px;
-            color: #2d93e6;
+            color: #eee;
             font-weight: bold;
         }
 
@@ -124,9 +124,16 @@
             height: 100%;
         }
 
-        .logout{
-            margin:0;
-            padding:3px;
+        .logout {
+            position:absolute;
+            left:100px;
+            top:35px;
+        }
+
+        #role-text{
+            position:absolute;
+            left:10px;
+            top:35px;
         }
 
     </style>
@@ -134,16 +141,17 @@
 <body>
 
 <div id="app" class="full-page flex-column" v-cloak>
-    <header class="container">
+    <header class="container" :style="roleColor">
         <div id="logo-text">
-            <img src="res/icon-box.png">
-            <span>后勤物资多维度调配系统</span>
+            <div style="padding:20px 25px;height:50px;">
+                <img src="res/text.png" style="height:90%;"/>
+            </div>
         </div>
         <div id="user-info">
-            <img src="res/user-avatar.png">
+            <img src="res/user-avatar.png" height="70%">
             <div>
-                <span class="user-name">{{user.name}}</span>
-                <el-tag type="primary" size="medium">{{roleText}}</el-tag>
+                <span class="user-name" style="display: inline-block;">{{user.name}}</span>
+                <el-tag type="info" size="medium" id="role-text" style="color:#eee;">{{roleText}}</el-tag>
                 <el-button class="logout" type="warning" size="mini" @click="logout">注销</el-button>
             </div>
         </div>
@@ -183,18 +191,20 @@
 <script src="lib/eleme-index.js"></script>
 <script src="res/dependencies.js"></script>
 <script>
-    var post=require('/mods/backend');
-    function judgeLogin(){
-        post('/common/getms',{
-            pageNum:1
-        },(data,err)=>{
-            if(err){
-                if(err.id===post.NOT_LOGIN){
-                    window.location.href='login.html';
+    var post = require('/mods/backend');
+
+    function judgeLogin() {
+        post('/common/getms', {
+            pageNum: 1
+        }, (data, err) => {
+            if (err) {
+                if (err.id === post.NOT_LOGIN) {
+                    window.location.href = 'login.html';
                 }
             }
         })
     }
+
     var roles = require('/mods/roles');
     var app = new Vue({
         el: '#app',
@@ -209,15 +219,24 @@
             router: ''
         },
         computed: {
-            roleText: function() {
+            roleText: function () {
                 return roles.roleText[this.user.role];
+            },
+            roleColor: function () {
+                if (this.user.role == 'admin') {
+                    return 'background:#182632;';
+                } else if (this.user.role == 'manager') {
+                    return 'background:#0a70fd;';
+                } else {
+                    return 'background:#c1ddff;';
+                }
             }
         },
-        created: function() {
+        created: function () {
             judgeLogin();
             this.user.name = localStorage.getItem('realName');
-            if(this.user.name==null){
-                window.location.href='login.html';
+            if (this.user.name == null) {
+                window.location.href = 'login.html';
             }
             this.user.role = roles.backToMine[localStorage.getItem('role')];
             this.token = localStorage.getItem('token');
@@ -232,9 +251,9 @@
                 judgeLogin();
                 this.router = url;
             },
-            logout:function(){
+            logout: function () {
                 localStorage.clear();
-                window.location.href="login.html";
+                window.location.href = "login.html";
             }
         }
     });

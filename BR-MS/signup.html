@@ -6,7 +6,8 @@
     <link rel="stylesheet" href="lib/eleme-index.css">
     <style>
         body {
-            background: url(res/bg-air.jpg) center top;
+            background: url(res/login-bg.jpg);
+            background-attachment: fixed;
             background-size: 100%;
             margin: 0;
         }
@@ -66,24 +67,38 @@
         [v-cloak]{
             display: none;
         }
+
+        #header{
+            z-index: 9999;
+            position:fixed;
+            left:0;
+            top:0;
+            width:100%;
+            height:85px;
+            background:#066efd;
+        }
+
+        #sign-card{
+            margin-top: 30px;
+        }
+
     </style>
 </head>
 <body>
 <div id="app" v-cloak>
+    <div id="header">
+        <div style="padding:20px 25px;height:50px;">
+            <img src="res/text.png" style="height:90%;"/>
+        </div>
+    </div>
     <el-container>
-        <el-header class="header">
-            <div id="header-bg">
-                <div id="logo-text">
-                    <img src="res/icon-box.png">
-                    <span>后勤物资多维度调配系统</span>
-                </div>
-            </div>
+        <el-header>
         </el-header>
         <el-main>
             <el-row v-loading.fullscreen.lock="loading" element-loading-text="正在提交"
                     element-loading-background="rgba(0,0,0,0.7)">
                 <el-col :span="14" :offset="5">
-                    <el-card>
+                    <el-card id="sign-card">
                         <transition name="el-fade-in">
                             <div v-show="state===0">
                                 <h2>用户注册</h2>
@@ -158,7 +173,7 @@
                                             <el-form-item label="仓库" prop="warehouseId" required>
                                                 <el-select v-model="form1.warehouseId"
                                                           placeholder="请选择仓库">
-                                                    <el-option v-for="warehouse in warehouseChoice" :label="warehouse.warehouseName" :value="warehouse.warehouseId">{{warehouse.warehouseName+' (ID='+String(warehouse.warehouseId)+')'}}</el-option>
+                                                    <el-option v-for="warehouse in warehouseChoice" :label="warehouse.warehouseName" :value="warehouse.warehouseId">{{warehouse.warehouseName}}</el-option>
                                                 </el-select>
                                             </el-form-item>
                                         </div>
@@ -413,7 +428,13 @@
                     '固定电话': this.form1.tel,
                     '电子邮箱': this.form1.email,
                     '联系地址': this.form1.address,
-                    '仓库id': this.form1.warehouseId,
+                    '仓库':(()=>{
+                        for(let warehouse of this.warehouseChoice){
+                            if(warehouse.warehouseId==this.form1.warehouseId){
+                                return warehouse.warehouseName;
+                            }
+                        }
+                    })(),
                 };
 
                 var result = [];

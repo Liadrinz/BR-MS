@@ -5,14 +5,89 @@
     <title>库存盘点</title>
     <link rel="stylesheet" href="lib/eleme-index.css">
     <style>
-        [v-cloak] {
-            visibility: hidden;
-        }
     </style>
 </head>
 <body>
-<div id="app" v-cloak>
-    <el-button @click="test">测试</el-button>
+<div id="app">
+    <el-card>
+        <el-form :model="inSelection">
+            <el-form :inline="true">
+                <el-form-item label="入库类型：" size="mini">
+                    <el-select v-model="inSelection.inboundType">
+                        <el-option label="正常入库" value="正常入库">正常入库</el-option>
+                    </el-select>
+                </el-form-item>
+            </el-form>
+            <el-form :inline="true">
+                <el-form-item label="货品编号：" size="mini"><el-input v-model="inSelection.goodsLocalId"></el-input></el-form-item>
+                <el-form-item label="责任人：" size="mini"><el-input v-model="inSelection.charity"></el-input></el-form-item>
+            </el-form>
+            <el-form :inline="true">
+                <el-form-item label="仓库：" size="mini"><span>{{currentWarehouse}}</span></el-form-item>
+                <el-form-item label="入库时间范围：" size="mini">
+                    <el-date-picker v-model="timeSelect" @change="transferDate(inSelection)" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期">{{timeSelect}}</el-date-picker>
+                </el-form-item>
+                <el-form-item size="mini">
+                    <el-button style="background-color: #ececec" @click="search">查询</el-button>
+                </el-form-item>
+            </el-form>
+        </el-form>
+    </el-card>
+    <el-table :data="queryResult" size="mini" max-height="250" :default-sort="{prop: 'rukushijian', order: 'descending'}">
+        <el-table-column type="expand"><!--折叠部分项-->
+            <template slot-scope="props">
+                <el-form label-position="right" class="demo-table-expand">
+                    <el-form :inline="true">
+                        <el-form-item label="货品名称：" size="mini">
+                            <span>{{ props.row.name }}</span>
+                        </el-form-item>
+                        <el-form-item label="货品编号：" size="mini">
+                            <span>{{ props.row.shop }}</span>
+                        </el-form-item>
+                    </el-form>
+                    <el-form :inline="true">
+                        <el-form-item label="单位：" size="mini">
+                            <span>{{ props.row.shopId }}</span>
+                        </el-form-item>
+                        <el-form-item label="数量：" size="mini">
+                            <span>{{ props.row.category }}</span>
+                        </el-form-item>
+                    </el-form>
+                    <el-form :inline="true">
+                        <el-form-item label="责任人：" size="mini">
+                            <span>{{ props.row.desc }}</span>
+                        </el-form-item>
+                        <el-form-item label="存放库位：" size="mini">
+                            <span>{{ props.row.address }}</span>
+                        </el-form-item>
+                    </el-form>
+                </el-form>
+            </template>
+        </el-table-column>
+        <el-table-column type="index" width="50" label="序号"></el-table-column>
+        <el-table-column prop="huopinmingcheng" label="货品名称" width="100"></el-table-column>
+        <el-table-column prop="huopinbianhao" label="货品编号" width="100"></el-table-column>
+        <el-table-column prop="xiangxixinxi" label="货品信息" width="80">
+            <!--点击查看当前物资详细信息-->
+            <template slot-scope="scope">
+                <el-button size="mini" style="background-color: #ececec" @click="dialogVisible=true">查看
+                </el-button>
+                <el-dialog title="货品详细信息" :visible.sync="dialogVisible" width="50%" :before-close="handleClose">
+                    <span>这里应该是所选货品的详细信息</span>
+                    <span slot="footer" class="dialog-footer">
+                        <el-button @click="dialogVisible = false" size="mini" style="background-color: #ececec">关闭</el-button>
+                    </span>
+                </el-dialog>
+            </template>
+        </el-table-column>
+        <el-table-column prop="rukushijian" label="入库时间"width="100"></el-table-column>
+        <el-table-column prop="beizhu" label="备注"width="250"></el-table-column>
+    </el-table>
+    <el-form>
+        <el-form-item size="mini">
+            <el-button style="background-color: #ececec">生成货品清单</el-button>
+        </el-form-item>
+    </el-form>
 </div>
 </body>
 <script src="lib/vue.js"></script>
@@ -22,13 +97,75 @@
 <script>
     var post = require('/mods/backend');
 
+    var catchData=require('/mods/pagination').getData;
+
+    function getData(app){
+        catchData({
+            url:'/depot/stocktaking/stocktaking',
+            app:app,
+            refresh:[app.queryResult,],
+            searchKey:(()=>{
+                var obj={};
+                Object.assign(obj,app.inSelection);
+                return obj;
+            })(),
+            pageNum:app.pageNum,
+            itemName:'goods',
+            total:(totalNum)=>{
+                while(totalPages[0]!==undefined){
+                    totalPages.pop();
+                }
+                totalPages.push(totalNum);
+            }
+        },(allPages,data)=>{
+            while(app.queryResult[0]!==undefined){
+                app.queryResult.pop();
+            }
+            for(var item of data){
+                app.queryResult.push(item);
+            }
+        });
+    }
+
+     var totalPages=[0,];
+
     var app = new Vue({
         el: '#app',
-        data: {
-            results: [],
-            userInfo: []
+        data: function(){
+            return{
+                pageNum:1,
+                currentWarehouse:'',
+                timeSelect:[],/*时间选择器*/
+                dialogVisible: false, /*查看当前货品详细信息 查看 button*/
+
+                inSelection:{
+                },
+                queryResult:[]
+            }
         },
-        methods: {},
+        mounted(){
+            post('/depot/initialize',{},(data,err)=>{
+                if(err){
+                    return;
+                }
+                app.currentWarehouse=data.warehouseName;
+            })
+        },
+        methods: {
+            transferDate(form){
+                if(app.timeSelect!==null){
+                    let s=app.timeSelect[0],e=app.timeSelect[1];
+                    form.start_time=s.getFullYear()+'-'+(s.getMonth()+1<10?'0'+(s.getMonth()+1):(s.getMonth()+1))+'-'+(s.getDate()<10?('0'+s.getDate()):s.getDate())+' 00:00:00';
+                    form.end_time=e.getFullYear()+'-'+(e.getMonth()+1<10?'0'+(e.getMonth()+1):(e.getMonth()+1))+'-'+(e.getDate()<10?('0'+e.getDate()):e.getDate())+' 00:00:00';
+                }else{
+                    form.start_time=undefined;
+                    form.end_time=undefined;
+                }
+            },
+            search(){
+                getData(app);
+            }
+        },
     });
 </script>
 </html>

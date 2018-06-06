@@ -14,11 +14,15 @@
         }
 
         .el-card {
-            margin-bottom:5px;
+            margin-bottom: 5px;
         }
 
         p.form-item {
             margin: 2px 0 5px;
+        }
+
+        .el-table {
+            height: 750px;
         }
     </style>
 </head>
@@ -30,23 +34,25 @@
         <el-form :model="inGoing" inline>
             <p class="form-item">
                 <el-form-item label="操作员：" size="mini">
-                    <el-input v-model="inGoing.caozuoyuan" :disabled="true"></el-input>
+                    <el-input v-model="inGoing.realName" :disabled="true"></el-input>
                 </el-form-item>
                 <el-form-item label="仓库：" size="mini">
-                    <el-input v-model="inGoing.cangku" :disabled="true"></el-input>
+                    <el-input v-model="inGoing.warehouseName" :disabled="true"></el-input>
                 </el-form-item>
             </p>
             <p class="form-item">
                 <el-form-item label="建单人：" size="mini">
-                    <el-input v-model="inGoing.jiandanren"></el-input>
+                    <el-input v-model="inGoing.founder"></el-input>
                 </el-form-item>
                 <el-form-item label="建单日期：" size="mini">
-                    <el-input v-model="inGoing.jiandanriqi"></el-input>
+                    <el-date-picker v-model="inGoing.createTime" type="date"
+                                    format="yyyy年MM月dd日"
+                                    value-format="yyyy-MM-dd" :disabled="true"></el-date-picker>
                 </el-form-item>
             </p>
             <p class="form-item">
                 <el-form-item label="入库单号：" size="mini">
-                    <el-input v-model="inGoing.rukudanhao"></el-input>
+                    <el-input v-model="inGoing.inboundNum" :disabled="true"></el-input>
                 </el-form-item>
                 <el-form-item label="入库类别：" size="mini">
                     <el-select v-model="inGoing.rukuleibie">
@@ -65,39 +71,44 @@
         </el-form>-->
         <hr style="height:1px; border:none; border-top:1px dashed #c0c4cc">
         <p class="form-item">
-            <el-table :data="inResult" size="mini" max-height="250">
+            <el-table :data="inResult.slice((pageNum0-1)*6,pageNum0*6)" size="mini" max-height="250">
                 <el-table-column type="index" width="44" label="序号"></el-table-column>
-                <el-table-column prop="huopinbianhao" label="货品编号"></el-table-column>
-                <el-table-column prop="huopinmingcheng" label="货品名称"></el-table-column>
-                <el-table-column prop="danwei" label="单位"></el-table-column>
+                <el-table-column prop="localId" label="货品编号"></el-table-column>
+                <el-table-column prop="goodsName" label="货品名称"></el-table-column>
+                <el-table-column prop="unit" label="单位" width="180"></el-table-column>
                 <!--可编辑项 begin  *与出库不同——删 去向 项-->
-                <el-table-column prop="rukushiliang" label="入库数量" width="75">
+                <el-table-column prop="amount" label="入库数量" width="75">
                     <template slot-scope="scope">
-                        <el-input size="mini"></el-input>
+                        <el-input size="mini" v-model="scope.row.amount"></el-input>
                     </template>
                 </el-table-column>
-                <el-table-column prop="rukushijian" label="入库时间" width="80">
+                <el-table-column prop="inboundTime" label="入库时间" width="200">
                     <template slot-scope="scope">
-                        <el-input size="mini"></el-input>
+                        <el-date-picker v-model="scope.row.inboundTime" type="date"
+                                        format="yyyy年MM月dd日" style="width:150px;"
+                                        value-format="yyyy-MM-dd" size="mini"></el-date-picker>
                     </template>
                 </el-table-column>
                 <!--可编辑项 end-->
-                <el-table-column prop="zerenren" label="责任人"></el-table-column>
-                <el-table-column prop="lianxidianhua" label="联系电话"></el-table-column>
-                <el-table-column prop="beizhu" label="备注"></el-table-column>
-                <el-table-column prop="shanchu" label="">
+                <el-table-column prop="charity" label="责任人" width="85"></el-table-column>
+                <el-table-column prop="phone" label="联系电话"></el-table-column>
+                <el-table-column prop="remark" label="备注"></el-table-column>
+                <el-table-column>
                     <!--点击删除当前已选中货品-->
                     <template slot-scope="scope">
                         <el-button size="mini" style="background-color: #ececec"
-                                   @click.native.prevent="deleteRow(scope.$index,inResult)">删除
+                                   @click.native.prevent="deleteRow(scope.row)">删除
                         </el-button>
                     </template>
                 </el-table-column>
             </el-table>
+            <el-pagination @current-change="handleCurrentChange0" :current-page="pageNum0"
+                           :page-size="6" layout="total,prev,pager,next,jumper"
+                           :total="inResult.length"></el-pagination>
         </p>
         <p class="form-item">
             <!--保存 生成货品清单-->
-            <el-button style="background-color: #ececec">保存</el-button>
+            <el-button style="background-color: #ececec" @click="save">保存</el-button>
             <!--点击调用打印机 打印inResult表格清单-->
             <el-button style="background-color: #ececec">生成货品清单</el-button>
         </p>
@@ -109,61 +120,96 @@
             <p class="form-item">
                 <!-- TODO: 放入组件 -->
                 <el-form-item label="货品类别">
-                    <el-ext-foldable :options="[1,2,3,4]"></el-ext-foldable>
+                    <el-ext-foldable :options="resTypeList" v-model="queryCondition.type"></el-ext-foldable>
                 </el-form-item>
             </p>
             <p class="form-item">
                 <el-form-item label="货品名称：" size="mini">
-                    <el-input v-model="queryCondition.huopinmingcheng"></el-input>
+                    <el-input v-model="queryCondition.goodsName"></el-input>
                 </el-form-item>
                 <el-form-item label="供应商：" size="mini">
-                    <el-select v-model="queryCondition.gongyingshang">
-                        <el-option label="一" value="TB"></el-option>
-                        <el-option label="二" value="JD"></el-option>
-                    </el-select>
+                    <el-input v-model="queryCondition.producerName"></el-input>
                 </el-form-item>
             </p>
             <p class="form-item">
                 <el-form-item label="货品编号：" size="mini">
-                    <el-input v-model="queryCondition.huopinbianhao"></el-input>
+                    <el-input v-model="queryCondition.localId"></el-input>
                 </el-form-item>
             </p>
             <p class="form-item">
                 <el-form-item size="mini">
-                    <el-button style="background-color: #ececec">查找</el-button>
+                    <el-button style="background-color: #ececec" @click="search">查找</el-button>
                 </el-form-item>
             </p>
             <hr style="height:1px; border:none; border-top:1px dashed #c0c4cc">
             <p class="form-item">
                 <el-table :data="queryResult" size="mini" max-height="250">
                     <el-table-column type="index" width="50" label="序号"></el-table-column>
-                    <el-table-column prop="huopinbianhao" label="货品编号"></el-table-column>
-                    <el-table-column prop="huopinmingcheng" label="货品名称"></el-table-column>
-                    <el-table-column prop="rukushijian" label="入库时间"></el-table-column>
-                    <el-table-column prop="gongyingshang" label="供应商"></el-table-column>
-                    <el-table-column prop="xiangxixinxi" label="详细信息" width="80">
+                    <el-table-column prop="localId" label="货品编号"></el-table-column>
+                    <el-table-column prop="goodsName" label="货品名称"></el-table-column>
+                    <el-table-column prop="inboundTime" label="入库时间"></el-table-column>
+                    <el-table-column prop="supplier" label="供应商"></el-table-column>
+                    <el-table-column label="详细信息" width="80">
                         <!--点击查看当前物资详细信息-->
                         <template slot-scope="scope">
-                            <el-button size="mini" style="background-color: #ececec" @click="dialogVisible=true">查看
+                            <el-button size="mini" style="background-color: #ececec" @click="viewDetail(scope.row)">查看
                             </el-button>
-                            <el-dialog title="货品详细信息" :visible.sync="dialogVisible" width="50%"
-                                       :before-close="handleClose">
-                                <span>这里应该是所选货品的详细信息</span>
-                                <span slot="footer" class="dialog-footer">
-                                <el-button @click="dialogVisible = false" size="mini" style="background-color: #ececec">关闭</el-button>
-                            </span>
-                            </el-dialog>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="zerenren" label="责任人"></el-table-column>
-                    <el-table-column prop="lianxidianhua" label="联系电话"></el-table-column>
+                    <el-table-column prop="charity" label="责任人"></el-table-column>
+                    <el-table-column prop="phone" label="联系电话"></el-table-column>
                     <el-table-column prop="ruku" label="">
                         <!--点击入库 复制转移所有当前货品编号至 inResult-->
                         <template slot-scope="scope">
-                            <el-button size="mini" style="background-color: #ececec">入库</el-button>
+                            <el-button size="mini" style="background-color: #ececec" @click="goIn(scope.row)"
+                                       :disabled="scope.row.isIn">入库
+                            </el-button>
                         </template>
                     </el-table-column>
                 </el-table>
+                <el-pagination @current-change="handleCurrentChange" :current-page="pageNum"
+                               :page-size="pageSize" layout="total,prev,pager,next,jumper"
+                               :total="total[0]"></el-pagination>
+                <el-dialog title="货品详细信息" :visible.sync="dialogVisible" width="95%"
+                           :before-close="handleClose">
+                    <el-table :data="detailForm">
+                        <el-table-column prop="key1" :width="150">
+                            <template slot-scope="props">
+                                <b>{{props.row.key1}}</b>
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="val1" :width="200">
+                            <template slot-scope="props">
+                                <span>{{props.row.val1}}</span>
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="key2" :width="150">
+                            <template slot-scope="props">
+                                <b>{{props.row.key2}}</b>
+                            </template>
+                        </el-table-column>
+
+                        <el-table-column prop="val2" :width="200">
+                            <template slot-scope="props">
+                                <span>{{props.row.val2}}</span>
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="key3" :width="150">
+                            <template slot-scope="props">
+                                <b>{{props.row.key3}}</b>
+                            </template>
+                        </el-table-column>
+
+                        <el-table-column prop="val3" :width="200">
+                            <template slot-scope="props">
+                                <span>{{props.row.val3}}</span>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                    <span slot="footer" class="dialog-footer">
+                                <el-button @click="dialogVisible = false" size="mini" style="background-color: #ececec">关闭</el-button>
+                            </span>
+                </el-dialog>
             </p>
         </el-form>
     </el-card>
@@ -173,60 +219,261 @@
 <script src="lib/eleme-index.js"></script>
 <script src="res/dependencies.js"></script>
 <script>
+    const CTT = require('element-china-area-data').CodeToText;
     const ElExtFoldable = require('/comps/el-ext-foldable');
+    var post = require('/mods/backend');
+
+    var catchData = require('/mods/pagination').getData;
+
+    var totalPages = [0,];
+
+    function getData(app) {
+        post('/depot/initialize', {}, (data, err) => {
+            if (err) {
+                return;
+            }
+            app.inGoing.warehouseName = data.warehouseName;
+            app.inGoing.realName = data.realName;
+        });
+    }
+
+    function queryFor(app) {
+        catchData({
+            url: '/depot/query_schedule',
+            app: app,
+            refresh: [app.queryResult,],
+            searchKey: (() => {
+                var obj = {};
+                Object.assign(obj, app.queryCondition, {method: '入库'});
+                if (!obj.type[0]) {
+                    delete obj.type;
+                }
+                return obj;
+            })(),
+            pageNum: app.pageNum,
+            pageSize: app.pageSize,
+            itemName: 'views',
+            total: (totalNum) => {
+                while (totalPages[0] !== undefined) {
+                    totalPages.pop();
+                }
+                totalPages.push(totalNum);
+            }
+        }, (allPages, data) => {
+            for (var item of data) {
+                item['isIn'] = false;
+                app.queryResult.push(item);
+            }
+        })
+    }
+
+    function generate_num(){
+        let da = new Date();
+        let postfix = String(Date.parse(da)).slice(4, 10);
+        let [year, month, date] = [
+            da.getFullYear(),
+            da.getMonth() + 1 < 10 ? '0' + (da.getMonth() + 1) : da.getMonth() + 1,
+            da.getDate() < 10 ? '0' + da.getDate() : da.getDate()
+        ];
+        return [year, month, date].join('') + '1' + postfix;
+    }
+
+    function generate_created_time(){
+        var today = new Date();
+        var yyyy = today.getFullYear();
+        var mm = today.getMonth() + 1 < 10 ? ('0' + (today.getMonth() + 1)) : (today.getMonth() + 1);
+        var dd = today.getDate() < 10 ? ('0' + today.getDate()) : (today.getDate());
+        return yyyy + '-' + mm + '-' + dd;
+    }
 
     var app = new Vue({
         el: '#app',
         data: function () {
             return {
+                pageNum0: 1,
+                pageSize: 6,
+                pageNum: 1,
+                total: totalPages,
+                resTypeList: [
+                    '电脑整机', '大型家电', '网络产品', '厨房电器',
+                    '电脑配件', '五金装饰', '摄影摄像', '健康卫生',
+                    '数码配件', '通信器材', '办公设备', '家具',
+                    '文具耗材', '生活电器', '生活用品', '汽车用品',
+                    '文体器材', '学习书籍', '粮油食品', '工程建材',
+                    '医疗卫生', '油品', '军队服装', '交通工具', '其他'
+                ],
                 queryCondition: {
                     /* 查找部分 —— 查找条件 */
-                    huopinmingcheng: '',
-                    gongyingshang: '',
-                    huopinbianhao: '',
-                    huopinleibie: ''
+                    goodsName: '',
+                    producerName: '',
+                    localId: '',
+                    type: []
                 },
-                queryResult: [{
-                    /* 查找部分 —— 查找结果表格 */
-                    huopinbianhao: '1',
-                    huopinmingcheng: '',
-                    rukkushijian: '',
-                    gongyingshang: '',
-                    xiangxixinxi: '',
-                    zerenren: '',
-                    lianxidianhua: '',
-                    ruku: ''
-                }],
+                queryResult: [],
                 inGoing: {
                     /* 入库业务 —— 相关信息填写 */
-                    cangku: '',
-                    caozuoyuan: '',
-                    rukudanhao: '',
-                    rukudanshangchuan: '',
-                    jiaodanren: '',
-                    jiandanriqi: '',
-                    rukuleibie: ''
+                    warehouseName: '',
+                    realName: '',
+                    inboundNum:generate_num(),
+                    founder: '',
+                    createTime:generate_created_time(),
+                    type: ''
                 },
-                inResult: [{
-                    /* 入库业务 —— 信息结果表格 */
-                    huopinbianhao: '',
-                    huopinmingcheng: '',
-                    danwei: '',
-                    rukushuliang: '',
-                    rukushijian: '',
-                    zerenren: '',
-                    lianxidianhua: '',
-                    beizhu: ''
-                }],
+                inResult: [],
                 fileList: [{
                     /* 入库业务 —— 入库单上传 */
                     name: '默认文件',
                     url: ''
                 }],
+                transfer: {
+                    goods_id: '物资ID',
+                    goods_name: '物资名称',
+                    local_id: '编号',
+                    type: '物资类型',
+                    keywords: '关键字',
+                    norms: '规格',
+                    appearance: '外观',
+                    time_feature: '时间特征',
+                    safety_condition: '安全条件',
+                    carrier_size: '运载尺寸',
+                    temperature: '温度条件',
+                    humidity: '湿度条件',
+                    other_conditions: '其他条件',
+                    producer_name: '生产商',
+                    produce_time: '生产时间',
+                    produce_valid_time: '过期时间',
+                    warehouse_id: '所在仓库',
+                    longitude: '经度',
+                    latitude: '纬度',
+                    altitude: '海拔',
+                    country_id: '国家',
+                    area: '战区',
+                    province_id: '省份',
+                    city_id: '城市',
+                    county_id: '区县',
+                    detail_location: '详细地址',
+                    is_managed: '过程管理',
+                    register_time: '最后一次修改时间',
+                    state_id: '状态',
+                    state_type: '状态类型',
+                    state_value: '状态值',
+                    quantity: '数量'
+                },
+                detailForm: [],
                 dialogVisible: false  /*查看当前货品详细信息 查看 button*/
             }
         },
+        mounted() {
+            getData(this);
+        },
         methods: {
+            handleCurrentChange0(page) {
+                app.pageNum0 = page;
+            },
+            handleCurrentChange(page) {
+                app.pageNum = page;
+                queryFor(app);
+            },
+            goIn(row) {
+                app.inResult.push(row);
+                row.isIn = true;
+            },
+            save() {
+                var newList=[];
+                post('/depot/storage_management', {
+                    method: '入库',
+                    inboundNum: app.inGoing.inboundNum,
+                    founder: app.inGoing.founder,
+                    list: (() => {
+                        newList = [];
+                        for (var item of app.inResult) {
+                            var obj = {};
+                            Object.assign(obj, {
+                                scheduleId: item.scheduleId,
+                                amount: item.amount,
+                                createTime: item.createTime
+                            });
+                            newList.push(obj);
+                        }
+                        return newList;
+                    })()
+                }, (data, err) => {
+                    if (err) {
+                        return;
+                    }
+                    app.$message.success('入库登记成功');
+                    while(app.inResult[0]!==undefined){
+                        app.inResult.pop();
+                    }
+                    app.pageNum=1;
+                    app.inGoing.founder='';
+                    app.inGoing.inboundNum=generate_num();
+                    app.inGoing.createTime=generate_created_time();
+                    queryFor(app);
+                })
+            },
+            viewDetail(row) {
+                while (app.detailForm[0] !== undefined) {
+                    app.detailForm.pop();
+                }
+                var tmp = [];
+                post('/depot/get_detail', {
+                    goodsId: row.goodsId,
+                    goodsLocalId: row.goodsLocalId
+                }, (data, err) => {
+                    if (err) {
+                        return;
+                    }
+                    for (var key in data) {
+                        var obj = {};
+                        obj['key'] = app.transfer[key];
+                        if (key === 'is_managed') {
+                            obj['val'] = ['不受监管', '受监管'][parseInt(data[key])];
+                        } else if (key === 'state_id') {
+                            obj['val'] = ["", '占用', '调配', '使用', '空闲'][parseInt(data[key])];
+                        } else if (key === 'province_id' || key === 'city_id' || key === 'county_id') {
+                            obj['val'] = CTT[parseInt(data[key])];
+                        } else if (key === 'country_id') {
+                            obj['val'] = ["其他", "中国", "其他"][parseInt(data[key])];
+                        } else if (key === 'warehouse_id') {
+                            obj['val'] = row.warehouseName;
+                        } else {
+                            obj['val'] = data[key];
+                        }
+                        if (obj['key'] !== undefined) {
+                            tmp.push(obj);
+                        }
+                    }
+                    for (let i = 0; tmp[i] !== undefined; i += 3) {
+                        var obj = {};
+                        obj['key1'] = tmp[i]['key'];
+                        obj['val1'] = tmp[i]['val'];
+                        if (tmp[i + 1]) {
+                            obj['key2'] = tmp[i + 1]['key'];
+                            obj['val2'] = tmp[i + 1]['val'];
+                        } else {
+                            obj['key2'] = "";
+                            obj['val2'] = "";
+                        }
+                        if (tmp[i + 2]) {
+                            obj['key3'] = tmp[i + 2]['key'];
+                            obj['val3'] = tmp[i + 2]['val'];
+                        } else {
+                            obj['key3'] = "";
+                            obj['val3'] = "";
+                        }
+                        app.detailForm.push(obj);
+                    }
+                });
+                app.dialogVisible = true;
+            },
+            handleClose() {
+                app.dialogVisible = false;
+            },
+            search() {
+                app.pageNum = 1;
+                queryFor(app);
+            },
             /*入库单上传相关函数 begin*/
             handleRemove(file, fileList) {
                 console.log(file, fileList);
@@ -243,8 +490,9 @@
             /*入库单上传相关函数 end*/
 
             /*表格内 删除 按钮  begin*/
-            deleteRow(index, rows) {
-                rows.splice(index, 1);
+            deleteRow(row) {
+                app.inResult.splice(app.inResult.indexOf(row), 1);
+                row.isIn = false;
             }
         },
         components: {
