@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>出库登记</title>
     <link rel="stylesheet" href="lib/eleme-index.css">
+    <link rel="stylesheet" href="res/print-form.css">
     <style>
         .el-form-item {
             margin: 0;
@@ -20,14 +21,19 @@
         p.form-item {
             margin: 2px 0 5px;
         }
+
+        .el-table {
+            height: 750px;
+        }
     </style>
 </head>
 <body>
 <div id="app" v-cloak>
     <!--出库业务-->
+    <div v-show="state!==3">
     <el-card>
         <span slot="header">出库单填写</span>
-        <el-form :model="inGoing" inline>
+        <el-form :model="outGoing" inline>
             <p class="form-item">
                 <el-form-item label="操作员：" size="mini">
                     <el-input v-model="outGoing.realName" :disabled="true"></el-input>
@@ -70,17 +76,18 @@
                         <el-input size="mini" v-model="scope.row.amount"></el-input>
                     </template>
                 </el-table-column>
-                <el-table-column prop="inboundTime" label="出库时间" width="80">
+                <el-table-column prop="inboundTime" label="出库时间" width="200">
                     <template slot-scope="scope">
-                        <el-input size="mini" v-model="scope.row.inboundTime"></el-input>
+                        <el-date-picker v-model="scope.row.outboundTime" type="date"
+                                        format="yyyy年MM月dd日" style="width:150px;"
+                                        value-format="yyyy-MM-dd" size="mini"></el-date-picker>
                     </template>
                 </el-table-column>
 
-                <el-table-column prop="endWarehouseName" label="去向"><!--!!!!!去向要求下拉框 调用所有仓库按钮  待办-->
-                    <template slot-scope="scope">
-
-                    </template>
-                </el-table-column>
+                <!--<el-table-column prop="endWarehouseName" label="去向">&lt;!&ndash;!!!!!去向要求下拉框 调用所有仓库按钮  待办&ndash;&gt;-->
+                    <!--<template slot-scope="scope">-->
+                    <!--</template>-->
+                <!--</el-table-column>-->
                 <!--可编辑项 end-->
                 <el-table-column prop="charity" label="责任人"></el-table-column>
                 <el-table-column prop="phone" label="联系电话"></el-table-column>
@@ -100,9 +107,9 @@
         </p>
         <p class="form-item">
             <!--保存 生成货品清单-->
-            <el-button style="background-color: #ececec" @click="save">保存</el-button>
+            <el-button style="background-color: #ececec" @click="save" size="mini">保存</el-button>
             <!--点击调用打印机 打印outResult表格清单-->
-            <el-button style="background-color: #ececec">生成货品清单</el-button>
+            <el-button style="background-color: #ececec" size="mini" @click="handlePrint">生成货品清单</el-button>
         </p>
     </el-card>
 
@@ -139,7 +146,7 @@
                     <el-table-column type="index" width="50" label="序号"></el-table-column>
                     <el-table-column prop="localId" label="货品编号"></el-table-column>
                     <el-table-column prop="goodsName" label="货品名称"></el-table-column>
-                    <el-table-column prop="inboundTime" label="入库时间"></el-table-column>
+                    <el-table-column prop="applicationNum" label="申请单号"></el-table-column>
                     <el-table-column prop="supplier" label="供应商"></el-table-column>
                     <el-table-column label="详细信息" width="80">
                         <!--点击查看当前物资详细信息-->
@@ -151,10 +158,10 @@
                     <el-table-column prop="charity" label="责任人"></el-table-column>
                     <el-table-column prop="phone" label="联系电话"></el-table-column>
                     <el-table-column prop="ruku" label="">
-                        <!--点击入库 复制转移所有当前货品编号至 inResult-->
+                        <!--点击出库 复制转移所有当前货品编号至 outResult-->
                         <template slot-scope="scope">
-                            <el-button size="mini" style="background-color: #ececec" @click="goIn(scope.row)"
-                                       :disabled="scope.row.isIn">入库
+                            <el-button size="mini" style="background-color: #ececec" @click="goOut(scope.row)"
+                                       :disabled="scope.row.isOut">出库
                             </el-button>
                         </template>
                     </el-table-column>
@@ -205,6 +212,44 @@
             </p>
         </el-form>
     </el-card>
+    </div>
+    <div v-show="state===3" id="box3">
+        <!--startprint-->
+        <p id="form-top">
+            <span><b>出库单号:</b>{{outGoing.inboundNum}}</span>
+            <span><b>出库类别:</b>{{outGoing.type}}</span>
+            <span><b>供应商:</b>{{outGoing.supplier}}</span>
+            <span><b>操作员:</b>{{outGoing.operator}}</span>
+            <span><b>建单人:</b>{{outGoing.founder}}</span>
+            <span><b>建单日期:</b>{{(()=>{
+                var da=new Date();
+                var [year,month,date]=[da.getFullYear(),da.getMonth()+1,da.getDate()];
+                return year+'年'+month+'月'+date+'日';
+                })()}}</span>
+        </p>
+        <table class="grid">
+            <tr>
+                <th>序号</th>
+                <th>物资名称</th>
+                <th>身份识别码</th>
+                <th>出库时间</th>
+                <th>数量</th>
+                <th>供应商</th>
+                <th>目的仓库</th>
+                <th>负责人</th>
+                <th>联系电话</th>
+                <th>备注</th>
+            </tr>
+            <tr v-for="data in toPrint">
+                <td v-for="key in Object.keys(data)">{{data[key]}}</td>
+            </tr>
+        </table>
+        <!--endprint-->
+        <p class="noprint">
+            <el-button type="primary" @click="performPrint">打印</el-button>
+            <el-button @click="()=>{state=1;}">返回</el-button>
+        </p>
+    </div>
 </div>
 </body>
 <script src="lib/vue.js"></script>
@@ -235,7 +280,7 @@
             refresh: [app.queryResult,],
             searchKey: (() => {
                 var obj = {};
-                Object.assign(obj, app.queryCondition, {method: '入库'});
+                Object.assign(obj, app.queryCondition, {method: '出库'});
                 if (!obj.type[0]) {
                     delete obj.type;
                 }
@@ -252,16 +297,19 @@
             }
         }, (allPages, data) => {
             for (var item of data) {
-                item['isIn'] = false;
+                item['isOut'] = false;
                 app.queryResult.push(item);
             }
-        })
+        },10)
     }
 
     var app = new Vue({
         el: '#app',
         data: function(){
             return{
+                state:0,
+                toPrint:[],
+                detailForm:[],
                 pageNum0: 1,
                 pageSize: 6,
                 pageNum: 1,
@@ -279,6 +327,40 @@
                     producerName: '',
                     localId: '',
                     type: []
+                },
+                transfer: {
+                    goods_id: '物资ID',
+                    goods_name: '物资名称',
+                    local_id: '编号',
+                    type: '物资类型',
+                    keywords: '关键字',
+                    norms: '规格',
+                    appearance: '外观',
+                    time_feature: '时间特征',
+                    safety_condition: '安全条件',
+                    carrier_size: '运载尺寸',
+                    temperature: '温度条件',
+                    humidity: '湿度条件',
+                    other_conditions: '其他条件',
+                    producer_name: '生产商',
+                    produce_time: '生产时间',
+                    produce_valid_time: '过期时间',
+                    warehouse_id: '所在仓库',
+                    longitude: '经度',
+                    latitude: '纬度',
+                    altitude: '海拔',
+                    country_id: '国家',
+                    area: '战区',
+                    province_id: '省份',
+                    city_id: '城市',
+                    county_id: '区县',
+                    detail_location: '详细地址',
+                    is_managed: '过程管理',
+                    register_time: '最后一次修改时间',
+                    state_id: '状态',
+                    state_type: '状态类型',
+                    state_value: '状态值',
+                    quantity: '数量'
                 },
                 queryResult: [],
                 outGoing:{/* 出库业务 —— 相关信息填写  (搞定)*/
@@ -300,7 +382,7 @@
                             da.getMonth() + 1 < 10 ? '0' + (da.getMonth() + 1) : da.getMonth() + 1,
                             da.getDate() < 10 ? '0' + da.getDate() : da.getDate()
                         ];
-                        return [year, month, date].join('') + '1' + postfix;
+                        return [year, month, date].join('') + '2' + postfix;
                     })(),
                     type:''
                 },
@@ -318,25 +400,143 @@
             getData(this);
         },
         methods: {
-            search(){
-                while (app.queryResult[0] !== undefined) {
-                    app.queryResult.pop();
-                }
-                var toPost = {};
-                toPost['method'] = '出库';
-                for (var key in app.queryCondition) {
-                    if (app.queryCondition[key]) {
-                        toPost[key] = app.queryCondition[key];
+            performPrint(){
+                window.print();
+            },
+            handlePrint(){
+                app.toPrint = [];
+                var obj = {
+                    index: 1,
+                    goodsName: "",
+                    localId: "",
+                    inboundTime:"",
+                    amount: "",
+                    supplier: "",
+                    endWarehouseName: "",
+                    charity: "",
+                    phone: "",
+                    remark: ""
+                };
+                var standard_keys=Object.keys(obj);
+                for (let i in app.outResult) {
+                    Object.assign(obj, app.outResult[i]);
+                    obj.index = parseInt(i) + 1;
+                    for(var key in obj){
+                        if(standard_keys.indexOf(key)===-1)
+                            delete obj[key];
                     }
+                    var obj2={};
+                    Object.assign(obj2,obj);
+                    app.toPrint.push(obj2);
                 }
-                post('/depot/query_schedule', toPost, (data, err) => {
+                app.state = 3;
+            },
+            save() {
+                var newList=[];
+                post('/depot/storage_management', {
+                    method: '出库',
+                    inboundNum: app.outGoing.inboundNum,
+                    founder: app.outGoing.founder,
+                    list: (() => {
+                        newList = [];
+                        for (var item of app.outResult) {
+                            var obj = {};
+                            Object.assign(obj, {
+                                scheduleId: item.scheduleId,
+                                amount: item.amount,
+                                createTime: item.createTime
+                            });
+                            newList.push(obj);
+                        }
+                        return newList;
+                    })()
+                }, (data, err) => {
                     if (err) {
                         return;
                     }
-                    for (var item of data) {
-                        app.queryResult.push(item);
+                    app.$message.success('出库登记成功');
+                    while(app.outResult[0]!==undefined){
+                        app.outResult.pop();
                     }
+                    app.pageNum=1;
+                    app.outGoing.founder='';
+                    app.outGoing.inboundNum=generate_num();
+                    app.outGoing.createTime=generate_created_time();
+                    queryFor(app);
                 })
+            },
+            viewDetail(row) {
+                while (app.detailForm[0] !== undefined) {
+                    app.detailForm.pop();
+                }
+                var tmp = [];
+                post('/depot/get_detail', {
+                    goodsId: row.goodsId,
+                    goodsLocalId: row.goodsLocalId
+                }, (data, err) => {
+                    if (err) {
+                        return;
+                    }
+                    for (var key in data) {
+                        var obj = {};
+                        obj['key'] = app.transfer[key];
+                        if (key === 'is_managed') {
+                            obj['val'] = ['不受监管', '受监管'][parseInt(data[key])];
+                        } else if (key === 'state_id') {
+                            obj['val'] = ["", '占用', '调配', '使用', '空闲'][parseInt(data[key])];
+                        } else if (key === 'province_id' || key === 'city_id' || key === 'county_id') {
+                            obj['val'] = CTT[parseInt(data[key])];
+                        } else if (key === 'country_id') {
+                            obj['val'] = ["其他", "中国", "其他"][parseInt(data[key])];
+                        } else if (key === 'warehouse_id') {
+                            obj['val'] = row.warehouseName;
+                        } else {
+                            obj['val'] = data[key];
+                        }
+                        if (obj['key'] !== undefined) {
+                            tmp.push(obj);
+                        }
+                    }
+                    for (let i = 0; tmp[i] !== undefined; i += 3) {
+                        var obj = {};
+                        obj['key1'] = tmp[i]['key'];
+                        obj['val1'] = tmp[i]['val'];
+                        if (tmp[i + 1]) {
+                            obj['key2'] = tmp[i + 1]['key'];
+                            obj['val2'] = tmp[i + 1]['val'];
+                        } else {
+                            obj['key2'] = "";
+                            obj['val2'] = "";
+                        }
+                        if (tmp[i + 2]) {
+                            obj['key3'] = tmp[i + 2]['key'];
+                            obj['val3'] = tmp[i + 2]['val'];
+                        } else {
+                            obj['key3'] = "";
+                            obj['val3'] = "";
+                        }
+                        app.detailForm.push(obj);
+                    }
+                });
+                app.dialogVisible = true;
+            },
+            handleClose() {
+                app.dialogVisible = false;
+            },
+            handleCurrentChange0(page) {
+                app.pageNum0 = page;
+            },
+            handleCurrentChange(page){
+                app.pageNum=page;
+                queryFor(app);
+            },
+            goOut(row){
+                app.outResult.push(row);
+                row.isOut = true;
+            },
+            search(){
+                app.pageNum = 1;
+                queryFor(app);
             },
             /*出库单上传相关函数 begin*/
             handleRemove(file, fileList) {
@@ -354,8 +554,9 @@
             /*出库单上传相关函数 end*/
 
             /*表格内 删除 按钮  begin*/
-            deleteRow(index, rows) {
-                rows.splice(index, 1);
+            deleteRow(row) {
+                app.outResult.splice(app.outResult.indexOf(row), 1);
+                row.isOut = false;
             }
         },
         components: {

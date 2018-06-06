@@ -432,14 +432,18 @@
                     remark: ""
                 };
                 var standard_keys=Object.keys(obj);
-                for (let i in app.inResult) {
-                    Object.assign(obj, app.inResult[i]);
-                    obj.index = parseInt(i) + 1;
-                    for(var key in obj){
-                        if(standard_keys.indexOf(key)===-1)
-                            delete obj[key];
-                    }
-                    app.toPrint.push(obj);
+                for (let i=0;i<app.inResult.length;i++) {
+                    ((i)=>{
+                        Object.assign(obj, app.inResult[i]);
+                        obj.index = i + 1;
+                        for(var key in obj){
+                            if(standard_keys.indexOf(key)===-1)
+                                delete obj[key];
+                        }
+                        var obj2={};
+                        Object.assign(obj2,obj);
+                        app.toPrint.push(obj2);
+                    })(i)
                 }
                 app.state = 3;
             },
