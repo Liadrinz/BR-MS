@@ -64,7 +64,7 @@
                     queryParams[i]='';
                 };
                 search();
-            }">重置
+            }">返回
             </el-button>
         </el-form-item>
     </el-form>
@@ -93,23 +93,23 @@
                 </el-form>
             </template>
         </el-table-column>
-        <el-table-column prop="warehouse_id" label="仓库id" width="80">
+        <el-table-column prop="warehouse_id" label="仓库id">
         </el-table-column>
-        <el-table-column prop="warehouse_name" label="仓库名称" width="205">
+        <el-table-column prop="warehouse_name" label="仓库名称" >
         </el-table-column>
-        <el-table-column prop="warehouse_code" label="仓库编号" width="130">
+        <el-table-column prop="warehouse_code" label="仓库编号" >
         </el-table-column>
-        <el-table-column prop="warehouse_location" label="仓库地址" width="275">
+        <el-table-column prop="warehouse_location" label="仓库地址" >
         </el-table-column>
-        <el-table-column prop="longitude" label="经度" width="100">
+        <el-table-column prop="longitude" label="经度" >
         </el-table-column>
-        <el-table-column prop="latitude" label="纬度" width="100">
+        <el-table-column prop="latitude" label="纬度" >
         </el-table-column>
-        <el-table-column label="操作">
+        <el-table-column label="操作" width="300px">
             <template slot-scope="props">
                 <el-button type="warning" size="mini" @click="()=>{
                     props.row.dialogVisible=true;
-                    Object.assign(editedFrom,props.row);
+                    Object.assign(editedForm,props.row);
                     handleEditionClick(props.row);
                 }">修改信息
                 </el-button>
@@ -123,40 +123,34 @@
                             <el-input v-model="editedForm.warehouse_id" :disabled="true" required></el-input>
                         </el-form-item>
                         <el-form-item label="仓库名称" prop="warehouse_name">
-                            <el-input v-model="editedForm.warehouse_name"></el-input>
-                            <span class="tips">仓库的名称，若有则填</span>
+                            <el-input v-model="editedForm.warehouse_name" placeholder="仓库名称"></el-input>
                         </el-form-item>
                         <el-form-item label="仓库编号" prop="warehouse_code">
-                            <el-input v-model="editedForm.warehouse_code"></el-input>
-                            <span class="tips">仓库所属单位对仓库的编号</span>
+                            <el-input v-model="editedForm.warehouse_code" placeholder="仓库编号"></el-input>
                         </el-form-item>
                         <el-form-item label="仓库地址" prop="warehouse_location">
-                            <el-input v-model="editedForm.warehouse_location" clearable></el-input>
-                            <span class="tips">仓库的大致地址</span>
+                            <el-input v-model="editedForm.warehouse_location" placeholder="仓库地址" clearable></el-input>
                         </el-form-item>
                         <el-form-item label="经度" prop="longitude">
-                            <el-input v-model="editedForm.longitude" clearable></el-input>
+                            <el-input v-model="editedForm.longitude" placeholder="经度" clearable></el-input>
                         </el-form-item>
                         <el-form-item label="纬度" prop="latitude">
-                            <el-input v-model="editedForm.latitude" clearable></el-input>
+                            <el-input v-model="editedForm.latitude" placeholder="纬度" clearable></el-input>
                         </el-form-item>
                         <el-form-item label="国家" prop="country" required>
-                            <el-select v-model="editedForm.country">
+                            <el-select v-model="editedForm.country" placeholder="请选择">
                                 <el-option :value="1" label="中国"></el-option>
                             </el-select>
                             <span class="tips"></span>
                         </el-form-item>
                         <el-form-item label="战区" prop="area">
-                            <el-input v-model="editedForm.area" clearable></el-input>
-                            <span class="tips">示例：东部/中部/西部...</span>
+                            <el-input v-model="editedForm.area" placeholder="东部、西部、中部等" clearable></el-input>
                         </el-form-item>
                         <el-form-item label="省市区" size="mini" prop="selectedLocations" required>
-                            <el-cascader :options="areaData" v-model="selectedLocations" size="large"></el-cascader>
-                            <p class="tips">选择省市</p>
+                            <el-cascader :options="areaData" v-model="selectedLocations" placeholder="请选择" size="large"></el-cascader>
                         </el-form-item>
                         <el-form-item label="详细地址" prop="detail_location">
-                            <el-input v-model="editedForm.detail_location" clearable></el-input>
-                            <span class="tips">仓库详细精确的地址</span>
+                            <el-input v-model="editedForm.detail_location" placeholder="详细地址" clearable></el-input>
                         </el-form-item>
                         <el-form-item>
                             <p style="text-align: right">
@@ -180,40 +174,34 @@
                element-loading-background="rgba(0,0,0,0.8)">
         <el-form ref="addForm" label-position="right" label-width="100px" :rules="editRule" :model="addForm">
             <el-form-item label="仓库名称" prop="warehouse_name">
-                <el-input v-model="addForm.warehouse_name"></el-input>
-                <span class="tips">仓库的名称，若有则填</span>
+                <el-input v-model="addForm.warehouse_name" placeholder="仓库名称"></el-input>
             </el-form-item>
             <el-form-item label="仓库编号" prop="warehouse_code" required>
-                <el-input v-model="addForm.warehouse_code"></el-input>
-                <span class="tips">仓库所属单位对仓库的编号</span>
+                <el-input v-model="addForm.warehouse_code" placeholder="仓库编号"></el-input>
             </el-form-item>
             <el-form-item label="仓库地址" prop="warehouse_location">
-                <el-input v-model="addForm.warehouse_location" clearable></el-input>
-                <span class="tips">仓库的大致地址</span>
+                <el-input v-model="addForm.warehouse_location" placeholder="仓库地址" clearable></el-input>
             </el-form-item>
             <el-form-item label="经度" prop="longitude">
-                <el-input v-model="addForm.longitude" clearable></el-input>
+                <el-input v-model="addForm.longitude" placeholder="经度" clearable></el-input>
             </el-form-item>
             <el-form-item label="纬度" prop="latitude">
-                <el-input v-model="addForm.latitude" clearable></el-input>
+                <el-input v-model="addForm.latitude" placeholder="纬度" clearable></el-input>
             </el-form-item>
             <el-form-item label="国家" prop="country" required>
-                <el-select v-model="addForm.country">
+                <el-select v-model="addForm.country" placeholder="请选择">
                     <el-option :value="1" label="中国"></el-option>
                 </el-select>
                 <span class="tips"></span>
             </el-form-item>
             <el-form-item label="战区" prop="area">
-                <el-input v-model="addForm.area" clearable></el-input>
-                <span class="tips">示例：东部/中部/西部...</span>
+                <el-input v-model="addForm.area" placeholder="东部、西部、中部等" clearable></el-input>
             </el-form-item>
             <el-form-item v-if="addForm.country===1" label="省市区" size="mini" required>
-                <el-cascader :options="areaData" v-model="selectedLocations" size="large"></el-cascader>
-                <p class="tips">选择省市</p>
+                <el-cascader :options="areaData" v-model="selectedLocations" placeholder="请选择" size="large"></el-cascader>
             </el-form-item>
             <el-form-item label="详细地址" prop="detail_location">
-                <el-input v-model="addForm.detail_location" clearable></el-input>
-                <span class="tips">仓库详细精确的地址</span>
+                <el-input v-model="addForm.detail_location" placeholder="详细地址" clearable></el-input>
             </el-form-item>
             <el-form-item>
                 <p style="text-align: right">
@@ -350,6 +338,7 @@
                 blank: genralForm,
                 initializing: true,
                 dialogVisible: false,
+                loading:false,
                 addDialogVisible: false,
                 pageNum: pageNum,
                 tempPageNum: null,
@@ -448,7 +437,7 @@
                                 type: "success",
                                 message: '添加成功'
                             });
-                            pageControl.call(this, 'last');
+                            getData(app.pageNum,searchKey);
                             app.addDialogVisible = false;
                         });
                     } else {

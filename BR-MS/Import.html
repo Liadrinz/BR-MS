@@ -20,6 +20,10 @@
         p.form-item {
             margin: 2px 0 5px;
         }
+
+        .el-table {
+            height: 750px;
+        }
     </style>
 </head>
 <body>
@@ -41,12 +45,14 @@
                     <el-input v-model="inGoing.founder"></el-input>
                 </el-form-item>
                 <el-form-item label="建单日期：" size="mini">
-                    <el-input v-model="inGoing.jiandanriqi"></el-input>
+                    <el-date-picker v-model="inGoing.createTime" type="date"
+                                    format="yyyy年MM月dd日"
+                                    value-format="yyyy-MM-dd" :disabled="true"></el-date-picker>
                 </el-form-item>
             </p>
             <p class="form-item">
                 <el-form-item label="入库单号：" size="mini">
-                    <el-input v-model="inGoing.inboundNum"></el-input>
+                    <el-input v-model="inGoing.inboundNum" :disabled="true"></el-input>
                 </el-form-item>
                 <el-form-item label="入库类别：" size="mini">
                     <el-select v-model="inGoing.rukuleibie">
@@ -65,24 +71,26 @@
         </el-form>-->
         <hr style="height:1px; border:none; border-top:1px dashed #c0c4cc">
         <p class="form-item">
-            <el-table :data="inResult" size="mini" max-height="250">
+            <el-table :data="inResult.slice((pageNum0-1)*6,pageNum0*6)" size="mini" max-height="250">
                 <el-table-column type="index" width="44" label="序号"></el-table-column>
                 <el-table-column prop="localId" label="货品编号"></el-table-column>
                 <el-table-column prop="goodsName" label="货品名称"></el-table-column>
-                <el-table-column prop="unit" label="单位"></el-table-column>
+                <el-table-column prop="unit" label="单位" width="180"></el-table-column>
                 <!--可编辑项 begin  *与出库不同——删 去向 项-->
                 <el-table-column prop="amount" label="入库数量" width="75">
                     <template slot-scope="scope">
-                        <el-input size="mini"></el-input>
+                        <el-input size="mini" v-model="scope.row.amount"></el-input>
                     </template>
                 </el-table-column>
-                <el-table-column prop="registerTime" label="入库时间" width="80">
+                <el-table-column prop="registerTime" label="入库时间" width="150">
                     <template slot-scope="scope">
-                        <el-input size="mini"></el-input>
+                        <el-date-picker v-model="scope.row.registerTime" type="date"
+                                        format="yyyy年MM月dd日" style="width:130px;"
+                                        value-format="yyyy-MM-dd" size="mini"></el-date-picker>
                     </template>
                 </el-table-column>
                 <!--可编辑项 end-->
-                <el-table-column prop="charity" label="责任人"></el-table-column>
+                <el-table-column prop="charity" label="责任人" width="85"></el-table-column>
                 <el-table-column prop="phone" label="联系电话"></el-table-column>
                 <el-table-column prop="remark" label="备注"></el-table-column>
                 <el-table-column>
@@ -94,6 +102,9 @@
                     </template>
                 </el-table-column>
             </el-table>
+            <el-pagination @current-change="handleCurrentChange0" :current-page="pageNum0"
+                           :page-size="6" layout="total,prev,pager,next,jumper"
+                           :total="inResult.length"></el-pagination>
         </p>
         <p class="form-item">
             <!--保存 生成货品清单-->
@@ -109,7 +120,7 @@
             <p class="form-item">
                 <!-- TODO: 放入组件 -->
                 <el-form-item label="货品类别">
-                        <el-ext-foldable :options="resTypeList" v-model="selectedTypes"></el-ext-foldable>
+                    <el-ext-foldable :options="resTypeList" v-model="queryCondition.type"></el-ext-foldable>
                 </el-form-item>
             </p>
             <p class="form-item">
@@ -143,9 +154,8 @@
                         <template slot-scope="scope">
                             <el-button size="mini" style="background-color: #ececec" @click="viewDetail(scope.row)">查看
                             </el-button>
-                            <el-dialog title="货品详细信息" :visible.sync="dialogVisible" width="50%"
+                            <el-dialog title="货品详细信息" :visible.sync="dialogVisible" width="95%"
                                        :before-close="handleClose">
-                                <span>详细信息</span>
                                 <el-table :data="detailForm">
                                     <el-table-column prop="key1" :width="150">
                                         <template slot-scope="props">
@@ -154,47 +164,52 @@
                                     </el-table-column>
                                     <el-table-column prop="val1" :width="200">
                                         <template slot-scope="props">
-            <p style="margin: 0;">{{props.row.val1}}</p>
-            </template>
-            </el-table-column>
-            <el-table-column prop="key2" :width="150">
-                <template slot-scope="props">
-                    <b>{{props.row.key2}}</b>
-                </template>
-            </el-table-column>
-            <el-table-column prop="val2" :width="275">
-                <template slot-scope="props">
-                    <p style="margin: 0;">{{props.row.val2}}</p>
-                </template>
-            </el-table-column>
-            <el-table-column prop="key3" :width="150">
-                <template slot-scope="props">
-                    <b>{{props.row.key3}}</b>
-                </template>
-            </el-table-column>
-            <el-table-column prop="val3" :width="220">
-                <template slot-scope="props">
-                    <p style="margin: 0;">{{props.row.val3}}</p>
-                </template>
-            </el-table-column>
-            </el-table>
-            <span slot="footer" class="dialog-footer">
+                                            <span>{{props.row.val1}}</span>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column prop="key2" :width="150">
+                                        <template slot-scope="props">
+                                            <b>{{props.row.key2}}</b>
+                                        </template>
+                                    </el-table-column>
+
+                                    <el-table-column prop="val2" :width="200">
+                                        <template slot-scope="props">
+                                            <span>{{props.row.val2}}</span>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column prop="key3" :width="150">
+                                        <template slot-scope="props">
+                                            <b>{{props.row.key3}}</b>
+                                        </template>
+                                    </el-table-column>
+
+                                    <el-table-column prop="val3" :width="200">
+                                        <template slot-scope="props">
+                                            <span>{{props.row.val3}}</span>
+                                        </template>
+                                    </el-table-column>
+                                </el-table>
+                                <span slot="footer" class="dialog-footer">
                                 <el-button @click="dialogVisible = false" size="mini" style="background-color: #ececec">关闭</el-button>
                             </span>
-            </el-dialog>
-            </template>
-            </el-table-column>
-            <el-table-column prop="charity" label="责任人"></el-table-column>
-            <el-table-column prop="phone" label="联系电话"></el-table-column>
-            <el-table-column prop="ruku" label="">
-                <!--点击入库 复制转移所有当前货品编号至 inResult-->
-                <template slot-scope="scope">
-                    <el-button size="mini" style="background-color: #ececec" @click="goIn(scope.row)"
-                               :disabled="scope.row.isIn">入库
-                    </el-button>
-                </template>
-            </el-table-column>
-            </el-table>
+                            </el-dialog>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="charity" label="责任人"></el-table-column>
+                    <el-table-column prop="phone" label="联系电话"></el-table-column>
+                    <el-table-column prop="ruku" label="">
+                        <!--点击入库 复制转移所有当前货品编号至 inResult-->
+                        <template slot-scope="scope">
+                            <el-button size="mini" style="background-color: #ececec" @click="goIn(scope.row)"
+                                       :disabled="scope.row.isIn">入库
+                            </el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <el-pagination @current-change="handleCurrentChange" :current-page="pageNum"
+                               :page-size="pageSize" layout="total,prev,pager,next,jumper"
+                               :total="total[0]"></el-pagination>
             </p>
         </el-form>
     </el-card>
@@ -204,8 +219,13 @@
 <script src="lib/eleme-index.js"></script>
 <script src="res/dependencies.js"></script>
 <script>
+    const CTT=require('element-china-area-data').CodeToText;
     const ElExtFoldable = require('/comps/el-ext-foldable');
     var post = require('/mods/backend');
+
+    var catchData = require('/mods/pagination').getData;
+
+    var totalPages = [0,];
 
     function getData(app) {
         post('/depot/initialize', {}, (data, err) => {
@@ -217,11 +237,45 @@
         });
     }
 
+    function queryFor(app) {
+        catchData({
+            url: '/depot/query_schedule',
+            app: app,
+            refresh: [app.queryResult,],
+            searchKey: (() => {
+                var obj = {};
+                Object.assign(obj, app.queryCondition, {method: '入库'});
+                if (!obj.type[0]) {
+                    delete obj.type;
+                }
+                return obj;
+            })(),
+            pageNum: app.pageNum,
+            pageSize: app.pageSize,
+            itemName: 'views',
+            total: (totalNum) => {
+                while (totalPages[0] !== undefined) {
+                    totalPages.pop();
+                }
+                totalPages.push(totalNum);
+            }
+        }, (allPages, data) => {
+            for (var item of data) {
+                item['isIn'] = false;
+                app.queryResult.push(item);
+            }
+        })
+    }
+
+
     var app = new Vue({
         el: '#app',
         data: function () {
             return {
-                selectedTypes: [],
+                pageNum0: 1,
+                pageSize: 6,
+                pageNum: 1,
+                total: totalPages,
                 resTypeList: [
                     '电脑整机', '大型家电', '网络产品', '厨房电器',
                     '电脑配件', '五金装饰', '摄影摄像', '健康卫生',
@@ -235,18 +289,32 @@
                     goodsName: '',
                     producerName: '',
                     localId: '',
-                    type: ''
+                    type: []
                 },
                 queryResult: [],
                 inGoing: {
                     /* 入库业务 —— 相关信息填写 */
                     warehouseName: '',
                     realName: '',
-                    inboundNum: '',
-                    rukudanshangchuan: '',
-                    jiaodanren: '',
-                    jiandanriqi: '',
-                    rukuleibie: ''
+                    inboundNum: (() => {
+                        let da = new Date();
+                        let postfix = String(Date.parse(da)).slice(4, 10);
+                        let [year, month, date] = [
+                            da.getFullYear(),
+                            da.getMonth() + 1 < 10 ? '0' + (da.getMonth() + 1) : da.getMonth() + 1,
+                            da.getDate() < 10 ? '0' + da.getDate() : da.getDate()
+                        ];
+                        return [year, month, date].join('') + '1' + postfix;
+                    })(),
+                    founder: '',
+                    createTime: (() => {
+                        var today = new Date();
+                        var yyyy = today.getFullYear();
+                        var mm = today.getMonth() + 1 < 10 ? ('0' + (today.getMonth() + 1)) : (today.getMonth() + 1);
+                        var dd = today.getDate() < 10 ? ('0' + today.getDate()) : (today.getDate());
+                        return yyyy + '-' + mm + '-' + dd;
+                    })(),
+                    type: ''
                 },
                 inResult: [],
                 fileList: [{
@@ -296,6 +364,13 @@
             getData(this);
         },
         methods: {
+            handleCurrentChange0(page) {
+                app.pageNum0 = page;
+            },
+            handleCurrentChange(page) {
+                app.pageNum = page;
+                queryFor(app);
+            },
             goIn(row) {
                 app.inResult.push(row);
                 row.isIn = true;
@@ -308,11 +383,11 @@
                     list: (() => {
                         var newList = [];
                         for (var item of app.inResult) {
-                            var obj={};
-                            Object.assign(obj,{
-                                scheduleId:item.scheduleId,
-                                amount:item.amount,
-                                createTime:item.createTime
+                            var obj = {};
+                            Object.assign(obj, {
+                                scheduleId: item.scheduleId,
+                                amount: item.amount,
+                                createTime: item.createTime
                             });
                             newList.push(obj);
                         }
@@ -326,6 +401,9 @@
                 })
             },
             viewDetail(row) {
+                while(app.detailForm[0]!==undefined){
+                    app.detailForm.pop();
+                }
                 var tmp = [];
                 post('/depot/get_detail', {
                     goodsId: row.goodsId,
@@ -381,23 +459,8 @@
                 app.dialogVisible = false;
             },
             search() {
-                while (app.queryResult[0] !== undefined) {
-                    app.queryResult.pop();
-                }
-                var toPost = {};
-                toPost['method'] = '入库';
-                for (var key in app.queryCondition) {
-                    toPost[key] = app.queryCondition[key];
-                }
-                post('/depot/query_schedule', toPost, (data, err) => {
-                    if (err) {
-                        return;
-                    }
-                    for (var item of data) {
-                        item['isIn'] = false;
-                        app.queryResult.push(item);
-                    }
-                })
+                app.pageNum = 1;
+                queryFor(app);
             },
             /*入库单上传相关函数 begin*/
             handleRemove(file, fileList) {

@@ -120,30 +120,7 @@
                             </template>
                         </el-table-column>
                     </el-table>
-                    <el-dialog :title="state==='detail'?'货品详细信息':'查看入库单'" :visible.sync="dialogVisible" :width="state==='application'?'70%':'95%'" :before-close="handleClose">
-                        <div v-show="state==='detail'">
-                            <el-table :data="detail">
-                                <el-table-column prop="key1"><template slot-scope="props"><b>{{props.row.key1}}</b></template></el-table-column>
-                                <el-table-column prop="val1"></el-table-column>
-                                <el-table-column prop="key2"><template slot-scope="props"><b>{{props.row.key2}}</b></template></el-table-column>
-                                <el-table-column prop="val2"></el-table-column>
-                                <el-table-column prop="key3"><template slot-scope="props"><b>{{props.row.key3}}</b></template></el-table-column>
-                                <el-table-column prop="val3"></el-table-column>
-                            </el-table>
-                        </div>
-                        <div v-show="state==='application'">
-                            <el-table :data="application">
-                                <el-table-column prop="key1"><template slot-scope="props"><b>{{props.row.key1}}</b></template></el-table-column>
-                                <el-table-column prop="val1"></el-table-column>
-                                <el-table-column prop="key2"><template slot-scope="props"><b>{{props.row.key2}}</b></template></el-table-column>
-                                <el-table-column prop="val2"></el-table-column>
-                            </el-table>
-                        </div>
-                        <span slot="footer" class="dialog-footer">
-                            <el-button @click="()=>{dialogVisible=false}" size="mini" style="background-color: #ececec">关闭</el-button>
-                        </span>
-                    </el-dialog>
-                    <p><el-button size="mini" style="background-color: #ececec">查看货品清单</el-button></p>
+                    <p><el-button size="mini" style="background-color: #ececec" @click="()=>{viewGoodsList(1)}">查看货品清单</el-button></p>
                     <el-pagination @current-change="handleCurrentChange1" :current-page="pagination1.pageNum"
                                    :page-size="pagination1.pageSize" layout="total,prev,pager,next,jumper"
                                    :total="pagination1.total[0]"></el-pagination>
@@ -239,29 +216,6 @@
                     <el-pagination @current-change="handleCurrentChange2" :current-page="pagination2.pageNum"
                                    :page-size="pagination2.pageSize" layout="total,prev,pager,next,jumper"
                                    :total="pagination2.total[0]"></el-pagination>
-                    <el-dialog :title="state==='detail'?'货品详细信息':'查看入库单'" :visible.sync="dialogVisible" :width="state==='application'?'70%':'95%'" :before-close="handleClose">
-                        <div v-show="state==='detail'">
-                            <el-table :data="detail">
-                                <el-table-column prop="key1"><template slot-scope="props"><b>{{props.row.key1}}</b></template></el-table-column>
-                                <el-table-column prop="val1"></el-table-column>
-                                <el-table-column prop="key2"><template slot-scope="props"><b>{{props.row.key2}}</b></template></el-table-column>
-                                <el-table-column prop="val2"></el-table-column>
-                                <el-table-column prop="key3"><template slot-scope="props"><b>{{props.row.key3}}</b></template></el-table-column>
-                                <el-table-column prop="val3"></el-table-column>
-                            </el-table>
-                        </div>
-                        <div v-show="state==='application'">
-                            <el-table :data="application">
-                                <el-table-column prop="key1"><template slot-scope="props"><b>{{props.row.key1}}</b></template></el-table-column>
-                                <el-table-column prop="val1"></el-table-column>
-                                <el-table-column prop="key2"><template slot-scope="props"><b>{{props.row.key2}}</b></template></el-table-column>
-                                <el-table-column prop="val2"></el-table-column>
-                            </el-table>
-                        </div>
-                        <span slot="footer" class="dialog-footer">
-                            <el-button @click="()=>{dialogVisible=false}" size="mini" style="background-color: #ececec">关闭</el-button>
-                        </span>
-                    </el-dialog>
                     <el-button size="mini" style="background-color: #ececec">查看货品清单</el-button>
                 </el-tab-pane>
                 <!--调配事件查询分页-->
@@ -319,7 +273,7 @@
                                 </el-form-item>
                             </el-form>
                             <el-form :inline="true">
-                                <el-form-item label="仓库：" size="mini"><span>XXXX</span></el-form-item>
+                                <el-form-item label="仓库：" size="mini"><span>{{currentWarehouse.warehouseName}}</span></el-form-item>
                                 <el-form-item label="入库时间范围：" size="mini">
                                     <el-date-picker v-model="timeSelect" type="daterange" range-separator="至"
                                                     start-placeholder="开始日期" end-placeholder="结束日期">{{timeSelect}}
@@ -363,22 +317,14 @@
                             </template>
                         </el-table-column>
                         <el-table-column type="index" width="50" label="序号"></el-table-column>
-                        <el-table-column prop="goodLocalId" label="货品编号" width="100"></el-table-column>
-                        <el-table-column prop="goodName" label="货品名称" width="100"></el-table-column>
-                        <el-table-column prop="createTime" label="入库时间" width="100"></el-table-column>
+                        <el-table-column prop="goodLocalId" label="货品编号" width="120"></el-table-column>
+                        <el-table-column prop="goodName" label="货品名称" width="150"></el-table-column>
+                        <el-table-column prop="createTime" label="入库时间" width="120"></el-table-column>
                         <el-table-column label="货品信息" width="80">
                             <!--点击查看当前物资详细信息-->
                             <template slot-scope="scope">
-                                <el-button size="mini" style="background-color: #ececec" @click="dialogVisible=true">查看
+                                <el-button size="mini" style="background-color: #ececec" @click="viewDetail(scope.row)">查看
                                 </el-button>
-                                <el-dialog title="货品详细信息" :visible.sync="dialogVisible.detail" width="50%"
-                                           :before-close="handleClose">
-                                    <span>这里应该是所选货品的详细信息</span>
-                                    <span slot="footer" class="dialog-footer">
-                                        <el-button @click="dialogVisible = false" size="mini"
-                                                   style="background-color: #ececec">关闭</el-button>
-                                    </span>
-                                </el-dialog>
                             </template>
                         </el-table-column>
                         <el-table-column prop="remark" label="备注" width="400"></el-table-column>
@@ -388,6 +334,49 @@
                                    :total="pagination4.total[0]"></el-pagination>
                 </el-tab-pane>
             </el-tabs>
+            <el-dialog :title="state==='detail'?'货品详细信息':'查看入库单'" :visible.sync="dialogVisible" :width="state==='application'?'70%':'95%'" :before-close="handleClose">
+                <div v-show="state==='detail'">
+                    <el-table :data="detail">
+                        <el-table-column prop="key1"><template slot-scope="props"><b>{{props.row.key1}}</b></template></el-table-column>
+                        <el-table-column prop="val1"></el-table-column>
+                        <el-table-column prop="key2"><template slot-scope="props"><b>{{props.row.key2}}</b></template></el-table-column>
+                        <el-table-column prop="val2"></el-table-column>
+                        <el-table-column prop="key3"><template slot-scope="props"><b>{{props.row.key3}}</b></template></el-table-column>
+                        <el-table-column prop="val3"></el-table-column>
+                    </el-table>
+                </div>
+                <div v-show="state==='application'">
+                    <el-table :data="application">
+                        <el-table-column prop="key1"><template slot-scope="props"><b>{{props.row.key1}}</b></template></el-table-column>
+                        <el-table-column prop="val1"></el-table-column>
+                        <el-table-column prop="key2"><template slot-scope="props"><b>{{props.row.key2}}</b></template></el-table-column>
+                        <el-table-column prop="val2"></el-table-column>
+                    </el-table>
+                </div>
+                <span slot="footer" class="dialog-footer">
+                    <el-button @click="()=>{dialogVisible=false}" size="mini" style="background-color: #ececec">关闭</el-button>
+                </span>
+            </el-dialog>
+            <el-dialog title="货品清单" :visible.sync="dialog2Visible" width="70%" :before-close="handleClose">
+                <el-table :data="goodsList">
+                    <el-table-column label="单号" prop="inboundNum"></el-table-column>
+                    <el-table-column label="建单人" prop="founder"></el-table-column>
+                    <el-table-column label="责任人" prop="charity"></el-table-column>
+                    <el-table-column label="货品名称" prop="goodName"></el-table-column>
+                    <el-table-column label="货品编号" prop="goodLocalId"></el-table-column>
+                    <el-table-column label="入库时间" prop="createTime"></el-table-column>
+                    <el-table-column label="数量" prop="amount"></el-table-column>
+                    <el-table-column label="单位" prop="unit"></el-table-column>
+                    <el-table-column label="供应商" prop="supplier"></el-table-column>
+                    <el-table-column label="存放库位" prop="warehouseRepository"></el-table-column>
+                </el-table>
+                <el-pagination @current-change="handleCurrentChange1" :current-page="pagination1.pageNum"
+                               :page-size="pagination1.pageSize" layout="total,prev,pager,next,jumper"
+                               :total="pagination1.total[0]"></el-pagination>
+                <span slot="footer" class="dialog-footer">
+                    <el-button @click="()=>{dialog2Visible=false}" size="mini" style="background-color: #ececec">关闭</el-button>
+                </span>
+            </el-dialog>
         </el-card>
     </template>
 </div>
@@ -409,7 +398,11 @@
             url: '/depot/get_inboundview',
             app: app,
             searchKey:(()=>{
-                Object.assign(app.inSelection1,app.pagination1.pageSize);
+                for(var key in app.inSelection1){
+                    if(!app.inSelection1[key]){
+                        delete app.inSelection1[key];
+                    }
+                }
                 return app.inSelection1;
             })(),
             refresh: [app.queryResult1,],
@@ -423,6 +416,7 @@
                 totalPages[0].push(totalNum);
             }
         }, (allPages, data) => {
+            console.log(allPages);
             for (var item of data) {
                 app.queryResult1.push(item);
             }
@@ -434,7 +428,11 @@
             url: '/depot/get_outboundview',
             app: app,
             searchKey:(()=>{
-                Object.assign(app.inSelection2,app.pagination2.pageSize);
+                for(var key in app.inSelection2){
+                    if(!app.inSelection2[key]){
+                        delete app.inSelection2[key];
+                    }
+                }
                 return app.inSelection2;
             })(),
             refresh: [app.queryResult2,],
@@ -459,7 +457,11 @@
             url: '/depot/get_inboundview',
             app: app,
             searchKey:(()=>{
-                Object.assign(app.inSelection3,app.pagination3.pageSize);
+                for(var key in app.inSelection3){
+                    if(!app.inSelection3[key]){
+                        delete app.inSelection3[key];
+                    }
+                }
                 return app.inSelection3;
             })(),
             refresh: [app.queryResult3,],
@@ -484,7 +486,11 @@
             url: '/depot/inventory',
             app: app,
             searchKey:(()=>{
-                Object.assign(app.inSelection4,app.pagination4.pageSize);
+                for(var key in app.inSelection4){
+                    if(!app.inSelection4[key]){
+                        delete app.inSelection4[key];
+                    }
+                }
                 return app.inSelection4;
             })(),
             refresh: [app.queryResult4,],
@@ -535,7 +541,8 @@
                 },
                 timeSelect: '', /*时间选择器*/
                 dialogVisible:false,
-
+                dialog2Visible:false,
+                goodsList:[],
                 inSelection1: {
                     /*入库筛选框*/
                 },
@@ -613,6 +620,14 @@
             })
         },
         methods: {
+            viewGoodsList(n){
+                app.dialog2Visible=true;
+                if(n===1){
+                    app.goodsList=app.queryResult1;
+                }else if(n===2){
+                    app.goodsList=app.queryResult2;
+                }
+            },
             viewImport(row){
                 while(app.application[0]!==undefined){
                     app.application.pop();
@@ -725,6 +740,7 @@
             },
             handleClose(){
                 app.dialogVisible=false;
+                app.dialog2Visible=false;
             },
             handleCloseDetail(){
                 Object.assign(app.dialogVisible,{detail:false});

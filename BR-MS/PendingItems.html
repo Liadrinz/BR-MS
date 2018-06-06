@@ -94,6 +94,9 @@
             <el-form
                     v-if="states.dataReady" class="items-shorter"
                     label-width="120px" label-position="left">
+                <el-form-item label="申请单号">
+                    {{ currentRow.applicationNum }}
+                </el-form-item>
                 <el-form-item label="申请人">
                     {{ currentRow.userRealName }}
                 </el-form-item>

@@ -737,7 +737,7 @@
                             da.getMonth() + 1 < 10 ? '0' + (da.getMonth() + 1) : da.getMonth() + 1,
                             da.getDate() < 10 ? '0' + da.getDate() : da.getDate()
                         ];
-                        return [year, month, date].join('') + postfix;
+                        return [year, month, date].join('') +'2'+ postfix;
                     })(),
                     //建单人
                     founder: "",
