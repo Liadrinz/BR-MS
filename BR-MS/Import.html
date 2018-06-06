@@ -267,6 +267,24 @@
         })
     }
 
+    function generate_num(){
+        let da = new Date();
+        let postfix = String(Date.parse(da)).slice(4, 10);
+        let [year, month, date] = [
+            da.getFullYear(),
+            da.getMonth() + 1 < 10 ? '0' + (da.getMonth() + 1) : da.getMonth() + 1,
+            da.getDate() < 10 ? '0' + da.getDate() : da.getDate()
+        ];
+        return [year, month, date].join('') + '1' + postfix;
+    }
+
+    function generate_created_time(){
+        var today = new Date();
+        var yyyy = today.getFullYear();
+        var mm = today.getMonth() + 1 < 10 ? ('0' + (today.getMonth() + 1)) : (today.getMonth() + 1);
+        var dd = today.getDate() < 10 ? ('0' + today.getDate()) : (today.getDate());
+        return yyyy + '-' + mm + '-' + dd;
+    }
 
     var app = new Vue({
         el: '#app',
@@ -296,24 +314,9 @@
                     /* 入库业务 —— 相关信息填写 */
                     warehouseName: '',
                     realName: '',
-                    inboundNum: (() => {
-                        let da = new Date();
-                        let postfix = String(Date.parse(da)).slice(4, 10);
-                        let [year, month, date] = [
-                            da.getFullYear(),
-                            da.getMonth() + 1 < 10 ? '0' + (da.getMonth() + 1) : da.getMonth() + 1,
-                            da.getDate() < 10 ? '0' + da.getDate() : da.getDate()
-                        ];
-                        return [year, month, date].join('') + '1' + postfix;
-                    })(),
+                    inboundNum:generate_num(),
                     founder: '',
-                    createTime: (() => {
-                        var today = new Date();
-                        var yyyy = today.getFullYear();
-                        var mm = today.getMonth() + 1 < 10 ? ('0' + (today.getMonth() + 1)) : (today.getMonth() + 1);
-                        var dd = today.getDate() < 10 ? ('0' + today.getDate()) : (today.getDate());
-                        return yyyy + '-' + mm + '-' + dd;
-                    })(),
+                    createTime:generate_created_time(),
                     type: ''
                 },
                 inResult: [],
@@ -376,12 +379,13 @@
                 row.isIn = true;
             },
             save() {
+                var newList=[];
                 post('/depot/storage_management', {
                     method: '入库',
                     inboundNum: app.inGoing.inboundNum,
                     founder: app.inGoing.founder,
                     list: (() => {
-                        var newList = [];
+                        newList = [];
                         for (var item of app.inResult) {
                             var obj = {};
                             Object.assign(obj, {
@@ -397,7 +401,15 @@
                     if (err) {
                         return;
                     }
-
+                    app.$message.success('入库登记成功');
+                    while(app.inResult[0]!==undefined){
+                        app.inResult.pop();
+                    }
+                    app.pageNum=1;
+                    app.inGoing.founder='';
+                    app.inGoing.inboundNum=generate_num();
+                    app.inGoing.createTime=generate_created_time();
+                    queryFor(app);
                 })
             },
             viewDetail(row) {

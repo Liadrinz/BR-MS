@@ -12,19 +12,23 @@
     <el-card>
         <el-form :model="inSelection">
             <el-form :inline="true">
-                <el-form-item label="入库类别：" size="mini"><el-input></el-input></el-form-item>
+                <el-form-item label="入库类型：" size="mini">
+                    <el-select v-model="inSelection.inboundType">
+                        <el-option label="正常入库" value="正常入库">正常入库</el-option>
+                    </el-select>
+                </el-form-item>
             </el-form>
             <el-form :inline="true">
-                <el-form-item label="货品编号：" size="mini"><el-input></el-input></el-form-item>
-                <el-form-item label="责任人：" size="mini"><el-input></el-input></el-form-item>
+                <el-form-item label="货品编号：" size="mini"><el-input v-model="inSelection.goodsLocalId"></el-input></el-form-item>
+                <el-form-item label="责任人：" size="mini"><el-input v-model="inSelection.charity"></el-input></el-form-item>
             </el-form>
             <el-form :inline="true">
-                <el-form-item label="仓库：" size="mini"><span>XXXX</span></el-form-item>
+                <el-form-item label="仓库：" size="mini"><span>{{currentWarehouse}}</span></el-form-item>
                 <el-form-item label="入库时间范围：" size="mini">
-                    <el-date-picker v-model="timeSelect" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期">{{timeSelect}}</el-date-picker>
+                    <el-date-picker v-model="timeSelect" @change="transferDate(inSelection)" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期">{{timeSelect}}</el-date-picker>
                 </el-form-item>
                 <el-form-item size="mini">
-                    <el-button style="background-color: #ececec">查询</el-button>
+                    <el-button style="background-color: #ececec" @click="search">查询</el-button>
                 </el-form-item>
             </el-form>
         </el-form>
@@ -93,21 +97,74 @@
 <script>
     var post = require('/mods/backend');
 
+    var catchData=require('/mods/pagination').getData;
+
+    function getData(app){
+        catchData({
+            url:'/depot/stocktaking/stocktaking',
+            app:app,
+            refresh:[app.queryResult,],
+            searchKey:(()=>{
+                var obj={};
+                Object.assign(obj,app.inSelection);
+                return obj;
+            })(),
+            pageNum:app.pageNum,
+            itemName:'goods',
+            total:(totalNum)=>{
+                while(totalPages[0]!==undefined){
+                    totalPages.pop();
+                }
+                totalPages.push(totalNum);
+            }
+        },(allPages,data)=>{
+            while(app.queryResult[0]!==undefined){
+                app.queryResult.pop();
+            }
+            for(var item of data){
+                app.queryResult.push(item);
+            }
+        });
+    }
+
+     var totalPages=[0,];
+
     var app = new Vue({
         el: '#app',
         data: function(){
             return{
-                timeSelect:'',/*时间选择器*/
+                pageNum:1,
+                currentWarehouse:'',
+                timeSelect:[],/*时间选择器*/
                 dialogVisible: false, /*查看当前货品详细信息 查看 button*/
 
-                inSelection:{/*入库筛选框*/
+                inSelection:{
                 },
-                queryResult:[{/*入库历史查询结果*/
-                }]
+                queryResult:[]
             }
         },
+        mounted(){
+            post('/depot/initialize',{},(data,err)=>{
+                if(err){
+                    return;
+                }
+                app.currentWarehouse=data.warehouseName;
+            })
+        },
         methods: {
-
+            transferDate(form){
+                if(app.timeSelect!==null){
+                    let s=app.timeSelect[0],e=app.timeSelect[1];
+                    form.start_time=s.getFullYear()+'-'+(s.getMonth()+1<10?'0'+(s.getMonth()+1):(s.getMonth()+1))+'-'+(s.getDate()<10?('0'+s.getDate()):s.getDate())+' 00:00:00';
+                    form.end_time=e.getFullYear()+'-'+(e.getMonth()+1<10?'0'+(e.getMonth()+1):(e.getMonth()+1))+'-'+(e.getDate()<10?('0'+e.getDate()):e.getDate())+' 00:00:00';
+                }else{
+                    form.start_time=undefined;
+                    form.end_time=undefined;
+                }
+            },
+            search(){
+                getData(app);
+            }
         },
     });
 </script>

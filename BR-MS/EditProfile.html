@@ -35,6 +35,14 @@
                             <p><span class="keys">电子邮箱</span><span>{{props.row.email}}</span></p>
                             <p><span class="keys">联系地址</span><span>{{props.row.address}}</span></p>
                             <p><span class="keys">仓库ID</span><span>{{props.row.warehouseId?props.row.warehouseId:'无'}}</span></p>
+                            <p><span class="keys">仓库名称</span><span>{{
+                                (()=>{
+                                    for(var item of warehouseChoice){
+                                        if(item.warehouseId===props.row.warehouseId)
+                                            return item.warehouseName;
+                                    }
+                                })()
+                                }}</span></p>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -104,12 +112,15 @@
         }
     }
 
+    var warehouseChoice=[];
+
     var post = require('/mods/backend')
     var items=[];
     var app = new Vue({
         el: '#app',
         data: function () {
             return {
+                warehouseChoice:warehouseChoice,
                 initializing:true,
                 editing:false,
                 tableData:items,
@@ -125,6 +136,14 @@
         },
         mounted: function () {
             getData();
+            post('/getwarehouse',{},(data,err)=>{
+                if(err){
+                    return err;
+                }
+                for(var item of data){
+                    warehouseChoice.push(item);
+                }
+            })
         },
         methods: {
             submit: function () {

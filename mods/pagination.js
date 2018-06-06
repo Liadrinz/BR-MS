@@ -9,7 +9,7 @@ getData({
     url:'/system/get_warehouses',//接口url
     app:app1,//所需操纵的Vue对象
     refresh:[items,],//每次获取数据需要清空的数组
-    searchKey:{},//搜索条件,需要包括pageSize
+    searchKey:{},//搜索条件
     pageNum:1,//你想获取第几页
     itemName:'warehouses',//接口回参的Map对象中,你所想获取的数据的属性名
     total:(totalNum)=>{
