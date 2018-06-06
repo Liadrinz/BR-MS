@@ -23,6 +23,47 @@
         [v-cloak]{
             display: none;
         }
+
+        div.map-cols {
+            display: flex;
+            min-height: 100px;
+        }
+
+        div.map-cols > div.w6 {
+            flex: 6 0 0;
+            height: 500px;
+        }
+
+        div.map-cols > div.w4 {
+            flex: 4 0 0;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        #map-container {
+            height: 100%;
+            width: 100%;
+        }
+
+        .emphasize-font {
+            font-size: 16px;
+        }
+
+        ul.route-path-info {
+            margin-top: 0;
+        }
+
+        ul.route-path-info > li {
+            color: #5d5d5d;
+            padding: 15px 0;
+            border-bottom: #ddd solid 1px;
+        }
+
+        ul.route-path-info > li:last-child {
+            color: #415a75;
+            font-weight: bolder;
+            border-bottom: none;
+        }
     </style>
 </head>
 <body>
@@ -59,101 +100,128 @@
             <el-button type="reset" @click="reset">返回</el-button>
         </el-form-item>
     </el-form>
-    <template>
-        <el-table stripe :data="management">
-            <el-table-column type="expand">
-                <template slot-scope="props">
-                    <el-form label-position="left" inline class="demo-table-expand">
-                        <el-form-item label="申请号">
-                            <span>{{props.row.applicationNum}}</span>
-                        </el-form-item>
-                        <el-form-item label="申请人">
-                            <span>{{props.row.userRealName}}</span>
-                        </el-form-item>
-                        <el-form-item label="申请人所在部门">
-                            <span>{{props.row.companyName}}</span>
-                        </el-form-item>
-                        <el-form-item label="货物本地ID">
-                            <span>{{props.row.goodsId}}</span>
-                        </el-form-item>
-                        <el-form-item label="创建时间">
-                            <span>{{props.row.createTime}}</span>
-                        </el-form-item>
-                        <!--<el-form-item label="更新时间">-->
-                            <!--<span>{{props.row.updateTime}}</span>-->
-                        <!--</el-form-item>-->
-                        <el-form-item label="期待时间成本">
-                            <span>{{props.row.expectTime}}</span>
-                        </el-form-item>
-                        <el-form-item label="发货仓库">
-                            <span>{{props.row.startWarehouseName}}</span>
-                        </el-form-item>
-                        <el-form-item label="收货仓库">
-                            <span>{{props.row.endWarehouseName}}</span>
-                        </el-form-item>
-                        <el-form-item label="收货地址">
-                            <span>{{props.row.destinationAddress}}</span>
-                        </el-form-item>
-                        <el-form-item label="目的省">
-                            <span>{{props.row.destinationProvince}}</span>
-                        </el-form-item>
-                        <el-form-item label="目的城市">
-                            <span>{{props.row.destinationCity}}</span>
-                        </el-form-item>
-                        <el-form-item label="申请描述">
-                            <span>{{props.row.description}}</span>
-                        </el-form-item>
-                        <el-form-item label="申请有效时间">
-                            <span>{{props.row.validTime+'天'}}</span>
-                        </el-form-item>：disabled1</el-form>
-                </template>
-            </el-table-column>
-            <el-table-column prop="goodsName" label="货物名称">
-            </el-table-column>
-            <el-table-column prop="requestType" label="需求类型">
-            </el-table-column>
-            <el-table-column prop="amount" label="申请数量">
-            </el-table-column>
-            <el-table-column prop="state" label="状态">
-                <template slot-scope="props">
-                    {{['申请中','已撤销'][props.row.state]}}
-                </template>
-            </el-table-column>
-            <el-table-column prop="isDone" label="是否完成">
-                <template slot-scope="props">
-                    {{['未完成','已完成'][props.row.isDone]}}
-                </template>
-            </el-table-column>
-            <el-table-column prop="isPass" label="请求是否通过">
-                <template slot-scope="props">
-                    {{['未通过','已通过'][props.row.isPass]}}
-                </template>
-            </el-table-column>
-            <el-table-column prop="completetime" label="完成时间">
-            </el-table-column>
-            <el-table-column label="操作" :width="250">
-                <template slot-scope="props">
-                    <el-button :disabled="props.row.state==1" type="primary" size="mini" @click="()=>{viewRoute(props.row)}" :title="props.row.state==1?'该申请已撤销':''">跟踪</el-button>
-                    <el-button :disabled="props.row.state==1||props.row.isPass==1" type="danger" size="mini" @click="()=>{cancelReq(props.row)}" :title="(()=>{
-                    if(props.row.state===1)
-                        return '该申请已撤销'
-                    else if(props.row.isPass===1)
-                        return '该申请已被通过，无法撤销'
-                    })()">撤销</el-button>
-                </template>
-            </el-table-column>
-        </el-table>
-        <el-pagination @current-change="handleCurrentChange" :current-page="pageNum"
-                       :page-size="6" layout="total,prev,pager,next,jumper" :total="total"></el-pagination>
-    </template>
+    <el-table stripe :data="management">
+        <el-table-column type="expand">
+            <template slot-scope="props">
+                <el-form label-position="left" inline class="demo-table-expand">
+                    <el-form-item label="申请号">
+                        <span>{{props.row.applicationNum}}</span>
+                    </el-form-item>
+                    <el-form-item label="申请人">
+                        <span>{{props.row.userRealName}}</span>
+                    </el-form-item>
+                    <el-form-item label="申请人所在部门">
+                        <span>{{props.row.companyName}}</span>
+                    </el-form-item>
+                    <el-form-item label="货物本地ID">
+                        <span>{{props.row.goodsId}}</span>
+                    </el-form-item>
+                    <el-form-item label="创建时间">
+                        <span>{{props.row.createTime}}</span>
+                    </el-form-item>
+                    <!--<el-form-item label="更新时间">-->
+                        <!--<span>{{props.row.updateTime}}</span>-->
+                    <!--</el-form-item>-->
+                    <el-form-item label="期待时间成本">
+                        <span>{{props.row.expectTime}}</span>
+                    </el-form-item>
+                    <el-form-item label="发货仓库">
+                        <span>{{props.row.startWarehouseName}}</span>
+                    </el-form-item>
+                    <el-form-item label="收货仓库">
+                        <span>{{props.row.endWarehouseName}}</span>
+                    </el-form-item>
+                    <el-form-item label="收货地址">
+                        <span>{{props.row.destinationAddress}}</span>
+                    </el-form-item>
+                    <el-form-item label="目的省">
+                        <span>{{props.row.destinationProvince}}</span>
+                    </el-form-item>
+                    <el-form-item label="目的城市">
+                        <span>{{props.row.destinationCity}}</span>
+                    </el-form-item>
+                    <el-form-item label="申请描述">
+                        <span>{{props.row.description}}</span>
+                    </el-form-item>
+                    <el-form-item label="申请有效时间">
+                        <span>{{props.row.validTime+'天'}}</span>
+                    </el-form-item>：disabled1</el-form>
+            </template>
+        </el-table-column>
+        <el-table-column prop="goodsName" label="货物名称">
+        </el-table-column>
+        <el-table-column prop="requestType" label="需求类型">
+        </el-table-column>
+        <el-table-column prop="amount" label="申请数量">
+        </el-table-column>
+        <el-table-column prop="state" label="状态">
+            <template slot-scope="props">
+                {{['申请中','已撤销'][props.row.state]}}
+            </template>
+        </el-table-column>
+        <el-table-column prop="isDone" label="是否完成">
+            <template slot-scope="props">
+                {{['未完成','已完成'][props.row.isDone]}}
+            </template>
+        </el-table-column>
+        <el-table-column prop="isPass" label="请求是否通过">
+            <template slot-scope="props">
+                {{['未通过','已通过'][props.row.isPass]}}
+            </template>
+        </el-table-column>
+        <el-table-column prop="completetime" label="完成时间">
+        </el-table-column>
+        <el-table-column label="操作" :width="250">
+            <template slot-scope="props">
+                <el-button :disabled="props.row.state==1" type="primary" size="mini" @click="()=>{viewRoute(props.row)}" :title="props.row.state==1?'该申请已撤销':''">跟踪</el-button>
+                <el-button :disabled="props.row.state==1||props.row.isPass==1" type="danger" size="mini" @click="()=>{cancelReq(props.row)}" :title="(()=>{
+                if(props.row.state===1)
+                    return '该申请已撤销'
+                else if(props.row.isPass===1)
+                    return '该申请已被通过，无法撤销'
+                })()">撤销</el-button>
+            </template>
+        </el-table-column>
+    </el-table>
+    <el-pagination @current-change="handleCurrentChange" :current-page="pageNum"
+                   :page-size="6" layout="total,prev,pager,next,jumper" :total="total"></el-pagination>
+    <el-dialog
+        title="路径查看" width="60%"
+        :visible.sync="mapDialog.show">
+        <div class="map-cols">
+            <div class="w6">
+                <!-- amapInst 还是 null，说明地图没有加载好 -->
+                <el-amap
+                    vid="map-container"
+                    v-loading="!mapDialog.amapInst"
+                    element-loading-text="正在加载地图"
+                    :events="mapDialog.amapEvents" :zooms="[3,5]"></el-amap>
+            </div>
+            <div class="w4">
+                <ul class="route-path-info">
+                    <li v-for="desc in routeDesc">
+                        <div class="emphasize-font">到达{{desc.station}}</div>
+                        <div>{{desc.time}}</div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </el-dialog>
 </div>
 </body>
 <script src="lib/vue.js"></script>
 <script src="lib/eleme-index.js"></script>
+<script src="lib/vue-amap.js"></script>
 <script src="res/dependencies.js"></script>
 <script>
+    VueAMap.initAMapApiLoader({
+        key: '9182c11acb5eadcb51f274432310fd73'
+    });
+
     //接口没好
-    var catchData=require('/mods/pagination').getData;
+    const catchData=require('/mods/pagination').getData;
+    const cityLoc = require('/mods/cityloc');
+    const dateFormat = require('dateformat');
     var totalPages;//DOM里用这些
 
     function clearData(){
@@ -179,7 +247,49 @@
             for(var da of data){
                 manageItems.push(da);
             }
-        })
+        },10)
+    }
+
+    function updateMap() {
+        // 若当前 amapInst 未加载，则直接返回；
+        // 不必担心数据无法加载；当 amapInst 成功加载的时候，会再调用一次 updateMap
+        // 效果：显示“地图正在加载中”然后就看到了路径
+        if (!app.mapDialog.amapInst) {
+            return;
+        }
+
+        var amapInst = app.mapDialog.amapInst;
+        var d = app.mapDialog.data;
+
+        // 去掉所有的覆盖物，重新绘画
+        amapInst.clearMap();
+
+        var nodes = [];
+
+        for (var i in d) {
+            // 去掉“市”字
+            var station = d[i].station.replace("市", "");
+            nodes.push(cityLoc[station]);
+        }
+
+        nodes.map(loc => {
+            new AMap.CircleMarker({
+                map: amapInst,
+                center: new AMap.LngLat(loc[0], loc[1]),
+                radius: 10,
+                strokeColor: "#b3d8ff",
+                fillColor: "#409eff"
+            });
+        });
+
+        for(var i = 0; i < nodes.length - 1; i++) {
+            new AMap.Polyline({
+                map: amapInst,
+                path: [nodes[i].slice(), nodes[i+1].slice()],
+                strokeColor: "#408ef0",
+                zIndex: 1
+            });
+        }
     }
 
     var searchKey={};
@@ -187,21 +297,42 @@
     var manageItems=[];
     var app = new Vue({
         el: '#app',
-        data:function() {
-            return {
-                initializing:false,
-                management:manageItems,
-                dateRange:"",
-                pageNum:1,
-                total:0,
-                warehouseChoices:[],
-                query:{
-                    start_time:undefined,
-                    end_time:undefined,
-                    goodsName:undefined,
-                    goodLocalId:undefined
+        data: {
+            initializing:false,
+            management:manageItems,
+            dateRange:"",
+            pageNum:1,
+            total:0,
+            warehouseChoices:[],
+            query:{
+                start_time:undefined,
+                end_time:undefined,
+                goodsName:undefined,
+                goodLocalId:undefined
+            },
+            mapDialog: {
+                show: false,
+                amapEvents: {
+                    init: function(o) {
+                        app.mapDialog.amapInst = o;
+                        updateMap();
+                    }
                 },
-            };
+                amapInst: null,
+                data: [],
+            },
+        },
+        computed: {
+            routeDesc: function() {
+                // 返回对象的箭头函数
+                return this.mapDialog.data.map(info => ({
+                    station: info.station,
+                    time: dateFormat(
+                        new Date(info.arriveTime),
+                        "yyyy-mm-dd HH:MM"
+                    )
+                }));
+            }
         },
         mounted:function(){
             getData(searchKey,1);
@@ -270,8 +401,25 @@
                 app.initializing=true;
                 getData(searchKey,1);
                 app.initializing=false;
-            }
+            },
+            viewRoute: function(row) {
+                var schedId = row.schedule_id;
 
+                post('/common/user_goods/get_path', {
+                    scheduleId: parseInt(schedId)
+                }, (data, err) => {
+                    if (err) {
+                        app.$message.error('数据获取失败');
+                        return;
+                    }
+
+                    this.mapDialog.data = data;
+
+                    // 在地图上画圈圈和线，画了之后显示对话框
+                    updateMap();
+                    this.mapDialog.show = true;
+                });
+            }
         }
     });
 </script>

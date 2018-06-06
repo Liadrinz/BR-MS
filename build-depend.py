@@ -13,7 +13,8 @@ npm_modules = [
 local_modules = [    
     "roles",
     "backend",
-    "pagination"
+    "pagination",
+    "cityloc"
 ]
 
 custom_components = [

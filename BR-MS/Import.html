@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>入库登记</title>
     <link rel="stylesheet" href="lib/eleme-index.css">
+    <link rel="stylesheet" href="res/print-form.css"><!--打印表样式-->
     <style>
         .el-form-item {
             margin: 0;
@@ -11,6 +12,10 @@
 
         [v-cloak] {
             display: none;
+        }
+
+        #form-top{
+            font-size: 10px;
         }
 
         .el-card {
@@ -29,190 +34,230 @@
 <body>
 <div id="app" v-cloak>
     <!--入库业务-->
-    <el-card>
-        <span slot="header">入库单填写</span>
-        <el-form :model="inGoing" inline>
-            <p class="form-item">
-                <el-form-item label="操作员：" size="mini">
-                    <el-input v-model="inGoing.realName" :disabled="true"></el-input>
+    <div v-show="state!==3">
+        <el-card>
+            <span slot="header">入库单填写</span>
+            <el-form :model="inGoing" inline>
+                <p class="form-item">
+                    <el-form-item label="操作员：" size="mini">
+                        <el-input v-model="inGoing.realName" :disabled="true"></el-input>
+                    </el-form-item>
+                    <el-form-item label="仓库：" size="mini">
+                        <el-input v-model="inGoing.warehouseName" :disabled="true"></el-input>
+                    </el-form-item>
+                </p>
+                <p class="form-item">
+                    <el-form-item label="建单人：" size="mini">
+                        <el-input v-model="inGoing.founder"></el-input>
+                    </el-form-item>
+                    <el-form-item label="建单日期：" size="mini">
+                        <el-date-picker v-model="inGoing.createTime" type="date"
+                                        format="yyyy年MM月dd日"
+                                        value-format="yyyy-MM-dd" :disabled="true"></el-date-picker>
+                    </el-form-item>
+                </p>
+                <p class="form-item">
+                    <el-form-item label="入库单号：" size="mini">
+                        <el-input v-model="inGoing.inboundNum" :disabled="true"></el-input>
+                    </el-form-item>
+                    <el-form-item label="入库类别：" size="mini">
+                        <el-select v-model="inGoing.rukuleibie">
+                            <el-option label="正常入库" value="type1"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </p>
+            </el-form>
+            <!--点击上传文件-->
+            <!--<el-form :inline="true">
+                <el-form-item label="入库单上传：" size="mini" :inline="true">
+                    <el-upload action="https://jsonplaceholder.typicode.com/posts/" :on-preview="handlePreview" :on-remove="handleRemove" :before-remove="beforeRemove" multiple :limit="3" :on-exceed="handleExceed" :file-list="fileList">
+                        <el-button size="mini" type="primary">点击上传</el-button>
+                    </el-upload>
                 </el-form-item>
-                <el-form-item label="仓库：" size="mini">
-                    <el-input v-model="inGoing.warehouseName" :disabled="true"></el-input>
-                </el-form-item>
-            </p>
-            <p class="form-item">
-                <el-form-item label="建单人：" size="mini">
-                    <el-input v-model="inGoing.founder"></el-input>
-                </el-form-item>
-                <el-form-item label="建单日期：" size="mini">
-                    <el-date-picker v-model="inGoing.createTime" type="date"
-                                    format="yyyy年MM月dd日"
-                                    value-format="yyyy-MM-dd" :disabled="true"></el-date-picker>
-                </el-form-item>
-            </p>
-            <p class="form-item">
-                <el-form-item label="入库单号：" size="mini">
-                    <el-input v-model="inGoing.inboundNum" :disabled="true"></el-input>
-                </el-form-item>
-                <el-form-item label="入库类别：" size="mini">
-                    <el-select v-model="inGoing.rukuleibie">
-                        <el-option label="正常入库" value="type1"></el-option>
-                    </el-select>
-                </el-form-item>
-            </p>
-        </el-form>
-        <!--点击上传文件-->
-        <!--<el-form :inline="true">
-            <el-form-item label="入库单上传：" size="mini" :inline="true">
-                <el-upload action="https://jsonplaceholder.typicode.com/posts/" :on-preview="handlePreview" :on-remove="handleRemove" :before-remove="beforeRemove" multiple :limit="3" :on-exceed="handleExceed" :file-list="fileList">
-                    <el-button size="mini" type="primary">点击上传</el-button>
-                </el-upload>
-            </el-form-item>
-        </el-form>-->
-        <hr style="height:1px; border:none; border-top:1px dashed #c0c4cc">
-        <p class="form-item">
-            <el-table :data="inResult.slice((pageNum0-1)*6,pageNum0*6)" size="mini" max-height="250">
-                <el-table-column type="index" width="44" label="序号"></el-table-column>
-                <el-table-column prop="localId" label="货品编号"></el-table-column>
-                <el-table-column prop="goodsName" label="货品名称"></el-table-column>
-                <el-table-column prop="unit" label="单位" width="180"></el-table-column>
-                <!--可编辑项 begin  *与出库不同——删 去向 项-->
-                <el-table-column prop="amount" label="入库数量" width="75">
-                    <template slot-scope="scope">
-                        <el-input size="mini" v-model="scope.row.amount"></el-input>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="inboundTime" label="入库时间" width="200">
-                    <template slot-scope="scope">
-                        <el-date-picker v-model="scope.row.inboundTime" type="date"
-                                        format="yyyy年MM月dd日" style="width:150px;"
-                                        value-format="yyyy-MM-dd" size="mini"></el-date-picker>
-                    </template>
-                </el-table-column>
-                <!--可编辑项 end-->
-                <el-table-column prop="charity" label="责任人" width="85"></el-table-column>
-                <el-table-column prop="phone" label="联系电话"></el-table-column>
-                <el-table-column prop="remark" label="备注"></el-table-column>
-                <el-table-column>
-                    <!--点击删除当前已选中货品-->
-                    <template slot-scope="scope">
-                        <el-button size="mini" style="background-color: #ececec"
-                                   @click.native.prevent="deleteRow(scope.row)">删除
-                        </el-button>
-                    </template>
-                </el-table-column>
-            </el-table>
-            <el-pagination @current-change="handleCurrentChange0" :current-page="pageNum0"
-                           :page-size="6" layout="total,prev,pager,next,jumper"
-                           :total="inResult.length"></el-pagination>
-        </p>
-        <p class="form-item">
-            <!--保存 生成货品清单-->
-            <el-button style="background-color: #ececec" @click="save">保存</el-button>
-            <!--点击调用打印机 打印inResult表格清单-->
-            <el-button style="background-color: #ececec">生成货品清单</el-button>
-        </p>
-    </el-card>
-    <!--查找-->
-    <el-card>
-        <span slot="header">选择用来填写的物品</span>
-        <el-form :model="queryCondition" inline>
-            <p class="form-item">
-                <!-- TODO: 放入组件 -->
-                <el-form-item label="货品类别">
-                    <el-ext-foldable :options="resTypeList" v-model="queryCondition.type"></el-ext-foldable>
-                </el-form-item>
-            </p>
-            <p class="form-item">
-                <el-form-item label="货品名称：" size="mini">
-                    <el-input v-model="queryCondition.goodsName"></el-input>
-                </el-form-item>
-                <el-form-item label="供应商：" size="mini">
-                    <el-input v-model="queryCondition.producerName"></el-input>
-                </el-form-item>
-            </p>
-            <p class="form-item">
-                <el-form-item label="货品编号：" size="mini">
-                    <el-input v-model="queryCondition.localId"></el-input>
-                </el-form-item>
-            </p>
-            <p class="form-item">
-                <el-form-item size="mini">
-                    <el-button style="background-color: #ececec" @click="search">查找</el-button>
-                </el-form-item>
-            </p>
+            </el-form>-->
             <hr style="height:1px; border:none; border-top:1px dashed #c0c4cc">
             <p class="form-item">
-                <el-table :data="queryResult" size="mini" max-height="250">
-                    <el-table-column type="index" width="50" label="序号"></el-table-column>
+                <el-table :data="inResult.slice((pageNum0-1)*6,pageNum0*6)" size="mini" max-height="250">
+                    <el-table-column type="index" width="44" label="序号"></el-table-column>
                     <el-table-column prop="localId" label="货品编号"></el-table-column>
                     <el-table-column prop="goodsName" label="货品名称"></el-table-column>
-                    <el-table-column prop="inboundTime" label="入库时间"></el-table-column>
-                    <el-table-column prop="supplier" label="供应商"></el-table-column>
-                    <el-table-column label="详细信息" width="80">
-                        <!--点击查看当前物资详细信息-->
+                    <el-table-column prop="unit" label="单位" width="180"></el-table-column>
+                    <!--可编辑项 begin  *与出库不同——删 去向 项-->
+                    <el-table-column prop="amount" label="入库数量" width="75">
                         <template slot-scope="scope">
-                            <el-button size="mini" style="background-color: #ececec" @click="viewDetail(scope.row)">查看
-                            </el-button>
+                            <el-input size="mini" v-model="scope.row.amount"></el-input>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="charity" label="责任人"></el-table-column>
-                    <el-table-column prop="phone" label="联系电话"></el-table-column>
-                    <el-table-column prop="ruku" label="">
-                        <!--点击入库 复制转移所有当前货品编号至 inResult-->
+                    <el-table-column prop="inboundTime" label="入库时间" width="200">
                         <template slot-scope="scope">
-                            <el-button size="mini" style="background-color: #ececec" @click="goIn(scope.row)"
-                                       :disabled="scope.row.isIn">入库
+                            <el-date-picker v-model="scope.row.inboundTime" type="date"
+                                            format="yyyy年MM月dd日" style="width:150px;"
+                                            value-format="yyyy-MM-dd" size="mini"></el-date-picker>
+                        </template>
+                    </el-table-column>
+                    <!--可编辑项 end-->
+                    <el-table-column prop="charity" label="责任人" width="85"></el-table-column>
+                    <el-table-column prop="phone" label="联系电话"></el-table-column>
+                    <el-table-column prop="remark" label="备注"></el-table-column>
+                    <el-table-column>
+                        <!--点击删除当前已选中货品-->
+                        <template slot-scope="scope">
+                            <el-button size="mini" style="background-color: #ececec"
+                                       @click.native.prevent="deleteRow(scope.row)">删除
                             </el-button>
                         </template>
                     </el-table-column>
                 </el-table>
-                <el-pagination @current-change="handleCurrentChange" :current-page="pageNum"
-                               :page-size="pageSize" layout="total,prev,pager,next,jumper"
-                               :total="total[0]"></el-pagination>
-                <el-dialog title="货品详细信息" :visible.sync="dialogVisible" width="95%"
-                           :before-close="handleClose">
-                    <el-table :data="detailForm">
-                        <el-table-column prop="key1" :width="150">
-                            <template slot-scope="props">
-                                <b>{{props.row.key1}}</b>
+                <el-pagination @current-change="handleCurrentChange0" :current-page="pageNum0"
+                               :page-size="6" layout="total,prev,pager,next,jumper"
+                               :total="inResult.length"></el-pagination>
+            </p>
+            <p class="form-item">
+                <!--保存 生成货品清单-->
+                <el-button style="background-color: #ececec" @click="save" size="mini">保存</el-button>
+                <!--点击调用打印机 打印inResult表格清单-->
+                <el-button style="background-color: #ececec" size="mini" @click="handlePrint">生成货品清单</el-button>
+            </p>
+        </el-card>
+        <!--查找-->
+        <el-card>
+            <span slot="header">选择用来填写的物品</span>
+            <el-form :model="queryCondition" inline>
+                <p class="form-item">
+                    <!-- TODO: 放入组件 -->
+                    <el-form-item label="货品类别">
+                        <el-ext-foldable :options="resTypeList" v-model="queryCondition.type"></el-ext-foldable>
+                    </el-form-item>
+                </p>
+                <p class="form-item">
+                    <el-form-item label="货品名称：" size="mini">
+                        <el-input v-model="queryCondition.goodsName"></el-input>
+                    </el-form-item>
+                    <el-form-item label="供应商：" size="mini">
+                        <el-input v-model="queryCondition.producerName"></el-input>
+                    </el-form-item>
+                </p>
+                <p class="form-item">
+                    <el-form-item label="货品编号：" size="mini">
+                        <el-input v-model="queryCondition.localId"></el-input>
+                    </el-form-item>
+                </p>
+                <p class="form-item">
+                    <el-form-item size="mini">
+                        <el-button style="background-color: #ececec" @click="search">查找</el-button>
+                        <el-button style="background-color: #ececec" @click="reset">返回</el-button>
+                    </el-form-item>
+                </p>
+                <hr style="height:1px; border:none; border-top:1px dashed #c0c4cc">
+                <p class="form-item">
+                    <el-table :data="queryResult" size="mini" max-height="250">
+                        <el-table-column type="index" width="50" label="序号"></el-table-column>
+                        <el-table-column prop="localId" label="货品编号"></el-table-column>
+                        <el-table-column prop="goodsName" label="货品名称"></el-table-column>
+                        <el-table-column prop="applicationNum" label="申请单号"></el-table-column>
+                        <el-table-column prop="supplier" label="供应商"></el-table-column>
+                        <el-table-column label="详细信息" width="80">
+                            <!--点击查看当前物资详细信息-->
+                            <template slot-scope="scope">
+                                <el-button size="mini" style="background-color: #ececec" @click="viewDetail(scope.row)">查看
+                                </el-button>
                             </template>
                         </el-table-column>
-                        <el-table-column prop="val1" :width="200">
-                            <template slot-scope="props">
-                                <span>{{props.row.val1}}</span>
-                            </template>
-                        </el-table-column>
-                        <el-table-column prop="key2" :width="150">
-                            <template slot-scope="props">
-                                <b>{{props.row.key2}}</b>
-                            </template>
-                        </el-table-column>
-
-                        <el-table-column prop="val2" :width="200">
-                            <template slot-scope="props">
-                                <span>{{props.row.val2}}</span>
-                            </template>
-                        </el-table-column>
-                        <el-table-column prop="key3" :width="150">
-                            <template slot-scope="props">
-                                <b>{{props.row.key3}}</b>
-                            </template>
-                        </el-table-column>
-
-                        <el-table-column prop="val3" :width="200">
-                            <template slot-scope="props">
-                                <span>{{props.row.val3}}</span>
+                        <el-table-column prop="charity" label="责任人"></el-table-column>
+                        <el-table-column prop="phone" label="联系电话"></el-table-column>
+                        <el-table-column prop="ruku" label="">
+                            <!--点击入库 复制转移所有当前货品编号至 inResult-->
+                            <template slot-scope="scope">
+                                <el-button size="mini" style="background-color: #ececec" @click="goIn(scope.row)"
+                                           :disabled="scope.row.isIn">入库
+                                </el-button>
                             </template>
                         </el-table-column>
                     </el-table>
-                    <span slot="footer" class="dialog-footer">
+                    <el-pagination @current-change="handleCurrentChange" :current-page="pageNum"
+                                   :page-size="pageSize" layout="total,prev,pager,next,jumper"
+                                   :total="total[0]"></el-pagination>
+                    <el-dialog title="货品详细信息" :visible.sync="dialogVisible" width="95%"
+                               :before-close="handleClose">
+                        <el-table :data="detailForm">
+                            <el-table-column prop="key1" :width="150">
+                                <template slot-scope="props">
+                                    <b>{{props.row.key1}}</b>
+                                </template>
+                            </el-table-column>
+                            <el-table-column prop="val1" :width="200">
+                                <template slot-scope="props">
+                                    <span>{{props.row.val1}}</span>
+                                </template>
+                            </el-table-column>
+                            <el-table-column prop="key2" :width="150">
+                                <template slot-scope="props">
+                                    <b>{{props.row.key2}}</b>
+                                </template>
+                            </el-table-column>
+
+                            <el-table-column prop="val2" :width="200">
+                                <template slot-scope="props">
+                                    <span>{{props.row.val2}}</span>
+                                </template>
+                            </el-table-column>
+                            <el-table-column prop="key3" :width="150">
+                                <template slot-scope="props">
+                                    <b>{{props.row.key3}}</b>
+                                </template>
+                            </el-table-column>
+
+                            <el-table-column prop="val3" :width="200">
+                                <template slot-scope="props">
+                                    <span>{{props.row.val3}}</span>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                        <span slot="footer" class="dialog-footer">
                                 <el-button @click="dialogVisible = false" size="mini" style="background-color: #ececec">关闭</el-button>
                             </span>
-                </el-dialog>
-            </p>
-        </el-form>
-    </el-card>
+                    </el-dialog>
+                </p>
+            </el-form>
+        </el-card>
+    </div>
+    <div v-show="state===3" id="box3">
+        <!--startprint-->
+        <p id="form-top">
+            <span><b>入库单号:</b>{{inGoing.inboundNum}}</span>
+            <span><b>入库类别:</b>{{inGoing.type}}</span>
+            <span><b>供应商:</b>{{inGoing.supplier}}</span>
+            <span><b>操作员:</b>{{inGoing.operator}}</span>
+            <span><b>建单人:</b>{{inGoing.founder}}</span>
+            <span><b>建单日期:</b>{{(()=>{
+                var da=new Date();
+                var [year,month,date]=[da.getFullYear(),da.getMonth()+1,da.getDate()];
+                return year+'年'+month+'月'+date+'日';
+                })()}}</span>
+        </p>
+        <table class="grid">
+            <tr>
+                <th>序号</th>
+                <th>物资名称</th>
+                <th>身份识别码</th>
+                <th>入库时间</th>
+                <th>数量</th>
+                <th>供应商</th>
+                <th>存放仓库</th>
+                <th>负责人</th>
+                <th>联系电话</th>
+                <th>备注</th>
+            </tr>
+            <tr v-for="data in toPrint">
+                <td v-for="key in Object.keys(data)">{{data[key]}}</td>
+            </tr>
+        </table>
+        <!--endprint-->
+        <p class="noprint">
+            <el-button type="primary" @click="performPrint">打印</el-button>
+            <el-button @click="()=>{state=1;}">返回</el-button>
+        </p>
+    </div>
 </div>
 </body>
 <script src="lib/vue.js"></script>
@@ -264,14 +309,33 @@
                 item['isIn'] = false;
                 app.queryResult.push(item);
             }
-        })
+        },10)
     }
 
+    function generate_num(){
+        let da = new Date();
+        let postfix = String(Date.parse(da)).slice(4, 10);
+        let [year, month, date] = [
+            da.getFullYear(),
+            da.getMonth() + 1 < 10 ? '0' + (da.getMonth() + 1) : da.getMonth() + 1,
+            da.getDate() < 10 ? '0' + da.getDate() : da.getDate()
+        ];
+        return [year, month, date].join('') + '1' + postfix;
+    }
+
+    function generate_created_time(){
+        var today = new Date();
+        var yyyy = today.getFullYear();
+        var mm = today.getMonth() + 1 < 10 ? ('0' + (today.getMonth() + 1)) : (today.getMonth() + 1);
+        var dd = today.getDate() < 10 ? ('0' + today.getDate()) : (today.getDate());
+        return yyyy + '-' + mm + '-' + dd;
+    }
 
     var app = new Vue({
         el: '#app',
         data: function () {
             return {
+                state:0,
                 pageNum0: 1,
                 pageSize: 6,
                 pageNum: 1,
@@ -296,24 +360,9 @@
                     /* 入库业务 —— 相关信息填写 */
                     warehouseName: '',
                     realName: '',
-                    inboundNum: (() => {
-                        let da = new Date();
-                        let postfix = String(Date.parse(da)).slice(4, 10);
-                        let [year, month, date] = [
-                            da.getFullYear(),
-                            da.getMonth() + 1 < 10 ? '0' + (da.getMonth() + 1) : da.getMonth() + 1,
-                            da.getDate() < 10 ? '0' + da.getDate() : da.getDate()
-                        ];
-                        return [year, month, date].join('') + '1' + postfix;
-                    })(),
+                    inboundNum:generate_num(),
                     founder: '',
-                    createTime: (() => {
-                        var today = new Date();
-                        var yyyy = today.getFullYear();
-                        var mm = today.getMonth() + 1 < 10 ? ('0' + (today.getMonth() + 1)) : (today.getMonth() + 1);
-                        var dd = today.getDate() < 10 ? ('0' + today.getDate()) : (today.getDate());
-                        return yyyy + '-' + mm + '-' + dd;
-                    })(),
+                    createTime:generate_created_time(),
                     type: ''
                 },
                 inResult: [],
@@ -357,13 +406,43 @@
                     quantity: '数量'
                 },
                 detailForm: [],
-                dialogVisible: false  /*查看当前货品详细信息 查看 button*/
+                dialogVisible: false,  /*查看当前货品详细信息 查看 button*/
+                toPrint:[]
             }
         },
         mounted() {
             getData(this);
         },
         methods: {
+            performPrint(){
+                window.print();
+            },
+            handlePrint(){
+                app.toPrint = [];
+                var obj = {
+                    index: 1,
+                    goodsName: "",
+                    localId: "",
+                    inboundTime:"",
+                    amount: "",
+                    supplier: "",
+                    startWarehouseName: "",
+                    charity: "",
+                    phone: "",
+                    remark: ""
+                };
+                var standard_keys=Object.keys(obj);
+                for (let i in app.inResult) {
+                    Object.assign(obj, app.inResult[i]);
+                    obj.index = parseInt(i) + 1;
+                    for(var key in obj){
+                        if(standard_keys.indexOf(key)===-1)
+                            delete obj[key];
+                    }
+                    app.toPrint.push(obj);
+                }
+                app.state = 3;
+            },
             handleCurrentChange0(page) {
                 app.pageNum0 = page;
             },
@@ -376,12 +455,13 @@
                 row.isIn = true;
             },
             save() {
+                var newList=[];
                 post('/depot/storage_management', {
                     method: '入库',
                     inboundNum: app.inGoing.inboundNum,
                     founder: app.inGoing.founder,
                     list: (() => {
-                        var newList = [];
+                        newList = [];
                         for (var item of app.inResult) {
                             var obj = {};
                             Object.assign(obj, {
@@ -397,7 +477,15 @@
                     if (err) {
                         return;
                     }
-
+                    app.$message.success('入库登记成功');
+                    while(app.inResult[0]!==undefined){
+                        app.inResult.pop();
+                    }
+                    app.pageNum=1;
+                    app.inGoing.founder='';
+                    app.inGoing.inboundNum=generate_num();
+                    app.inGoing.createTime=generate_created_time();
+                    queryFor(app);
                 })
             },
             viewDetail(row) {
@@ -460,6 +548,18 @@
             },
             search() {
                 app.pageNum = 1;
+                queryFor(app);
+            },
+            reset(){
+                app.pageNum=1;
+                Object.assign(app.queryCondition,{
+                    goodsName: '',
+                    producerName: '',
+                    localId: ''
+                });
+                while(app.queryCondition.type[0]!==undefined){
+                    app.queryCondition.type.pop();
+                }
                 queryFor(app);
             },
             /*入库单上传相关函数 begin*/

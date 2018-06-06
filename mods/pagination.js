@@ -9,7 +9,7 @@ getData({
     url:'/system/get_warehouses',//接口url
     app:app1,//所需操纵的Vue对象
     refresh:[items,],//每次获取数据需要清空的数组
-    searchKey:{},//搜索条件,需要包括pageSize
+    searchKey:{},//搜索条件
     pageNum:1,//你想获取第几页
     itemName:'warehouses',//接口回参的Map对象中,你所想获取的数据的属性名
     total:(totalNum)=>{
@@ -49,7 +49,27 @@ function totalCompute(url,callback,searchKey,attrName){
                 }
                 callback(total);
             })
-        }else{
+        }else if(data.totalPage){
+            var maxPage=data.totalPage;
+            if(searchKey){
+                searchKey['pageNum']=maxPage;
+            }
+            post(url,searchKey?searchKey:{pageNum:maxPage},(data)=>{
+                var arr=[];
+                var items=attrName?data[attrName]:data;
+                for(var key in items){
+                    arr.push(items[key]);
+                }
+                var total;
+                if(maxPage!==0){
+                    total=searchKey['pageSize']*(maxPage-1)+arr.length;
+                }else{
+                    total=0;
+                }
+                callback(total);
+            })
+        }
+        else{
             callback(0);
         }
     })
@@ -63,7 +83,7 @@ function clearData(listsToPop){
     }
 }
 
-function getData(params,dataCallback){
+function getData(params,dataCallback,no_alert){
     clearData(params.refresh);
     if(params.pageNum!==undefined){
         if(params.searchKey){
@@ -72,8 +92,17 @@ function getData(params,dataCallback){
         }
         post(params.url,params.searchKey?params.searchKey:{pageNum:params.pageNum,pageSize:params.pageSize},(data,err)=>{
             if(err){
-                params.app.$message.error(err.msg);
-                return;
+                if(!no_alert){
+                    params.app.$message.error(err.msg);
+                    return;
+                }else{
+                    try{
+                        getData(params,dataCallback,no_alert--)
+                    }catch(e){
+                        console.log(e);
+                        return;
+                    }
+                }
             }
             totalCompute(params.url,params.total,params.searchKey,params.itemName);
             dataCallback(data.allPages?data.allPages:data.totalPage,data[params.itemName]);
