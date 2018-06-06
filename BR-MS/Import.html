@@ -82,10 +82,10 @@
                         <el-input size="mini" v-model="scope.row.amount"></el-input>
                     </template>
                 </el-table-column>
-                <el-table-column prop="registerTime" label="入库时间" width="150">
+                <el-table-column prop="inboundTime" label="入库时间" width="200">
                     <template slot-scope="scope">
-                        <el-date-picker v-model="scope.row.registerTime" type="date"
-                                        format="yyyy年MM月dd日" style="width:130px;"
+                        <el-date-picker v-model="scope.row.inboundTime" type="date"
+                                        format="yyyy年MM月dd日" style="width:150px;"
                                         value-format="yyyy-MM-dd" size="mini"></el-date-picker>
                     </template>
                 </el-table-column>
@@ -147,7 +147,7 @@
                     <el-table-column type="index" width="50" label="序号"></el-table-column>
                     <el-table-column prop="localId" label="货品编号"></el-table-column>
                     <el-table-column prop="goodsName" label="货品名称"></el-table-column>
-                    <el-table-column prop="registerTime" label="入库时间"></el-table-column>
+                    <el-table-column prop="inboundTime" label="入库时间"></el-table-column>
                     <el-table-column prop="supplier" label="供应商"></el-table-column>
                     <el-table-column label="详细信息" width="80">
                         <!--点击查看当前物资详细信息-->
