@@ -26,7 +26,7 @@
 <div id="app" v-cloak>
     <!--出库业务-->
     <el-card>
-        <span slot="header">入库单填写</span>
+        <span slot="header">出库单填写</span>
         <el-form :model="outGoing">
             <el-form :inline="true">
                 <el-form-item label="操作员：" size="mini"><el-input v-model="outGoing.realName" :disabled="true"></el-input></el-form-item>
@@ -44,14 +44,6 @@
                     </el-select>
                 </el-form-item>
             </el-form>
-            <!--点击上传文件-->
-            <!--<el-form :inline="true">
-                <el-form-item label="出库单上传：" size="mini" :inline="true">
-                    <el-upload action="https://jsonplaceholder.typicode.com/posts/" :on-preview="handlePreview" :on-remove="handleRemove" :before-remove="beforeRemove" multiple :limit="3" :on-exceed="handleExceed" :file-list="fileList">
-                        <el-button size="mini" type="primary">点击上传</el-button>
-                    </el-upload>
-                </el-form-item>
-            </el-form>-->
             <hr style="height:1px; border:none; border-top:1px dashed #c0c4cc">
             <el-table :data="outResult" size="mini" max-height="250">
                 <el-table-column type="index" width="44" label="序号"></el-table-column>
