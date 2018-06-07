@@ -188,6 +188,9 @@
                 if (err.id !== 4003 && err.id !== 5005) {
                     app.$message.error(err.msg);
                     app.initializing = false;
+                }else if(err.id===5005){
+                    totalRef[0]=0;
+                    maxPageRef[0]=0;
                 }
                 return;
             }
@@ -236,7 +239,9 @@
         Object.assign(obj4,needed,common2);
         post('/common/getms', searchKey ? obj3 : common1, (data) => {
             maxPage = data.allPages;
+            console.log(data.allPages);
             common2['pageNum'] = maxPage;
+            Object.assign(obj4,common2);
             post('/common/getms', searchKey ? obj4 : common2, (data) => {
                 var arr = [], msg = data.SysMessage;
                 if(app.checked===4){
