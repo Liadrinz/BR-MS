@@ -74,7 +74,7 @@
 */
 var $ = require("jquery");
 
-var apiPrefix = "http://10.112.153.212:8080";
+var apiPrefix = "http://10.112.153.212:8080/dispatch";
 var timeout = 2500;
 
 var errs = {
