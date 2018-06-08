@@ -43,7 +43,7 @@
         <el-table-column
                 prop="goodsName" label="货物名"></el-table-column>
         <el-table-column
-                label="操作" width="320px">
+                label="操作" width="400px">
             <template slot-scope="scope">
                 <span class="no-wrap">
                     <el-button
@@ -203,6 +203,9 @@
                             if (v > app.currRowData.maxAmount) {
                                 callback(new Error("允许数量不能超过物资总数"));
                                 return;
+                            }
+                            if(v===0){
+                                callback(new Error("通过数量不能为零"));
                             }
                             callback();
                         }, trigger: 'change'}

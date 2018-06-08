@@ -7,7 +7,8 @@ var pages = {
     "调配业务管理": "Management.html",
     "个人信息修改":"EditProfile.html",
     "密码修改":"NewPassword.html",
-    "查询后勤物资":"resLookup.html",
+    "物资多维度搜索":"resLookup.html",
+    "物资调度申请":"resAllocate.html",
     "新物料入库登记":"resRegister.html",
     "调配物资出库":"Export.html",
     "调配物资入库":"Import.html",
@@ -93,9 +94,10 @@ export default {
             }
         ]),
         normal: getMenus([
+            "物资多维度搜索",
+            "物资调度申请",
             "调配业务管理",
             "历史申请查询",
-            "查询后勤物资",
             {"个人中心":[
                 "消息",
                 "个人信息修改",
