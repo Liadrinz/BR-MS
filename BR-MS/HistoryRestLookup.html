@@ -242,10 +242,13 @@
                     </el-card>
                     <el-table :data="queryResult3" size="mini" max-height="250">
                         <el-table-column type="index" width="50" label="序号"></el-table-column>
-                        <el-table-column prop="huopinmingcheng" label="状态" width="100"></el-table-column>
-                        <el-table-column prop="huopinbianhao" label="时间" width="100"></el-table-column>
-                        <el-table-column prop="rukushijian" label="操作人员" width="100"></el-table-column>
-                        <el-table-column prop="ruku" label="详细信息">
+                        <el-table-column prop="goodName" label="物资名称" width="100"></el-table-column>
+                        <el-table-column prop="goodLocalId" label="物资编号" width="100"></el-table-column>
+                        <el-table-column prop="createTime" label="开始时间" width="100"></el-table-column>
+                        <el-table-column prop="createTime" label="入库时间" width="100"></el-table-column>
+                        <el-table-column prop="founder" label="建单人" width="100"></el-table-column>
+                        <el-table-column prop="operator" label="操作员" width="100"></el-table-column>
+                        <el-table-column label="详细信息">
                             <!--点击入库 复制转移所有当前货品编号至 inResult-->
                             <template slot-scope="scope">
                                 <el-button size="mini" style="background-color: #ececec">查看申请表单</el-button>

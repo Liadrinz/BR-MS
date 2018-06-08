@@ -154,19 +154,17 @@
         </el-table-column>
         <el-table-column prop="amount" label="申请数量">
         </el-table-column>
-        <el-table-column prop="state" label="状态">
+        <el-table-column label="状态">
             <template slot-scope="props">
-                {{['申请中','已撤销'][props.row.state]}}
-            </template>
-        </el-table-column>
-        <el-table-column prop="isDone" label="是否完成">
-            <template slot-scope="props">
-                {{['未完成','已完成'][props.row.isDone]}}
-            </template>
-        </el-table-column>
-        <el-table-column prop="isPass" label="请求是否通过">
-            <template slot-scope="props">
-                {{['未通过','已通过'][props.row.isPass]}}
+                {{['申请中','已撤销','已通过','已完成'][(()=>{
+                if(props.row.isPass===1){
+                return 2;
+                }
+                if(props.row.isDone===1){
+                return 3;
+                }
+                return props.row.state;
+                })()]}}
             </template>
         </el-table-column>
         <el-table-column prop="completetime" label="完成时间">

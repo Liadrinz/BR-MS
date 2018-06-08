@@ -29,7 +29,7 @@
             <el-form :model="inSelection">
                 <el-form :inline="true">
                     <el-form-item label="入库类型：" size="mini">
-                        <el-select v-model="inSelection.inboundType">
+                        <el-select v-model="inSelection.inboundType" :disabled="true">
                             <el-option label="正常入库" :value="undefined">正常入库</el-option>
                         </el-select>
                     </el-form-item>
@@ -51,39 +51,14 @@
             </el-form>
         </el-card>
         <el-table :data="queryResult" size="mini" max-height="250" :default-sort="{prop: 'rukushijian', order: 'descending'}">
-            <el-table-column type="expand"><!--折叠部分项-->
-                <template slot-scope="props">
-                    <el-form label-position="right" class="demo-table-expand">
-                        <el-form :inline="true">
-                            <el-form-item label="货品名称：" size="mini">
-                                <span>{{ props.row.goodName }}</span>
-                            </el-form-item>
-                            <el-form-item label="货品编号：" size="mini">
-                                <span>{{ props.row.goodLocalId }}</span>
-                            </el-form-item>
-                        </el-form>
-                        <el-form :inline="true">
-                            <el-form-item label="单位：" size="mini">
-                                <span>{{ props.row.unit }}</span>
-                            </el-form-item>
-                            <el-form-item label="数量：" size="mini">
-                                <span>{{ props.row.amount }}</span>
-                            </el-form-item>
-                        </el-form>
-                        <el-form :inline="true">
-                            <el-form-item label="责任人：" size="mini">
-                                <span>{{ props.row.charity }}</span>
-                            </el-form-item>
-                            <el-form-item label="存放库位：" size="mini">
-                                <span>{{ props.row.warehouseRepository }}</span>
-                            </el-form-item>
-                        </el-form>
-                    </el-form>
-                </template>
-            </el-table-column>
+
             <el-table-column type="index" width="50" label="序号"></el-table-column>
             <el-table-column prop="goodName" label="货品名称" width="100"></el-table-column>
+            <el-table-column prop="amount" label="数量" width="100"></el-table-column>
+            <el-table-column prop="unit" label="单位" width="100"></el-table-column>
             <el-table-column prop="goodLocalId" label="货品编号" width="100"></el-table-column>
+            <el-table-column prop="charity" label="责任人" width="100"></el-table-column>
+            <el-table-column prop="warehouseRepository" label="存放库位" width="100"></el-table-column>
             <el-table-column label="货品信息" width="80">
                 <!--点击查看当前物资详细信息-->
                 <template slot-scope="scope">
