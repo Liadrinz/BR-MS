@@ -232,9 +232,9 @@
                             <a href="#Attr">
                                 <div style="border-top:1px solid rgba(192,192,192,0.5); margin-top: 10px">属性</div>
                             </a>
-                            <a href="#Pos">
-                                <div>位置</div>
-                            </a>
+                            <!--<a href="#Pos">-->
+                                <!--<div>位置</div>-->
+                            <!--</a>-->
                             <a href="#State">
                                 <div>状态</div>
                             </a>
@@ -361,54 +361,54 @@
 
                             </el-collapse-item>
                         </div>
-                        <div id="Pos" class="anchor">
-                            <el-collapse-item title="位置" name="2">
-                                <div name="2">
-                                    <div class="header">
-                                        <span>绝对位置</span>
-                                    </div>
-                                    <el-form label-position="right" label-width="250px">
-                                        <el-form-item label="经度">
-                                            <el-input v-model="warehouseInfo.longitude" :disabled="true"></el-input>
-                                        </el-form-item>
-                                        <el-form-item label="纬度">
-                                            <el-input v-model="warehouseInfo.latitude" :disabled="true"></el-input>
-                                        </el-form-item>
-                                    </el-form>
-                                </div>
-                                <div>
-                                    <div class="header">
-                                        <span>相对位置</span>
-                                    </div>
-                                    <el-form label-position="right" label-width="250px">
-                                        <el-form-item label="所在仓库">
-                                            <el-input v-model="warehouseInfo.warehouseName" :disabled="true"></el-input>
-                                        </el-form-item>
-                                    </el-form>
-                                    <div class="sub-form">
-                                        <div class="header">
-                                            <span>行政位置</span>
-                                        </div>
-                                        <el-form label-position="right" label-width="250px">
-                                            <el-form-item label="国家">
-                                                <el-input v-model="warehouseInfo.country" :disabled="true"></el-input>
-                                            </el-form-item>
-                                            <el-form-item label="战区">
-                                                <el-input v-model="warehouseInfo.area" :disabled="true"></el-input>
-                                            </el-form-item>
-                                            <el-form-item label="省/市/区">
-                                                <el-cascader :options="areaData" v-model="selectedLocations"
-                                                             size="large" :disabled="true"></el-cascader>
-                                            </el-form-item>
-                                            <el-form-item label="详细地址">
-                                                <el-input v-model="warehouseInfo.detailLocation"
-                                                          :disabled="true"></el-input>
-                                            </el-form-item>
-                                        </el-form>
-                                    </div>
-                                </div>
-                            </el-collapse-item>
-                        </div>
+                        <!--<div id="Pos" class="anchor">-->
+                            <!--<el-collapse-item title="位置" name="2">-->
+                                <!--<div name="2">-->
+                                    <!--<div class="header">-->
+                                        <!--<span>绝对位置</span>-->
+                                    <!--</div>-->
+                                    <!--<el-form label-position="right" label-width="250px">-->
+                                        <!--<el-form-item label="经度">-->
+                                            <!--<el-input v-model="warehouseInfo.longitude" :disabled="true"></el-input>-->
+                                        <!--</el-form-item>-->
+                                        <!--<el-form-item label="纬度">-->
+                                            <!--<el-input v-model="warehouseInfo.latitude" :disabled="true"></el-input>-->
+                                        <!--</el-form-item>-->
+                                    <!--</el-form>-->
+                                <!--</div>-->
+                                <!--<div>-->
+                                    <!--<div class="header">-->
+                                        <!--<span>相对位置</span>-->
+                                    <!--</div>-->
+                                    <!--<el-form label-position="right" label-width="250px">-->
+                                        <!--<el-form-item label="所在仓库">-->
+                                            <!--<el-input v-model="warehouseInfo.warehouseName" :disabled="true"></el-input>-->
+                                        <!--</el-form-item>-->
+                                    <!--</el-form>-->
+                                    <!--<div class="sub-form">-->
+                                        <!--<div class="header">-->
+                                            <!--<span>行政位置</span>-->
+                                        <!--</div>-->
+                                        <!--<el-form label-position="right" label-width="250px">-->
+                                            <!--<el-form-item label="国家">-->
+                                                <!--<el-input v-model="warehouseInfo.country" :disabled="true"></el-input>-->
+                                            <!--</el-form-item>-->
+                                            <!--<el-form-item label="战区">-->
+                                                <!--<el-input v-model="warehouseInfo.area" :disabled="true"></el-input>-->
+                                            <!--</el-form-item>-->
+                                            <!--<el-form-item label="省/市/区">-->
+                                                <!--<el-cascader :options="areaData" v-model="selectedLocations"-->
+                                                             <!--size="large" :disabled="true"></el-cascader>-->
+                                            <!--</el-form-item>-->
+                                            <!--<el-form-item label="详细地址">-->
+                                                <!--<el-input v-model="warehouseInfo.detailLocation"-->
+                                                          <!--:disabled="true"></el-input>-->
+                                            <!--</el-form-item>-->
+                                        <!--</el-form>-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                            <!--</el-collapse-item>-->
+                        <!--</div>-->
                         <div id="State" class="anchor">
                             <el-collapse-item title="状态" name="3" id="State">
                                 <div class="header">
@@ -490,7 +490,15 @@
                         </div>
                         <div id="Cap" class="anchor">
                             <el-collapse-item title="能力" name="4" id="Cap">
-                                <div v-for="useCap in useCapabilityList" name="4">
+                                <el-form label-position="right" label-width="250px">
+                                    <el-form-item label="能力类型">
+                                        <el-select placeholder="请选择能力类型" v-model="bigType" @change="clearAnother">
+                                            <el-option label="使用能力" :value="1">使用能力</el-option>
+                                            <el-option label="保障能力" :value="2">保障能力</el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                </el-form>
+                                <div v-for="useCap in useCapabilityList" v-if="bigType===1" name="4">
                                     <div class="header">
                                 <span>使用能力
                                 <div class="adel">
@@ -518,7 +526,7 @@
                                         </el-form-item>
                                     </el-form>
                                 </div>
-                                <div v-for="garCap in guaranteeCapabilityList">
+                                <div v-for="garCap in guaranteeCapabilityList" v-if="bigType===2">
                                     <div class="header">
                                 <span>保障能力
                                 <div class="adel">
@@ -766,6 +774,7 @@
 
                 //------------------------------
 
+                bigType:1,
                 warehouseInfo: warehouseInfo,
                 warehouseChoiceMsg: "请先选择国家和省市",
                 warehouseChoiceDisable: true,
@@ -1093,17 +1102,20 @@
                 app.detailDialogVisible = true;
                 var data = app.storedDetailResInfo[index];
                 var obj = {key: "", val: ""};
+                let choice="";
                 for (var i in data) {
                     if (i !== 'useAbility' && i !== 'garAbility') {
                         obj['val'] = data[i];
-                    } else if (i === 'useAbility') {
+                    } else if (i === 'useAbility'&&choice!=='gar') {
+                        choice='use';
                         let j = 0;
                         obj['val'] = "";
                         while (data[i][j]) {
                             obj['val'] += String(data[i][j].smallType) + ': ' + String(data[i][j].detail) + '\n';
                             j++;
                         }
-                    } else if (i === 'garAbility') {
+                    } else if (i === 'garAbility'&&choice!=='use') {
+                        choice='gar';
                         let j = 0;
                         obj['val'] = "";
                         while (data[i][j]) {
@@ -1123,6 +1135,23 @@
             },
             //------------------------------------------------------
 
+            clearAnother(){
+                if(app.bigType===1){
+                    while(app.guaranteeCapabilityList[1]!==undefined){
+                        app.guaranteeCapabilityList.pop();
+                    }
+                    for(let key in app.guaranteeCapabilityList[0]){
+                        app.guaranteeCapabilityList[0][key]=undefined;
+                    }
+                }else{
+                    while(app.useCapabilityList[1]!==undefined){
+                        app.useCapabilityList.pop();
+                    }
+                    for(let key in app.useCapabilityList[0]){
+                        app.useCapabilityList[0][key]=undefined;
+                    }
+                }
+            },
             handleLocationChange() {
                 while (warehouseChoice[0] !== undefined) {
                     warehouseChoice.pop();
@@ -1221,6 +1250,11 @@
                     var [validNum, totalNum] = [0, 0];
                     for (var formName in app.$refs) {
                         ((p) => {
+                            if(!p){
+                                return;
+                            }else if(!p[0]){
+                                return;
+                            }
                             if (formName.match(/form\d+/)) {
                                 (Number(formName.slice(-1)) >= 7 ? p[0] : p).validate((valid) => {
                                     totalNum++;
@@ -1280,7 +1314,6 @@
                                         detail: p.detail
                                     }, (data, err) => {
                                         if (err) {
-                                            app.$message.error(err.msg);
                                             console.log(err);
                                             return;
                                         }
@@ -1310,6 +1343,8 @@
 
                     })
 
+                },()=>{
+                    return;
                 })
             },
             cancelRegister() {
