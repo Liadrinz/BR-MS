@@ -102,5 +102,7 @@ export default {
                 "密码修改"
             ]}
         ])
-    }
+    },
+        
+    pages
 };
