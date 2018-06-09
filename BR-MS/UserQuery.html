@@ -57,7 +57,13 @@
         <el-form-item label="姓名">
             <el-input v-model="queryParams.realName"></el-input>
         </el-form-item>
-
+        <el-form-item label="用户类型">
+            <el-select v-model="queryParams.role">
+                <el-option label="不限" value="">不限</el-option>
+                <el-option label="普通用户" value="user">普通用户</el-option>
+                <el-option label="仓库管理员" value="manager">仓库管理员</el-option>
+            </el-select>
+        </el-form-item>
         <el-form-item>
             <el-button type="primary" @click="search">查找</el-button>
             <el-button @click="()=>{
@@ -112,7 +118,11 @@
         <el-table-column prop="realName" label="姓名"></el-table-column>
         <el-table-column prop="userId" label="用户ID" ></el-table-column>
         <el-table-column prop="username" label="用户名" ></el-table-column>
-        <el-table-column prop="role" label="用户类型" ></el-table-column>
+        <el-table-column prop="role" label="用户类型" >
+            <template slot-scope="props">
+                {{{user:'普通用户',manager:'仓库管理员'}[props.row.role]}}
+            </template>
+        </el-table-column>
         <el-table-column prop="iDType" label="证件类型" >
             <template slot-scope="props">
                 {{['公民身份证','护照','军官证'][parseInt(props.row.iDType)-1]}}
@@ -250,7 +260,13 @@
                     })(item);
                 }
                 if(users[item].role!=='admin'){
-                    items.push(users[item]);
+                    if(app.queryParams.role){
+                        if(users[item]['role']===app.queryParams.role){
+                            items.push(users[item]);
+                        }
+                    }else{
+                        items.push(users[item]);
+                    }
                 }
             }
         })
@@ -293,7 +309,8 @@
                     id: "",
                     username: "",
                     realName: "",
-                    companyName: ""
+                    companyName: "",
+                    role:""
                 },
                 editedForm: generalForm,
                 editRule: {
