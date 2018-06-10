@@ -32,6 +32,9 @@
                     <el-radio :label="4" border>空闲</el-radio>
                 </el-radio-group>
             </el-form-item>
+            <el-form-item label="物资名称：">
+                <el-input v-model="goodsName" size="mini" placeholder="物资名称" :disabled="tempVisible" style="width:300px;margin-bottom: 10px;"></el-input>
+            </el-form-item>
             <el-form :inline="true">
                 <el-form-item label="物资类别：" size="mini">
                     <el-select v-model="type" placeholder="物资类型" :disabled="tempVisible">
@@ -570,7 +573,7 @@
 
     function getData(searchKey) {
         clearData();
-        post('/common/user_goods/query', searchKey, (data, err) => {
+        post('/common/user_goods/query_by_capability', searchKey, (data, err) => {
             console.log(data);
             if (err) {
                 app.$message.error(err.msg);
@@ -578,9 +581,9 @@
             }
             //TODO
             app.totalNum = data.totalNum;
-            for (var i in data.overview) {
-                data.overview[i]['dialogVisible'] = false;
-                items.push(data.overview[i]);
+            for (var i in data.goods) {
+                data.goods[i]['dialogVisible'] = false;
+                items.push(data.goods[i]);
             }
         })
     }
@@ -629,6 +632,7 @@
             tempVisible: false,
             pageNum: 1,
             totalNum: 0,
+            goodsName:'',
             stateId: '',
             locationRadio: '', /* 3.地理位置不限locationRadio */
             type: '',
@@ -824,11 +828,10 @@
                         }
                     }
                     var obj={};
-                    obj['key']='能力';
-                    obj['val']=`${data.capabilities[0].big_type}:\n`;
                     let index=1;
                     for(let item of data.capabilities){
-                        obj['val']+=` ${index}. ${item.small_type}: ${item.detail}\n`;
+                        obj['key']=`${item.big_type}${index}`;
+                        obj['val']=`${item.small_type}能力:${item.detail}`;
                         tmp.push(obj);
                         index++;
                     }
@@ -940,6 +943,7 @@
             },
             search: function () {
                 var data = {
+                    goodsName:app.goodsName,
                     stateId: app.stateId,
                     type: app.type,
                     capability:app.capability,
@@ -964,6 +968,7 @@
             },
             reset: function () {
                 searchKey = {pageNum: app.pageNum};
+                app.goodsName="";
                 app.stateId = "";
                 app.type = "";
                 app.capability="";
