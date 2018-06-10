@@ -25,43 +25,48 @@
         <el-form>
             <el-form-item label="物资状态：" size="mini">
                 <el-radio-group v-model="stateId" :disabled="tempVisible">
-                    <el-radio :label="null" border>不限</el-radio>
+                    <el-radio :label="undefined" border>不限</el-radio>
                     <el-radio :label="1" border>占用</el-radio>
                     <el-radio :label="2" border>调配</el-radio>
                     <el-radio :label="3" border>使用</el-radio>
                     <el-radio :label="4" border>空闲</el-radio>
                 </el-radio-group>
             </el-form-item>
-            <el-form-item label="物资类别：" size="mini">
-                <el-select v-model="type" placeholder="物资类型" :disabled="tempVisible">
-                    <el-option :value="undefined">不限</el-option>
-                    <el-option value="电脑整机">电脑整机</el-option>
-                    <el-option value="大型家电">大型家电</el-option>
-                    <el-option value="网络产品">网络产品</el-option>
-                    <el-option value="厨房电器">厨房电器</el-option>
-                    <el-option value="电脑配件">电脑配件</el-option>
-                    <el-option value="五金装饰">五金装饰</el-option>
-                    <el-option value="摄影摄像">摄影摄像</el-option>
-                    <el-option value="健康卫生">健康卫生</el-option>
-                    <el-option value="数码配件">数码配件</el-option>
-                    <el-option value="通信器材">通信器材</el-option>
-                    <el-option value="办公设备">办公设备</el-option>
-                    <el-option value="家具">家具</el-option>
-                    <el-option value="文具耗材">文具耗材</el-option>
-                    <el-option value="生活电器">生活电器</el-option>
-                    <el-option value="生活用品">生活用品</el-option>
-                    <el-option value="汽车用品">汽车用品</el-option>
-                    <el-option value="文体器材">文体器材</el-option>
-                    <el-option value="学习书籍">学习书籍</el-option>
-                    <el-option value="粮油食品">粮油食品</el-option>
-                    <el-option value="工程建材">工程建材</el-option>
-                    <el-option value="医疗卫生">医疗卫生</el-option>
-                    <el-option value="油品">油品</el-option>
-                    <el-option value="军队服装">军队服装</el-option>
-                    <el-option value="交通工具">交通工具</el-option>
-                    <el-option value="其他">其他</el-option>
-                </el-select>
-            </el-form-item>
+            <el-form :inline="true">
+                <el-form-item label="物资类别：" size="mini">
+                    <el-select v-model="type" placeholder="物资类型" :disabled="tempVisible">
+                        <el-option :value="undefined">不限</el-option>
+                        <el-option value="电脑整机">电脑整机</el-option>
+                        <el-option value="大型家电">大型家电</el-option>
+                        <el-option value="网络产品">网络产品</el-option>
+                        <el-option value="厨房电器">厨房电器</el-option>
+                        <el-option value="电脑配件">电脑配件</el-option>
+                        <el-option value="五金装饰">五金装饰</el-option>
+                        <el-option value="摄影摄像">摄影摄像</el-option>
+                        <el-option value="健康卫生">健康卫生</el-option>
+                        <el-option value="数码配件">数码配件</el-option>
+                        <el-option value="通信器材">通信器材</el-option>
+                        <el-option value="办公设备">办公设备</el-option>
+                        <el-option value="家具">家具</el-option>
+                        <el-option value="文具耗材">文具耗材</el-option>
+                        <el-option value="生活电器">生活电器</el-option>
+                        <el-option value="生活用品">生活用品</el-option>
+                        <el-option value="汽车用品">汽车用品</el-option>
+                        <el-option value="文体器材">文体器材</el-option>
+                        <el-option value="学习书籍">学习书籍</el-option>
+                        <el-option value="粮油食品">粮油食品</el-option>
+                        <el-option value="工程建材">工程建材</el-option>
+                        <el-option value="医疗卫生">医疗卫生</el-option>
+                        <el-option value="油品">油品</el-option>
+                        <el-option value="军队服装">军队服装</el-option>
+                        <el-option value="交通工具">交通工具</el-option>
+                        <el-option value="其他">其他</el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="物资能力：" size="mini">
+                    <el-input v-model="capability" placeholder="物资能力" :disabled="tempVisible"></el-input>
+                </el-form-item>
+            </el-form>
             <el-form-item label="地理位置：" size="mini">
                 <el-radio v-model="locationRadio" label="1" @change="(val)=>{
                 if(val==='1'){
@@ -74,11 +79,16 @@
                 <el-cascader :options="areaData" v-model="selectedLocations"
                              @change="handleChange" :disabled="tempVisible"></el-cascader>
             </el-form-item>
-            <el-form-item label="生产日期：" size="mini">
-                <el-date-picker v-model="produceTime" type="date" placeholder="选择日期" format="yyyy年MM月dd日"
-                                value-format="yyyy-MM-dd" :disabled="tempVisible"></el-date-picker>
-                <span>后</span>
-            </el-form-item>
+            <el-form :inline="true">
+                <el-form-item label="生产日期：" size="mini">
+                    <el-date-picker v-model="start_time" type="date" placeholder="选择日期" format="yyyy年MM月dd日"
+                                    value-format="yyyy-MM-dd" :disabled="tempVisible"></el-date-picker>
+                </el-form-item>
+                <el-form-item label="到" size="mini">
+                    <el-date-picker v-model="end_time" type="date" placeholder="选择日期" format="yyyy年MM月dd日"
+                                    value-format="yyyy-MM-dd" :disabled="tempVisible"></el-date-picker>
+                </el-form-item>
+            </el-form>
             <el-form-item>
                 <el-button type="primary" @click="search" :disabled="tempVisible">查询</el-button>
                 <el-button @click="reset" :disabled="tempVisible">重置</el-button>
@@ -622,7 +632,9 @@
             stateId: '',
             locationRadio: '', /* 3.地理位置不限locationRadio */
             type: '',
-            produceTime: '',
+            capability:'',
+            start_time: '',
+            end_time:'',
             selectedLocations: [],
             selectedLocationsList: [
                 [], [], [], [], [], []
@@ -791,25 +803,34 @@
                         app.$message.error(err.msg);
                     }
                     console.log(data);
-                    for (var key in data) {
+                    for (var key in data.good) {
                         var obj = {};
                         obj['key'] = app.transfer[key];
                         if (key === 'is_managed') {
-                            obj['val'] = ['不受监管', '受监管'][parseInt(data[key])];
+                            obj['val'] = ['不受监管', '受监管'][parseInt(data.good[key])];
                         } else if (key === 'state_id') {
-                            obj['val'] = ["", '占用', '调配', '使用', '空闲'][parseInt(data[key])];
+                            obj['val'] = ["", '占用', '调配', '使用', '空闲'][parseInt(data.good[key])];
                         } else if (key === 'province_id' || key === 'city_id' || key === 'county_id') {
-                            obj['val'] = CTT[parseInt(data[key])];
+                            obj['val'] = CTT[parseInt(data.good[key])];
                         } else if (key === 'country_id') {
-                            obj['val'] = ["其他", "中国", "其他"][parseInt(data[key])];
+                            obj['val'] = ["其他", "中国", "其他"][parseInt(data.good[key])];
                         } else if (key === 'warehouse_id') {
                             obj['val'] = row.warehouseName;
                         } else {
-                            obj['val'] = data[key];
+                            obj['val'] = data.good[key];
                         }
                         if (obj['key'] !== undefined) {
                             tmp.push(obj);
                         }
+                    }
+                    var obj={};
+                    obj['key']='能力';
+                    obj['val']=`${data.capabilities[0].big_type}:\n`;
+                    let index=1;
+                    for(let item of data.capabilities){
+                        obj['val']+=` ${index}. ${item.small_type}: ${item.detail}\n`;
+                        tmp.push(obj);
+                        index++;
                     }
                     for (let i = 0; tmp[i] !== undefined; i += 3) {
                         var obj = {};
@@ -921,18 +942,22 @@
                 var data = {
                     stateId: app.stateId,
                     type: app.type,
+                    capability:app.capability,
                     province: app.selectedLocations[0],
                     city: app.selectedLocations[1],
-                    produceTime:app.produceTime?app.produceTime+' 00:00:00':undefined
+                    start_time:app.start_time?app.start_time+' 00:00:00':undefined,
+                    end_time:app.end_time?app.end_time+' 00:00:00':undefined
                 };
                 searchKey['pageNum'] = 1;
                 app.pageNum = 1;
                 for (var i in data) {
                     if (data[i] !== null && data[i] !== "") {
-                        if (i === 'produceTime') {
+                        if (i === 'start_time'||i==='end_time') {
                             searchKey[i] = data[i] + " 00:00:00";
                         }
                         searchKey[i] = data[i];
+                    }else{
+                        delete searchKey[i];
                     }
                 }
                 getData(searchKey);
@@ -941,9 +966,11 @@
                 searchKey = {pageNum: app.pageNum};
                 app.stateId = "";
                 app.type = "";
+                app.capability="";
                 app.selectedLocations = [];
                 app.locationRadio = "";
-                app.produceTime = "";
+                app.start_time = "";
+                app.end_time="";
                 getData(searchKey);
             },
             submitSingle: function (row, tmp, frtmp) {
@@ -1019,7 +1046,7 @@
                             app.singleForm['tel'],
                             app.singleForm['ps'],
                             tmp === 'temp' ? 0 : 1
-                        ]
+                        ];
                         console.log(toPost);
                         post('/common/user_goods/submit', toPost, (data, err) => {
                             if (err) {

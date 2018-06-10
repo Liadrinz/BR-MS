@@ -32,20 +32,14 @@
         },
         methods: {
             test: function () {
-                catchData({
-                    url:'/depot/get_apply',
-                    app:app,
-                    refresh:[],
+                post('/common/getnowsche',{
+                    isPass:1,
                     pageNum:1,
-                    pageSize:6,
-                    searchKey:{},
-                    itemName:'schedules',
-                    total:(totalNum)=>{
-                       console.log(totalNum);
-                    }
-                },(allPages,data)=>{
-                    console.log(allPages,data);
-                });
+                    pageSize:6
+                },(data,err)=>{
+                    console.log(err);
+                    console.log(data);
+                })
                 // $.ajax({
                 //     type:'post',
                 //     url:"http://10.112.128.63:8080/dispatch/system/get_user_info",
