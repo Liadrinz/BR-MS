@@ -224,7 +224,10 @@
                         <el-form :model="inSelection3">
                             <el-form :inline="true">
                                 <el-form-item label="事件类型：" size="mini">
-                                    <el-input></el-input>
+                                    <el-select v-model="inSelection3.sche">
+                                        <el-option label="入库" :value="undefined">入库</el-option>
+                                        <el-option label="出库" value="出库">出库</el-option>
+                                    </el-select>
                                 </el-form-item>
                                 <el-form-item label="仓库：" size="mini"><span>{{currentWarehouse.warehouseName}}</span></el-form-item>
                             </el-form>
@@ -244,8 +247,7 @@
                         <el-table-column type="index" width="50" label="序号"></el-table-column>
                         <el-table-column prop="goodName" label="物资名称" width="100"></el-table-column>
                         <el-table-column prop="goodLocalId" label="物资编号" width="100"></el-table-column>
-                        <el-table-column prop="createTime" label="开始时间" width="100"></el-table-column>
-                        <el-table-column prop="createTime" label="入库时间" width="100"></el-table-column>
+                        <el-table-column prop="method" label="出库/入库" width="100"></el-table-column>
                         <el-table-column prop="founder" label="建单人" width="100"></el-table-column>
                         <el-table-column prop="operator" label="操作员" width="100"></el-table-column>
                         <el-table-column label="详细信息">
@@ -269,7 +271,7 @@
                                     <el-input></el-input>
                                 </el-form-item>
                                 <el-form-item label="入库类别：" size="mini">
-                                    <el-input></el-input>
+                                    <el-input value="正常入库" :disabled="true"></el-input>
                                 </el-form-item>
                                 <el-form-item label="责任人：" size="mini">
                                     <el-input v-model="inSelection4.charity"></el-input>
@@ -457,7 +459,7 @@
 
     function getData3(app){
         catchData({
-            url: '/depot/get_inboundview',
+            url: '/depot/inventory',
             app: app,
             searchKey:(()=>{
                 for(var key in app.inSelection3){
@@ -470,7 +472,7 @@
             refresh: [app.queryResult3,],
             pageNum: app.pagination3.pageNum,
             pageSize:app.pagination3.pageSize,
-            itemName: 'inbounds',
+            itemName: 'inventories',
             total: (totalNum) => {
                 while (totalPages[2][0] !== undefined) {
                     totalPages[2].pop();
@@ -542,7 +544,7 @@
                     pageNum:1,
                     pageSize:6
                 },
-                timeSelect: '', /*时间选择器*/
+                timeSelect:[], /*时间选择器*/
                 dialogVisible:false,
                 dialog2Visible:false,
                 goodsList:[],
@@ -761,6 +763,14 @@
                 getData4(app);
             },
             handleClick(tab, event) {
+                while(app.timeSelect[0]!==undefined){
+                    app.timeSelect.pop();
+                }
+                [app.inSelection1,app.inSelection2,app.inSelection3,app.inSelection4].map((inSelection)=>{
+                    for(let key in inSelection){
+                        inSelection[key]=undefined;
+                    }
+                });
                 console.log(tab, event);
             },
         }

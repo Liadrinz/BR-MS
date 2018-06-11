@@ -25,24 +25,18 @@
         <el-form>
             <el-form :inline="true">
                 <el-form-item label="物资名称：" size="mini">
-                    <el-input v-model="queryCondition.wuzimingcheng"></el-input>
+                    <el-input v-model="queryCondition.goodsName"></el-input>
                 </el-form-item>
                 <el-form-item label="物资能力：" size="mini">
-                    <el-input v-model="queryCondition.wuzinengli"></el-input>
-                </el-form-item>
-                <el-form-item label="物资数量：" size="mini">
-                    <el-input v-model="queryCondition.wuzishuliang"></el-input>
+                    <el-input v-model="queryCondition.capability"></el-input>
                 </el-form-item>
             </el-form>
             <el-form :inline="true">
-                <el-form-item label="需求类型：" size="mini">
-                    <el-select v-model="queryCondition.xuqiuleixing">
-                        <el-option label="应急" value="应急">应急</el-option>
-                        <el-option label="普通" value="普通">普通</el-option>
-                    </el-select>
+                <el-form-item label="物资数量：" size="mini">
+                    <el-input v-model="queryCondition.quantity"></el-input>
                 </el-form-item>
                 <el-form-item label="时间紧迫性：" size="mini">
-                    <el-select v-model="queryCondition.shijianjinpoxing">
+                    <el-select v-model="queryCondition.urgency">
                         <el-option label="高" value="高">高</el-option>
                         <el-option label="中" value="中">中</el-option>
                         <el-option label="低" value="低">低</el-option>
@@ -51,7 +45,7 @@
             </el-form>
             <el-form :inline="true">
                 <el-form-item label="物资品牌：">
-                    <el-input v-model="queryCondition.wuzipinpai" size="mini"></el-input>
+                    <el-input v-model="queryCondition.producerName" size="mini"></el-input>
                 </el-form-item>
                 <el-form-item label="所在地：" size="mini">
                     <el-radio v-model="locationRadio" label="1" @change="(val)=>{
@@ -86,11 +80,24 @@
                 <el-table-column prop="goodsName" label="物资名称"></el-table-column>
                 <el-table-column prop="localId" label="物资编号"></el-table-column>
                 <el-table-column prop="warehouseName" label="所在仓库"></el-table-column>
-                <el-table-column prop="quantity" label="库存数量"></el-table-column>   <!--无接口名-->
-                <el-table-column prop="yunshuluxianchangdu" label="运输路线长度"></el-table-column>
-                <el-table-column prop="yunshufangshi" label="运输方式"></el-table-column>
-                <el-table-column prop="yunshushichang" label="运输时长"></el-table-column>
-                <el-table-column prop="yunshufeiyong" label="运输费用"></el-table-column>
+                <el-table-column prop="quantity" label="库存数量"></el-table-column>
+                <el-table-column prop="transType" label="运输方式"></el-table-column>
+                <el-table-column prop="distance" label="运输距离">
+                    <template slot-scope="props">
+                        {{props.row.distance+'km'}}
+                    </template>
+                </el-table-column>
+                <el-table-column prop="t" label="运输时长">
+                    <template slot-scope="props">
+                        {{props.row.t+'小时'}}
+                    </template>
+                </el-table-column>
+                <el-table-column prop="m" label="运输重量"></el-table-column>
+                <el-table-column prop="fee" label="运输总费用">
+                    <template slot-scope="props">
+                        {{props.row.fee?props.row.fee+'元':''}}
+                    </template>
+                </el-table-column>
                 <el-table-column prop="state" label="状态"></el-table-column>
                 <el-table-column label="" width="200">
                     <template slot-scope="props">
@@ -390,7 +397,6 @@
                 </el-form>
             </el-form>
             <span slot="footer" class="dialog-footer">
-            <el-button size="mini" @click="()=>{SubmitAll('temp')}">暂存</el-button>
             <el-button size="mini" @click="()=>{submitAll()}">提交</el-button>
             <el-button @click="()=>{dialogs.allocateAll=false;clearFilledForm();}" size="mini">返回</el-button>
         </span>
@@ -415,7 +421,7 @@
 
     function getData(searchKey) {
         clearData();
-        post('/common/user_goods/query', searchKey, (data, err) => {
+        post('/common/user_goods/get_autoquery', searchKey, (data, err) => {
             console.log(data);
             if (err) {
                 app.$message.error(err.msg);
@@ -472,12 +478,12 @@
         el: '#app',
         data: {
             queryCondition:{
-                wuzimingcheng:'',
-                wuzinengli:'',
-                wuzishuliang:'',
-                xuqiuleixing:'',
-                shijianjinpoxing:'',
-                wuzipinpai:'',
+                goodsName:'',
+                capability:'',
+                quantity:'',
+                requestType:'',
+                urgency:'高',
+                producerName:'',
                 province:'',
                 city:'',
             },
@@ -655,26 +661,34 @@
                     if (err) {
                         app.$message.error(err.msg);
                     }
-                    console.log(data);
-                    for (var key in data) {
+                    console.log(data.good);
+                    for (var key in data.good) {
                         var obj = {};
                         obj['key'] = app.transfer[key];
                         if (key === 'is_managed') {
-                            obj['val'] = ['不受监管', '受监管'][parseInt(data[key])];
+                            obj['val'] = ['不受监管', '受监管'][parseInt(data.good[key])];
                         } else if (key === 'state_id') {
-                            obj['val'] = ["", '占用', '调配', '使用', '空闲'][parseInt(data[key])];
+                            obj['val'] = ["", '占用', '调配', '使用', '空闲'][parseInt(data.good[key])];
                         } else if (key === 'province_id' || key === 'city_id' || key === 'county_id') {
-                            obj['val'] = CTT[parseInt(data[key])];
+                            obj['val'] = CTT[parseInt(data.good[key])];
                         } else if (key === 'country_id') {
-                            obj['val'] = ["其他", "中国", "其他"][parseInt(data[key])];
+                            obj['val'] = ["其他", "中国", "其他"][parseInt(data.good[key])];
                         } else if (key === 'warehouse_id') {
                             obj['val'] = row.warehouseName;
                         } else {
-                            obj['val'] = data[key];
+                            obj['val'] = data.good[key];
                         }
                         if (obj['key'] !== undefined) {
                             tmp.push(obj);
                         }
+                    }
+                    var obj = {};
+                    let index = 1;
+                    for (let item of data.capabilities) {
+                        obj['key'] = `${item.big_type}${index}`;
+                        obj['val'] = `${item.small_type}能力:${item.detail}`;
+                        tmp.push(obj);
+                        index++;
                     }
                     for (let i = 0; tmp[i] !== undefined; i += 3) {
                         var obj = {};
@@ -784,22 +798,22 @@
             },
             search: function () {
                 var data = {
-                    stateId: app.stateId,
-                    type: app.type,
-                    province: app.selectedLocations[0],
-                    city: app.selectedLocations[1],
-                    produceTime:app.produceTime?app.produceTime+' 00:00:00':undefined
+
                 };
+                Object.assign(data,app.queryCondition);
                 searchKey['pageNum'] = 1;
                 app.pageNum = 1;
                 for (var i in data) {
-                    if (data[i] !== null && data[i] !== "") {
+                    if (data[i]) {
                         if (i === 'produceTime') {
                             searchKey[i] = data[i] + " 00:00:00";
                         }
                         searchKey[i] = data[i];
+                    }else{
+                        delete searchKey[i];
                     }
                 }
+                Object.assign(searchKey,{province:app.selectedLocations[0],city:app.selectedLocations[1]});
                 getData(searchKey);
             },
             reset: function () {

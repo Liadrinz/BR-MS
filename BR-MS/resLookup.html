@@ -24,7 +24,7 @@
     <div>
         <el-form>
             <el-form-item label="物资状态：" size="mini">
-                <el-radio-group v-model="stateId" :disabled="tempVisible">
+                <el-radio-group v-model="state_id" :disabled="tempVisible">
                     <el-radio :label="undefined" border>不限</el-radio>
                     <el-radio :label="1" border>占用</el-radio>
                     <el-radio :label="2" border>调配</el-radio>
@@ -33,7 +33,8 @@
                 </el-radio-group>
             </el-form-item>
             <el-form-item label="物资名称：">
-                <el-input v-model="goodsName" size="mini" placeholder="物资名称" :disabled="tempVisible" style="width:300px;margin-bottom: 10px;"></el-input>
+                <el-input v-model="goodsName" size="mini" placeholder="物资名称" :disabled="tempVisible"
+                          style="width:300px;margin-bottom: 10px;"></el-input>
             </el-form-item>
             <el-form :inline="true">
                 <el-form-item label="物资类别：" size="mini">
@@ -106,14 +107,18 @@
                 @selection-change="handleSelectionChange">
                 <el-table-column type="selection" width="55"></el-table-column>
                 <el-table-column type="index" :index="indexMethod" label="序号"></el-table-column>
-                <el-table-column prop="localId" label="物资编号"></el-table-column>
-                <el-table-column prop="goodsName" label="物资名称"></el-table-column>
-                <el-table-column prop="producerName" label="生产厂商"></el-table-column><!--无接口名-->
+                <el-table-column prop="local_id" label="物资编号"></el-table-column>
+                <el-table-column prop="goods_name" label="物资名称"></el-table-column>
+                <el-table-column prop="producer_name" label="生产厂商"></el-table-column><!--无接口名-->
                 <el-table-column prop="norms" label="规格"></el-table-column>            <!--无接口名-->
-                <el-table-column prop="warehouseName" label="所在仓库"></el-table-column>
+                <el-table-column prop="warehouse_id" label="所在仓库">
+                    <template slot-scope="props">
+                        {{id2name(props.row)}}
+                    </template>
+                </el-table-column>
                 <el-table-column prop="quantity" label="库存数量"></el-table-column>   <!--无接口名-->
-                <el-table-column prop="address" label="仓库地址"></el-table-column>     <!--无接口名-->
-                <el-table-column prop="state" label="状态"></el-table-column>          <!--无接口名-->
+                <el-table-column prop="detail_location" label="仓库地址"></el-table-column>     <!--无接口名-->
+                <el-table-column prop="state_id" label="状态"></el-table-column>          <!--无接口名-->
                 <el-table-column label="" width="200">
                     <template slot-scope="props">
                         <el-button size="mini" type="text" @click="()=>{detail(props.row)}">详情</el-button>
@@ -253,8 +258,8 @@
                 tooltip-effect="dark" stripe
                 @selection-change="handleSelectionChange2">
                 <el-table-column type="selection" width="55"></el-table-column>
-                <el-table-column prop="goodsId" label="物资编号"></el-table-column>
-                <el-table-column prop="goodsName" label="物资名称"></el-table-column>
+                <el-table-column prop="local_id" label="物资编号"></el-table-column>
+                <el-table-column prop="goods_name" label="物资名称"></el-table-column>
                 <el-table-column prop="startWarehouseName" label="所在仓库"></el-table-column>
                 <el-table-column label="" width="200">
                     <template slot-scope="props">
@@ -576,7 +581,7 @@
         post('/common/user_goods/query_by_capability', searchKey, (data, err) => {
             console.log(data);
             if (err) {
-                app.$message.error(err.msg);
+                app.totalNum=0;
                 return;
             }
             //TODO
@@ -632,13 +637,13 @@
             tempVisible: false,
             pageNum: 1,
             totalNum: 0,
-            goodsName:'',
-            stateId: '',
+            goodsName: '',
+            state_id: '',
             locationRadio: '', /* 3.地理位置不限locationRadio */
             type: '',
-            capability:'',
+            capability: '',
             start_time: '',
-            end_time:'',
+            end_time: '',
             selectedLocations: [],
             selectedLocationsList: [
                 [], [], [], [], [], []
@@ -745,7 +750,17 @@
                 }
             });
         },
+        computed:{
+
+        },
         methods: {
+            id2name:function(row){
+                for (let i of app.warehouseChoice) {
+                    if (i.warehouseId === row.warehouse_id) {
+                        return i.warehouseName;
+                    }
+                }
+            },
             viewTemp() {
                 if (app.tempVisible === false) {
                     app.clearFilledForm();
@@ -801,7 +816,7 @@
                     app.detailForm.pop();
                 }
                 post('/common/user_goods/get_detail', {
-                    goodsId: row.goodsId
+                    goodsId: row.goods_id
                 }, (data, err) => {
                     if (err) {
                         app.$message.error(err.msg);
@@ -819,7 +834,7 @@
                         } else if (key === 'country_id') {
                             obj['val'] = ["其他", "中国", "其他"][parseInt(data.good[key])];
                         } else if (key === 'warehouse_id') {
-                            obj['val'] = row.warehouseName;
+                            obj['val'] = row.warehouse_id;
                         } else {
                             obj['val'] = data.good[key];
                         }
@@ -827,11 +842,11 @@
                             tmp.push(obj);
                         }
                     }
-                    var obj={};
-                    let index=1;
-                    for(let item of data.capabilities){
-                        obj['key']=`${item.big_type}${index}`;
-                        obj['val']=`${item.small_type}能力:${item.detail}`;
+                    var obj = {};
+                    let index = 1;
+                    for (let item of data.capabilities) {
+                        obj['key'] = `${item.big_type}${index}`;
+                        obj['val'] = `${item.small_type}能力:${item.detail}`;
                         tmp.push(obj);
                         index++;
                     }
@@ -870,9 +885,15 @@
                 Object.assign(app.singleForm, generalApplicationForm)
                 app.singleForm.userRealName = userInfo.realName;
                 app.singleForm.companyName = userInfo.companyName;
-                app.singleForm.goodId = row.goodsId;
-                app.singleForm.goodName = row.goodsName;
-                app.singleForm.startWarehouseName = row.warehouseName;
+                app.singleForm.goodId = row.local_id;
+                app.singleForm.goodName = row.goods_name;
+                app.singleForm.startWarehouseName = (() => {
+                    for (let i of app.warehouseChoice) {
+                        if (i.warehouseId === row.warehouse_id) {
+                            return i.warehouseName;
+                        }
+                    }
+                })();
                 if (frtmp === 'frtmp') {
                     [
                         app.singleForm.time,
@@ -902,7 +923,7 @@
                         row.contractTel,
                         row.note,
                         row.contractPerson
-                    ]
+                    ];
                 }
             },
             allocateAll(frtmp) {
@@ -918,8 +939,8 @@
                 for (var choice in app.multipleSelection) {
                     // app.applicationForm[choice] = {...generalApplicationForm};
                     Object.assign(app.applicationForm[choice], generalApplicationForm);
-                    app.applicationForm[choice].goodId = app.multipleSelection[choice].goodsId;
-                    app.applicationForm[choice].goodName = app.multipleSelection[choice].goodsName;
+                    app.applicationForm[choice].goodId = app.multipleSelection[choice].local_id;
+                    app.applicationForm[choice].goodName = app.multipleSelection[choice].goods_name;
                     app.applicationForm[choice].startWarehouseName = app.multipleSelection[choice].warehouseName;
                 }
             },
@@ -943,24 +964,24 @@
             },
             search: function () {
                 var data = {
-                    goodsName:app.goodsName,
-                    stateId: app.stateId,
+                    goodsName: app.goodsName,
+                    state_id: app.state_id,
                     type: app.type,
-                    capability:app.capability,
+                    capability: app.capability,
                     province: app.selectedLocations[0],
                     city: app.selectedLocations[1],
-                    start_time:app.start_time?app.start_time+' 00:00:00':undefined,
-                    end_time:app.end_time?app.end_time+' 00:00:00':undefined
+                    start_time: app.start_time ? app.start_time + ' 00:00:00' : undefined,
+                    end_time: app.end_time ? app.end_time + ' 00:00:00' : undefined
                 };
                 searchKey['pageNum'] = 1;
                 app.pageNum = 1;
                 for (var i in data) {
-                    if (data[i] !== null && data[i] !== "") {
-                        if (i === 'start_time'||i==='end_time') {
+                    if (data[i]) {
+                        if (i === 'start_time' || i === 'end_time') {
                             searchKey[i] = data[i] + " 00:00:00";
                         }
                         searchKey[i] = data[i];
-                    }else{
+                    } else {
                         delete searchKey[i];
                     }
                 }
@@ -968,14 +989,14 @@
             },
             reset: function () {
                 searchKey = {pageNum: app.pageNum};
-                app.goodsName="";
-                app.stateId = "";
+                app.goods_name = "";
+                app.state_id = "";
                 app.type = "";
-                app.capability="";
+                app.capability = "";
                 app.selectedLocations = [];
                 app.locationRadio = "";
                 app.start_time = "";
-                app.end_time="";
+                app.end_time = "";
                 getData(searchKey);
             },
             submitSingle: function (row, tmp, frtmp) {
@@ -1002,7 +1023,7 @@
                     promise.then(() => {
                         var toPost = {};
                         [
-                            toPost['goodsId'],
+                            toPost['local_id'],
                             toPost['description'],
                             toPost['amount'],
                             toPost['endWarehouseName'],
@@ -1133,7 +1154,7 @@
                     if (app.selectedWarehouse[form]) {
                         if (frtmp !== 'frtmp') {
                             [
-                                toPost['goodsId'],
+                                toPost['local_id'],
                                 toPost['description'],
                                 toPost['amount'],
                                 toPost['endWarehouseId'],
