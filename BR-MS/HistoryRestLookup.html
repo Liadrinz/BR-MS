@@ -209,7 +209,7 @@
                         <el-table-column label="操作">
                             <!--点击入库 复制转移所有当前货品编号至 inResult-->
                             <template slot-scope="scope">
-                                <el-button size="mini" style="background-color: #ececec" @click="()=>{viewImport(scope.row)}">查看出库单</el-button>
+                                <el-button size="mini" style="background-color: #ececec" @click="()=>{viewExport(scope.row)}">查看出库单</el-button>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -253,7 +253,7 @@
                         <el-table-column label="详细信息">
                             <!--点击入库 复制转移所有当前货品编号至 inResult-->
                             <template slot-scope="scope">
-                                <el-button size="mini" style="background-color: #ececec">查看申请表单</el-button>
+                                <el-button size="mini" style="background-color: #ececec" @click="()=>{viewApply(scope.row)}">查看申请表单</el-button>
                                 <el-button size="mini" style="background-color: #ececec">查看系统记录</el-button>
                             </template>
                         </el-table-column>
@@ -380,6 +380,32 @@
                                :total="pagination1.total[0]"></el-pagination>
                 <span slot="footer" class="dialog-footer">
                     <el-button @click="()=>{dialog2Visible=false}" size="mini" style="background-color: #ececec">关闭</el-button>
+                </span>
+            </el-dialog>
+            <el-dialog title="查看出库单" :visible.sync="dialog3Visible" width="75%" :before-close="handleClose">
+                <div v-show="state==='application'">
+                    <el-table :data="application">
+                        <el-table-column prop="key1"><template slot-scope="props"><b>{{props.row.key1}}</b></template></el-table-column>
+                        <el-table-column prop="val1"></el-table-column>
+                        <el-table-column prop="key2"><template slot-scope="props"><b>{{props.row.key2}}</b></template></el-table-column>
+                        <el-table-column prop="val2"></el-table-column>
+                    </el-table>
+                </div>
+                <span slot="footer" class="dialog-footer">
+                    <el-button @click="()=>{dialog3Visible=false}" size="mini" style="background-color: #ececec">关闭</el-button>
+                </span>
+            </el-dialog>
+            <el-dialog title="查看申请表单" :visible.sync="dialog4Visible" width="75%" :before-close="handleClose">
+                <div v-show="state==='application'">
+                    <el-table :data="application">
+                        <el-table-column prop="key1"><template slot-scope="props"><b>{{props.row.key1}}</b></template></el-table-column>
+                        <el-table-column prop="val1"></el-table-column>
+                        <el-table-column prop="key2"><template slot-scope="props"><b>{{props.row.key2}}</b></template></el-table-column>
+                        <el-table-column prop="val2"></el-table-column>
+                    </el-table>
+                </div>
+                <span slot="footer" class="dialog-footer">
+                    <el-button @click="()=>{dialog4Visible=false}" size="mini" style="background-color: #ececec">关闭</el-button>
                 </span>
             </el-dialog>
         </el-card>
@@ -547,6 +573,8 @@
                 timeSelect:[], /*时间选择器*/
                 dialogVisible:false,
                 dialog2Visible:false,
+                dialog3Visible:false,
+                dialog4Visible:false,
                 goodsList:[],
                 inSelection1: {
                     /*入库筛选框*/
@@ -603,7 +631,7 @@
                     warehouseName:'仓库',
                     warehouseRepository:'存放库位',
                     founder:'建单人',
-                    inboundNum:'单号',
+                    inboundNum:'入库单号',
                     createTime:'入库时间',
                     type:'入库方式',
                     supplier:'供应商',
@@ -612,6 +640,27 @@
                     charity:'责任人',
                     phone:'联系电话',
                     remark:'备注'
+                },
+                trans2:{
+                    goodName:'物资名称',
+                    warehouseName:'仓库',
+                    founder:'建单人',
+                    inboundNum:'出库单号',
+                    createTime:'出库时间',
+                    supplier:'供应商',
+                    amount:'数量',
+                    charity:'责任人',
+                    phone:'联系电话',
+                    remark:'备注'
+                },
+                trans3:{
+                    inboundNum:'单号',
+                    founder:'建单人',
+                    goodName:'物资名称',
+                    amount:'数量',
+                    charity:"责任人",
+                    remark:"备注",
+                    supplier:'供应商'
                 }
             }
         },
@@ -625,6 +674,35 @@
             })
         },
         methods: {
+            viewApply(row){
+                while(app.application[0]!==undefined){
+                    app.application.pop();
+                }
+                app.dialog4Visible=true;
+                app.state='application';
+                var tmp=[];
+                for(var key in row){
+                    var obj={};
+                    obj['key']=app.trans3[key];
+                    obj['val']=row[key];
+                    if(obj['key']===undefined)
+                        continue;
+                    tmp.push(obj);
+                }
+                for(let i=0;tmp[i]!==undefined;i+=2){
+                    var obj={};
+                    obj['key1']=tmp[i]['key'];
+                    obj['val1']=tmp[i]['val'];
+                    if(tmp[i+1]){
+                        obj['key2']=tmp[i+1]['key'];
+                        obj['val2']=tmp[i+1]['val'];
+                    }else{
+                        obj['key2']="";
+                        obj['val2']="";
+                    }
+                    app.application.push(obj);
+                }
+            },
             viewGoodsList(n){
                 app.dialog2Visible=true;
                 if(n===1){
@@ -662,6 +740,35 @@
                     app.application.push(obj);
                 }
             },
+            viewExport(row){
+                while(app.application[0]!==undefined){
+                    app.application.pop();
+                }
+                app.dialog3Visible=true;
+                var tmp=[];
+                for(var key in row){
+                    var obj={};
+                    obj['key']=app.trans2[key];
+                    obj['val']=row[key];
+                    if(obj['key']===undefined)
+                        continue;
+                    tmp.push(obj);
+                }
+                for(let i=0;tmp[i]!==undefined;i+=2){
+                    var obj={};
+                    obj['key1']=tmp[i]['key'];
+                    obj['val1']=tmp[i]['val'];
+                    if(tmp[i+1]){
+                        obj['key2']=tmp[i+1]['key'];
+                        obj['val2']=tmp[i+1]['val'];
+                    }else{
+                        obj['key2']="";
+                        obj['val2']="";
+                    }
+                    app.application.push(obj);
+                }
+                app.application.reverse();
+            },
             viewDetail(row){
                 app.state='detail';
                 var tmp=[];
@@ -675,25 +782,31 @@
                     if(err){
                         return;
                     }
-                    for (var key in data) {
+                    for (var key in data.good) {
                         var obj = {};
                         obj['key'] = app.transfer[key];
                         if (key === 'is_managed') {
-                            obj['val'] = ['不受监管', '受监管'][parseInt(data[key])];
+                            obj['val'] = ['不受监管', '受监管'][parseInt(data.good[key])];
                         } else if (key === 'state_id') {
-                            obj['val'] = ["", '占用', '调配', '使用', '空闲'][parseInt(data[key])];
+                            obj['val'] = ["", '占用', '调配', '使用', '空闲'][parseInt(data.good[key])];
                         } else if (key === 'province_id' || key === 'city_id' || key === 'county_id') {
-                            obj['val'] = CTT[parseInt(data[key])];
+                            obj['val'] = CTT[parseInt(data.good[key])];
                         } else if (key === 'country_id') {
-                            obj['val'] = ["其他", "中国", "其他"][parseInt(data[key])];
+                            obj['val'] = ["其他", "中国", "其他"][parseInt(data.good[key])];
                         } else if (key === 'warehouse_id') {
                             obj['val'] = row.warehouseName;
                         } else {
-                            obj['val'] = data[key];
+                            obj['val'] = data.good[key];
                         }
                         if (obj['key'] !== undefined) {
                             tmp.push(obj);
                         }
+                    }
+                    var obj = {};
+                    for (let item of data.capabilities) {
+                        obj['key'] = `${item.big_type}`;
+                        obj['val'] = `${item.small_type}能力:${item.detail?item.detail:''}`;
+                        tmp.push(obj);
                     }
                     for (let i = 0; tmp[i] !== undefined; i += 3) {
                         var obj = {};
@@ -746,6 +859,8 @@
             handleClose(){
                 app.dialogVisible=false;
                 app.dialog2Visible=false;
+                app.dialog3Visible=false;
+                app.dialog4Visible=false;
             },
             handleCloseDetail(){
                 Object.assign(app.dialogVisible,{detail:false});

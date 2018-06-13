@@ -842,12 +842,10 @@
                         }
                     }
                     var obj = {};
-                    let index = 1;
                     for (let item of data.capabilities) {
-                        obj['key'] = `${item.big_type}${index}`;
-                        obj['val'] = `${item.small_type}能力:${item.detail}`;
+                        obj['key'] = `${item.big_type}`;
+                        obj['val'] = `${item.small_type}能力:${item.detail?item.detail:''}`;
                         tmp.push(obj);
-                        index++;
                     }
                     for (let i = 0; tmp[i] !== undefined; i += 3) {
                         var obj = {};
