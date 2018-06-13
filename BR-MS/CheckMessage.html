@@ -249,8 +249,8 @@
                         arr.push(msg[key]);
                     }
                 }else{
-                    if(msg[key].sender!==localStorage.getItem('username')){
-                        for (var key in msg) {
+                    for (var key in msg) {
+                        if(msg[key].sender!==localStorage.getItem('username')) {
                             arr.push(msg[key]);
                         }
                     }
