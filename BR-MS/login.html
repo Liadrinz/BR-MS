@@ -118,7 +118,7 @@
                                                 </a>
                                             </el-col>
                                             <el-col :span="12">
-                                                <el-button class="full-fill">找回密码</el-button>
+                                                <el-button class="full-fill" @click="$alert('忘记密码请联系管理员！')">找回密码</el-button>
                                             </el-col>
                                         </el-row>
                                     </el-form-item>
@@ -134,11 +134,11 @@
 </div>
 </body>
 <script src="lib/vue.js"></script>
-<script src="lib/jquery.min.js"></script>
 <script src="lib/eleme-index.js"></script>
 <script src="res/dependencies.js"></script>
 <script>
     var urlPrefix='http://10.112.128.63:8080/dispatch';
+    const $=require('jquery');
     var app = new Vue({
         el: '#app',
         data: function () {
