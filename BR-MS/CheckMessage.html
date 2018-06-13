@@ -490,7 +490,7 @@
             },
             hasRead: function (row) {
                 row.dialog2Visible = true;
-                if(app.checked!==4){
+                if(app.checked!==4&&row.isRead===0){
                     post('/common/readedms', {
                         msg_Id: row.msg_Id,
                         isDel: 0
