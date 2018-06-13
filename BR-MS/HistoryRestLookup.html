@@ -209,14 +209,14 @@
                         <el-table-column label="操作">
                             <!--点击入库 复制转移所有当前货品编号至 inResult-->
                             <template slot-scope="scope">
-                                <el-button size="mini" style="background-color: #ececec">查看出库单</el-button>
+                                <el-button size="mini" style="background-color: #ececec" @click="()=>{viewImport(scope.row)}">查看出库单</el-button>
                             </template>
                         </el-table-column>
                     </el-table>
                     <el-pagination @current-change="handleCurrentChange2" :current-page="pagination2.pageNum"
                                    :page-size="pagination2.pageSize" layout="total,prev,pager,next,jumper"
                                    :total="pagination2.total[0]"></el-pagination>
-                    <el-button size="mini" style="background-color: #ececec">查看货品清单</el-button>
+                    <el-button size="mini" style="background-color: #ececec" @click="()=>{viewGoodsList(2)}">查看货品清单</el-button>
                 </el-tab-pane>
                 <!--调配事件查询分页-->
                 <el-tab-pane label="调配事件查询" name="third">
