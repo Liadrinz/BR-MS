@@ -31,7 +31,7 @@
 <div id="app" v-cloak>
     <!--出库业务-->
     <div v-show="state!==3">
-    <el-card>
+    <el-card v-loading.fullscreen="loading" element-loading-text="加载中" :rules="queryRules" element-loading-background="rgba(0,0,0,0.7)">
         <span slot="header">出库单填写</span>
         <el-form :model="outGoing" inline>
             <p class="form-item">
@@ -78,7 +78,7 @@
                 </el-table-column>
                 <el-table-column prop="inboundTime" label="出库时间" width="200">
                     <template slot-scope="scope">
-                        <el-date-picker v-model="scope.row.outboundTime" type="date"
+                        <el-date-picker v-model="scope.row.inboundTime" type="date"
                                         format="yyyy年MM月dd日" style="width:150px;"
                                         value-format="yyyy-MM-dd" size="mini"></el-date-picker>
                     </template>
@@ -266,10 +266,12 @@
     function getData(app){
         post('/depot/initialize',{},(data,err)=>{
             if(err){
+                app.loading=false;
                 return;
             }
             app.outGoing.realName=data.realName;
             app.outGoing.warehouseName=data.warehouseName;
+            app.loading=false;
         })
     }
 
@@ -307,6 +309,7 @@
         el: '#app',
         data: function(){
             return{
+                loading:true,
                 state:0,
                 toPrint:[],
                 detailForm:[],
@@ -437,6 +440,7 @@
                     method: '出库',
                     inboundNum: app.outGoing.inboundNum,
                     founder: app.outGoing.founder,
+                    createTime:app.outGoing.createTime+' 00:00:00',
                     list: (() => {
                         newList = [];
                         for (var item of app.outResult) {
@@ -444,7 +448,7 @@
                             Object.assign(obj, {
                                 scheduleId: item.scheduleId,
                                 amount: item.amount,
-                                createTime: item.createTime
+                                inboundTime:Date.parse(item.inboundTime)
                             });
                             newList.push(obj);
                         }

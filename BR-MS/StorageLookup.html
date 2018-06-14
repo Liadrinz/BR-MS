@@ -20,10 +20,13 @@
             margin-bottom: 0;
             width: 50%;
         }
+        [v-cloak]{
+            display:none;
+        }
     </style>
 </head>
 <body>
-<div id="app">
+<div id="app" v-cloak>
     <div v-show="state!==3">
         <el-card>
             <el-form :model="inSelection">
@@ -35,13 +38,20 @@
                     </el-form-item>
                 </el-form>
                 <el-form :inline="true">
-                    <el-form-item label="货品编号：" size="mini"><el-input v-model="inSelection.goodsLocalId"></el-input></el-form-item>
-                    <el-form-item label="责任人：" size="mini"><el-input v-model="inSelection.charity"></el-input></el-form-item>
+                    <el-form-item label="货品编号：" size="mini">
+                        <el-input v-model="inSelection.goodsLocalId"></el-input>
+                    </el-form-item>
+                    <el-form-item label="责任人：" size="mini">
+                        <el-input v-model="inSelection.charity"></el-input>
+                    </el-form-item>
                 </el-form>
                 <el-form :inline="true">
                     <el-form-item label="仓库：" size="mini"><span>{{currentWarehouse}}</span></el-form-item>
                     <el-form-item label="入库时间范围：" size="mini">
-                        <el-date-picker v-model="timeSelect" @change="transferDate(inSelection)" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期">{{timeSelect}}</el-date-picker>
+                        <el-date-picker v-model="timeSelect" @change="transferDate(inSelection)" type="daterange"
+                                        range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期">
+                            {{timeSelect}}
+                        </el-date-picker>
                     </el-form-item>
                     <el-form-item size="mini">
                         <el-button style="background-color: #ececec" @click="search">查询</el-button>
@@ -50,7 +60,8 @@
                 </el-form>
             </el-form>
         </el-card>
-        <el-table :data="queryResult" size="mini" max-height="250" :default-sort="{prop: 'rukushijian', order: 'descending'}">
+        <el-table :data="queryResult" size="mini" max-height="250"
+                  :default-sort="{prop: 'rukushijian', order: 'descending'}">
 
             <el-table-column type="index" width="50" label="序号"></el-table-column>
             <el-table-column prop="goodName" label="货品名称" width="100"></el-table-column>
@@ -66,8 +77,8 @@
                     </el-button>
                 </template>
             </el-table-column>
-            <el-table-column prop="inboundTime" label="入库时间"width="100"></el-table-column>
-            <el-table-column prop="remark" label="备注"width="250"></el-table-column>
+            <el-table-column prop="inboundTime" label="入库时间" width="100"></el-table-column>
+            <el-table-column prop="remark" label="备注" width="250"></el-table-column>
         </el-table>
         <el-dialog title="货品详细信息" :visible.sync="dialogVisible" width="95%" :before-close="handleClose">
             <el-table :data="detailForm">
@@ -91,7 +102,8 @@
                 <el-table-column prop="val3"></el-table-column>
             </el-table>
             <span slot="footer" class="dialog-footer">
-                        <el-button @click="dialogVisible = false" size="mini" style="background-color: #ececec">关闭</el-button>
+                        <el-button @click="dialogVisible = false" size="mini"
+                                   style="background-color: #ececec">关闭</el-button>
                     </span>
         </el-dialog>
         <el-pagination @current-change="handleCurrentChange" :current-page="pageNum"
@@ -135,20 +147,19 @@
 </body>
 <script src="lib/vue.js"></script>
 <script src="lib/eleme-index.js"></script>
-<script src="lib/jquery.min.js"></script>
 <script src="res/dependencies.js"></script>
 <script>
     var post = require('/mods/backend');
 
-    var catchData=require('/mods/pagination').getData;
+    var catchData = require('/mods/pagination').getData;
 
-    function getData(app){
+    function getData(app) {
         catchData({
             url: '/depot/stocktaking/stocktaking',
             app: app,
-            searchKey:(()=>{
-                for(var key in app.inSelection){
-                    if(!app.inSelection[key]){
+            searchKey: (() => {
+                for (var key in app.inSelection) {
+                    if (!app.inSelection[key]) {
                         delete app.inSelection[key];
                     }
                 }
@@ -156,7 +167,7 @@
             })(),
             refresh: [app.queryResult,],
             pageNum: app.pageNum,
-            pageSize:app.pageSize,
+            pageSize: app.pageSize,
             itemName: 'inbounds',
             total: (totalNum) => {
                 while (totalPages[0] !== undefined) {
@@ -169,69 +180,68 @@
             for (var item of data) {
                 app.queryResult.push(item);
             }
-        },10);
+        }, 10);
     }
 
-     var totalPages=[0,];
+    var totalPages = [0,];
 
     var app = new Vue({
         el: '#app',
-        data: function(){
-            return{
-                state:0,
-                detailForm:[],
-                toPrint:[],
-                pageNum:1,
-                pageSize:6,
-                total:totalPages,
-                currentWarehouse:'',
-                timeSelect:[],/*时间选择器*/
+        data: function () {
+            return {
+                state: 0,
+                detailForm: [],
+                toPrint: [],
+                pageNum: 1,
+                pageSize: 6,
+                total: totalPages,
+                currentWarehouse: '',
+                timeSelect: [], /*时间选择器*/
                 dialogVisible: false, /*查看当前货品详细信息 查看 button*/
 
-                inSelection:{
-                },
-                queryResult:[],
-                translate:{
-                    goodName:'物资名称',
-                    goodLocalId:'物资编号',
-                    warehouseRepository:'存放库位',
-                    warehouseName:'仓库名称',
-                    inboundNum:'入库单号',
-                    type:'物资类型',
-                    amount:'数量',
-                    founder:'建单人',
-                    operator:'操作员',
-                    createTime:'建单时间',
-                    supplier:'供应商',
-                    unit:'单位',
-                    amount:'数量',
-                    charity:'负责人',
-                    phone:'联系电话',
-                    remark:'备注'
+                inSelection: {},
+                queryResult: [],
+                translate: {
+                    goodName: '物资名称',
+                    goodLocalId: '物资编号',
+                    warehouseRepository: '存放库位',
+                    warehouseName: '仓库名称',
+                    inboundNum: '入库单号',
+                    type: '物资类型',
+                    amount: '数量',
+                    founder: '建单人',
+                    operator: '操作员',
+                    createTime: '建单时间',
+                    supplier: '供应商',
+                    unit: '单位',
+                    amount: '数量',
+                    charity: '负责人',
+                    phone: '联系电话',
+                    remark: '备注'
                 }
             }
         },
-        mounted(){
-            post('/depot/initialize',{},(data,err)=>{
-                if(err){
+        mounted() {
+            post('/depot/initialize', {}, (data, err) => {
+                if (err) {
                     return;
                 }
-                app.currentWarehouse=data.warehouseName;
+                app.currentWarehouse = data.warehouseName;
             })
         },
         methods: {
-            handlePrint(){
-                app.state=3;
-                app.toPrint=[];
-                var indexNum=1;
-                for(let i=1;i<=app.total[0];i++){
-                    ((index)=>{
+            handlePrint() {
+                app.state = 3;
+                app.toPrint = [];
+                var indexNum = 1;
+                for (let i = 1; i <= app.total[0]; i++) {
+                    ((index) => {
                         catchData({
                             url: '/depot/stocktaking/stocktaking',
                             app: app,
-                            searchKey:(()=>{
-                                for(var key in app.inSelection){
-                                    if(!app.inSelection[key]){
+                            searchKey: (() => {
+                                for (var key in app.inSelection) {
+                                    if (!app.inSelection[key]) {
                                         delete app.inSelection[key];
                                     }
                                 }
@@ -239,7 +249,7 @@
                             })(),
                             refresh: [],
                             pageNum: index,
-                            pageSize:app.pageSize,
+                            pageSize: app.pageSize,
                             itemName: 'inbounds',
                             total: (totalNum) => {
                                 while (totalPages[0] !== undefined) {
@@ -250,88 +260,88 @@
                         }, (allPages, data) => {
                             console.log(data);
                             for (var item of data) {
-                                var obj={
-                                    index:"",
-                                    goodName:"",
-                                    goodLocalId:"",
-                                    inboundTime:"",
-                                    amount:"",
-                                    unit:"",
-                                    supplier:"",
-                                    warehouseRepository:"",
-                                    charity:"",
-                                    phone:"",
-                                    remark:""
+                                var obj = {
+                                    index: "",
+                                    goodName: "",
+                                    goodLocalId: "",
+                                    inboundTime: "",
+                                    amount: "",
+                                    unit: "",
+                                    supplier: "",
+                                    warehouseRepository: "",
+                                    charity: "",
+                                    phone: "",
+                                    remark: ""
                                 };
-                                obj['index']=indexNum++;
-                                for(let key in obj){
-                                    if(key!=='index'){
-                                        obj[key]=item[key];
+                                obj['index'] = indexNum++;
+                                for (let key in obj) {
+                                    if (key !== 'index') {
+                                        obj[key] = item[key];
                                     }
 
                                 }
                                 app.toPrint.push(obj);
                             }
-                        },10);
+                        }, 10);
                     })(i);
                 }
             },
-            performPrint(){
+            performPrint() {
                 window.print();
             },
-            viewDetail(row){
-                while(app.detailForm[0]!==undefined){
+            viewDetail(row) {
+                while (app.detailForm[0] !== undefined) {
                     app.detailForm.pop();
                 }
-                app.dialogVisible=true;
-                var tmp=[];
-                for(var key in row){
-                    var obj={};
-                    obj['key']=key;
-                    obj['val']=row[key];
-                    if(key!=='inboundId'&&key!=='warehouseId'&&key!=='method'&&row[key])
+                app.dialogVisible = true;
+                var tmp = [];
+                for (var key in row) {
+                    var obj = {};
+                    obj['key'] = key;
+                    obj['val'] = row[key];
+                    if (key !== 'inboundId' && key !== 'warehouseId' && key !== 'method' && row[key])
                         tmp.push(obj);
                 }
-                for(let i=0;tmp[i]!==undefined;i+=3){
-                    var obj={};
-                    obj['key1']=tmp[i]['key'];
-                    obj['val1']=tmp[i]['val'];
-                    if(tmp[i+1]){
-                        obj['key2']=tmp[i+1]['key'];
-                        obj['val2']=tmp[i+1]['val'];
+                for (let i = 0; tmp[i] !== undefined; i += 3) {
+                    var obj = {};
+                    obj['key1'] = tmp[i]['key'];
+                    obj['val1'] = tmp[i]['val'];
+                    if (tmp[i + 1]) {
+                        obj['key2'] = tmp[i + 1]['key'];
+                        obj['val2'] = tmp[i + 1]['val'];
                     }
-                    if(tmp[i+2]){
-                        obj['key3']=tmp[i+2]['key'];
-                        obj['val3']=tmp[i+2]['val'];
+                    if (tmp[i + 2]) {
+                        obj['key3'] = tmp[i + 2]['key'];
+                        obj['val3'] = tmp[i + 2]['val'];
                     }
                     app.detailForm.push(obj);
                 }
             },
-            handleCurrentChange(page){
-                app.pageNum=page;
+            handleCurrentChange(page) {
+                app.pageNum = page;
                 getData(app);
             },
-            handleClose(){
-                app.dialogVisible=false;
+            handleClose() {
+                app.dialogVisible = false;
             },
-            transferDate(form){
-                if(app.timeSelect!==null){
-                    let s=app.timeSelect[0],e=app.timeSelect[1];
-                    form.start_time=s.getFullYear()+'-'+(s.getMonth()+1<10?'0'+(s.getMonth()+1):(s.getMonth()+1))+'-'+(s.getDate()<10?('0'+s.getDate()):s.getDate())+' 00:00:00';
-                    form.end_time=e.getFullYear()+'-'+(e.getMonth()+1<10?'0'+(e.getMonth()+1):(e.getMonth()+1))+'-'+(e.getDate()<10?('0'+e.getDate()):e.getDate())+' 00:00:00';
-                }else{
-                    form.start_time=undefined;
-                    form.end_time=undefined;
+            transferDate(form) {
+                if (app.timeSelect !== null) {
+                    let s = app.timeSelect[0], e = app.timeSelect[1];
+                    form.start_time = s.getFullYear() + '-' + (s.getMonth() + 1 < 10 ? '0' + (s.getMonth() + 1) : (s.getMonth() + 1)) + '-' + (s.getDate() < 10 ? ('0' + s.getDate()) : s.getDate()) + ' 00:00:00';
+                    form.end_time = e.getFullYear() + '-' + (e.getMonth() + 1 < 10 ? '0' + (e.getMonth() + 1) : (e.getMonth() + 1)) + '-' + (e.getDate() < 10 ? ('0' + e.getDate()) : e.getDate()) + ' 00:00:00';
+                } else {
+                    form.start_time = undefined;
+                    form.end_time = undefined;
                 }
             },
-            search(){
+            search() {
                 getData(app);
             },
-            reset(){
-                app.pageNum=1;
-                app.inSelection.goodsLocalId="";
-                app.inSelection.charity="";
-                while(app.timeSelect[0]!==undefined){
+            reset() {
+                app.pageNum = 1;
+                app.inSelection.goodsLocalId = "";
+                app.inSelection.charity = "";
+                while (app.timeSelect[0] !== undefined) {
                     app.timeSelect.pop();
                 }
                 getData(app);

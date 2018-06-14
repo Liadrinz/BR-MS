@@ -247,14 +247,12 @@
                         <el-table-column type="index" width="50" label="序号"></el-table-column>
                         <el-table-column prop="goodName" label="物资名称" width="100"></el-table-column>
                         <el-table-column prop="goodLocalId" label="物资编号" width="100"></el-table-column>
-                        <el-table-column prop="method" label="出库/入库" width="100"></el-table-column>
                         <el-table-column prop="founder" label="建单人" width="100"></el-table-column>
                         <el-table-column prop="operator" label="操作员" width="100"></el-table-column>
                         <el-table-column label="详细信息">
                             <!--点击入库 复制转移所有当前货品编号至 inResult-->
                             <template slot-scope="scope">
                                 <el-button size="mini" style="background-color: #ececec" @click="()=>{viewApply(scope.row)}">查看申请表单</el-button>
-                                <el-button size="mini" style="background-color: #ececec">查看系统记录</el-button>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -380,6 +378,26 @@
                                :total="pagination1.total[0]"></el-pagination>
                 <span slot="footer" class="dialog-footer">
                     <el-button @click="()=>{dialog2Visible=false}" size="mini" style="background-color: #ececec">关闭</el-button>
+                </span>
+            </el-dialog>
+            <el-dialog title="货品清单" :visible.sync="dialog22Visible" width="70%" :before-close="handleClose">
+                <el-table :data="goodsList">
+                    <el-table-column label="单号" prop="inboundNum"></el-table-column>
+                    <el-table-column label="建单人" prop="founder"></el-table-column>
+                    <el-table-column label="责任人" prop="charity"></el-table-column>
+                    <el-table-column label="货品名称" prop="goodName"></el-table-column>
+                    <el-table-column label="货品编号" prop="goodLocalId"></el-table-column>
+                    <el-table-column label="入库时间" prop="createTime"></el-table-column>
+                    <el-table-column label="数量" prop="amount"></el-table-column>
+                    <el-table-column label="单位" prop="unit"></el-table-column>
+                    <el-table-column label="供应商" prop="supplier"></el-table-column>
+                    <el-table-column label="存放库位" prop="warehouseRepository"></el-table-column>
+                </el-table>
+                <el-pagination @current-change="handleCurrentChange2" :current-page="pagination2.pageNum"
+                               :page-size="pagination2.pageSize" layout="total,prev,pager,next,jumper"
+                               :total="pagination2.total[0]"></el-pagination>
+                <span slot="footer" class="dialog-footer">
+                    <el-button @click="()=>{dialog22Visible=false}" size="mini" style="background-color: #ececec">关闭</el-button>
                 </span>
             </el-dialog>
             <el-dialog title="查看出库单" :visible.sync="dialog3Visible" width="75%" :before-close="handleClose">
@@ -573,6 +591,7 @@
                 timeSelect:[], /*时间选择器*/
                 dialogVisible:false,
                 dialog2Visible:false,
+                dialog22Visible:false,
                 dialog3Visible:false,
                 dialog4Visible:false,
                 goodsList:[],
@@ -654,13 +673,27 @@
                     remark:'备注'
                 },
                 trans3:{
-                    inboundNum:'单号',
-                    founder:'建单人',
+                    applicationNum:'申请单号',
+                    applyTime:'申请时间',
+                    userRealName:'申请人',
                     goodName:'物资名称',
-                    amount:'数量',
+                    amount:'申请数量',
+                    permitAmount:'批准数量',
                     charity:"责任人",
                     remark:"备注",
-                    supplier:'供应商'
+                    supplier:'供应商',
+                    companyName:'申请人单位',
+                    startWarehouseName:'发货仓库',
+                    description:'描述',
+                    endWarehouseName:'收货仓库',
+                    destinationAddress:'目的地址',
+                    destinationProvince:'目的省',
+                    destinationCity:'目的市',
+                    requestType:'需求类型',
+                    expectTime:'期望时间成本',
+                    contractPerson:'联系人',
+                    contractTel:'联系电话',
+                    note:'备注'
                 }
             }
         },
@@ -682,12 +715,26 @@
                 app.state='application';
                 var tmp=[];
                 for(var key in row){
+                    let previous=obj;
                     var obj={};
                     obj['key']=app.trans3[key];
                     obj['val']=row[key];
                     if(obj['key']===undefined)
                         continue;
+                    else if(obj['key']==='目的省'){
+                        obj['val']=CTT[obj['val']];
+                    }else if(obj['key']==='目的市'){
+                        obj['val']=CTT[obj['val']];
+                        continue
+                    }else if(obj['key']==='批准数量'){
+                        if(!obj['val']){
+                            obj['val']='未批准';
+                        }
+                    }
                     tmp.push(obj);
+                    if(obj['key']==='目的省'){
+                        tmp.push(previous);
+                    }
                 }
                 for(let i=0;tmp[i]!==undefined;i+=2){
                     var obj={};
@@ -704,10 +751,11 @@
                 }
             },
             viewGoodsList(n){
-                app.dialog2Visible=true;
                 if(n===1){
+                    app.dialog2Visible=true;
                     app.goodsList=app.queryResult1;
                 }else if(n===2){
+                    app.dialog22Visible=true;
                     app.goodsList=app.queryResult2;
                 }
             },
@@ -859,6 +907,7 @@
             handleClose(){
                 app.dialogVisible=false;
                 app.dialog2Visible=false;
+                app.dialog22Visible=false;
                 app.dialog3Visible=false;
                 app.dialog4Visible=false;
             },

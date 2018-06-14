@@ -118,7 +118,11 @@
                 </el-table-column>
                 <el-table-column prop="quantity" label="库存数量"></el-table-column>   <!--无接口名-->
                 <el-table-column prop="detail_location" label="仓库地址"></el-table-column>     <!--无接口名-->
-                <el-table-column prop="state_id" label="状态"></el-table-column>          <!--无接口名-->
+                <el-table-column prop="state_id" label="状态">
+                    <template slot-scope="props">
+                        {{['占用','调配','使用','空闲'][props.row.state_id-1]}}
+                    </template>
+                </el-table-column>          <!--无接口名-->
                 <el-table-column label="" width="200">
                     <template slot-scope="props">
                         <el-button size="mini" type="text" @click="()=>{detail(props.row)}">详情</el-button>

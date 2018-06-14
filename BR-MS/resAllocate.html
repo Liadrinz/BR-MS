@@ -24,8 +24,35 @@
     <div>
         <el-form>
             <el-form :inline="true">
-                <el-form-item label="物资名称：" size="mini">
-                    <el-input v-model="queryCondition.goodsName"></el-input>
+                <el-form-item label="物资类型：" size="mini">
+                    <el-select v-model="queryCondition.type" placeholder="物资类型" :disabled="tempVisible">
+                        <el-option :value="undefined">不限</el-option>
+                        <el-option value="电脑整机">电脑整机</el-option>
+                        <el-option value="大型家电">大型家电</el-option>
+                        <el-option value="网络产品">网络产品</el-option>
+                        <el-option value="厨房电器">厨房电器</el-option>
+                        <el-option value="电脑配件">电脑配件</el-option>
+                        <el-option value="五金装饰">五金装饰</el-option>
+                        <el-option value="摄影摄像">摄影摄像</el-option>
+                        <el-option value="健康卫生">健康卫生</el-option>
+                        <el-option value="数码配件">数码配件</el-option>
+                        <el-option value="通信器材">通信器材</el-option>
+                        <el-option value="办公设备">办公设备</el-option>
+                        <el-option value="家具">家具</el-option>
+                        <el-option value="文具耗材">文具耗材</el-option>
+                        <el-option value="生活电器">生活电器</el-option>
+                        <el-option value="生活用品">生活用品</el-option>
+                        <el-option value="汽车用品">汽车用品</el-option>
+                        <el-option value="文体器材">文体器材</el-option>
+                        <el-option value="学习书籍">学习书籍</el-option>
+                        <el-option value="粮油食品">粮油食品</el-option>
+                        <el-option value="工程建材">工程建材</el-option>
+                        <el-option value="医疗卫生">医疗卫生</el-option>
+                        <el-option value="油品">油品</el-option>
+                        <el-option value="军队服装">军队服装</el-option>
+                        <el-option value="交通工具">交通工具</el-option>
+                        <el-option value="其他">其他</el-option>
+                    </el-select>
                 </el-form-item>
                 <el-form-item label="物资能力：" size="mini">
                     <el-input v-model="queryCondition.capability"></el-input>
@@ -93,7 +120,7 @@
                     </template>
                 </el-table-column>
                 <el-table-column prop="m" label="运输重量"></el-table-column>
-                <el-table-column prop="fee" label="运输总费用">
+                <el-table-column prop="fee" label="运输总费用" width="300">
                     <template slot-scope="props">
                         {{props.row.fee?props.row.fee+'元':''}}
                     </template>
@@ -478,7 +505,7 @@
         el: '#app',
         data: {
             queryCondition:{
-                goodsName:'',
+                type:'',
                 capability:'',
                 quantity:'',
                 requestType:'',
