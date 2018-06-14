@@ -64,12 +64,19 @@
                   :default-sort="{prop: 'rukushijian', order: 'descending'}">
 
             <el-table-column type="index" width="50" label="序号"></el-table-column>
-            <el-table-column prop="goodName" label="货品名称" width="100"></el-table-column>
-            <el-table-column prop="amount" label="数量" width="100"></el-table-column>
-            <el-table-column prop="unit" label="单位" width="100"></el-table-column>
-            <el-table-column prop="goodLocalId" label="货品编号" width="100"></el-table-column>
-            <el-table-column prop="charity" label="责任人" width="100"></el-table-column>
-            <el-table-column prop="warehouseRepository" label="存放库位" width="100"></el-table-column>
+            <el-table-column prop="goods_name" label="货品名称" width="100"></el-table-column>
+            <el-table-column prop="quantity" label="数量" width="100"></el-table-column>
+            <el-table-column prop="local_id" label="货品编号" width="100"></el-table-column>
+            <el-table-column prop="official" label="责任人" width="100">
+                <teplate slot-scope="props">
+                    {{props.row.official?props.row.official:'未指定'}}
+                </teplate>
+            </el-table-column>
+            <el-table-column prop="warehouse_repository" label="存放库位" width="100">
+                <template slot-scope="props">
+                    {{props.row.warehouse_repository?props.row.warehouse_repository:'未指定'}}
+                </template>
+            </el-table-column>
             <el-table-column label="货品信息" width="80">
                 <!--点击查看当前物资详细信息-->
                 <template slot-scope="scope">
@@ -77,7 +84,7 @@
                     </el-button>
                 </template>
             </el-table-column>
-            <el-table-column prop="inboundTime" label="入库时间" width="100"></el-table-column>
+            <el-table-column prop="register_time" label="入库时间" width="100"></el-table-column>
             <el-table-column prop="remark" label="备注" width="250"></el-table-column>
         </el-table>
         <el-dialog title="货品详细信息" :visible.sync="dialogVisible" width="95%" :before-close="handleClose">
@@ -168,7 +175,7 @@
             refresh: [app.queryResult,],
             pageNum: app.pageNum,
             pageSize: app.pageSize,
-            itemName: 'inbounds',
+            itemName: 'goods',
             total: (totalNum) => {
                 while (totalPages[0] !== undefined) {
                     totalPages.pop();
@@ -180,7 +187,7 @@
             for (var item of data) {
                 app.queryResult.push(item);
             }
-        }, 10);
+        });
     }
 
     var totalPages = [0,];
@@ -202,22 +209,40 @@
                 inSelection: {},
                 queryResult: [],
                 translate: {
-                    goodName: '物资名称',
-                    goodLocalId: '物资编号',
-                    warehouseRepository: '存放库位',
-                    warehouseName: '仓库名称',
-                    inboundNum: '入库单号',
+                    goods_name: '物资名称',
+                    local_id: '物资编号',
                     type: '物资类型',
-                    amount: '数量',
-                    founder: '建单人',
-                    operator: '操作员',
-                    createTime: '建单时间',
-                    supplier: '供应商',
-                    unit: '单位',
-                    amount: '数量',
-                    charity: '负责人',
-                    phone: '联系电话',
-                    remark: '备注'
+                    keywords:'关键字',
+                    norms:'规格',
+                    weight:'重量',
+                    appearance:'外观',
+                    time_feature:'时间特征',
+                    safety_condition:'安全条件',
+                    carrier_size:'运载尺寸',
+                    temperature:'温度条件',
+                    humidity:'湿度条件',
+                    other_conditions:'其他条件',
+                    producer_name:'生产商',
+                    produce_time:'生产日期',
+                    produce_valid_time:'失效日期',
+                    longitude:'经度',
+                    latitude:'纬度',
+                    altitude:'海拔',
+                    country:'国家',
+                    area:'战区',
+                    province_id:'省份',
+                    city_id:'城市',
+                    county_id:'区县',
+                    detail_location:'详细地址',
+                    department:'所属部门',
+                    phone:'联系电话',
+                    is_managed:'是否受监管',
+                    official:'负责人',
+                    register_time:'入库时间',
+                    state_id:'状态',
+                    state_type:'状态类型',
+                    state_value:'状态值',
+                    quantity:'数量'
                 }
             }
         },
@@ -299,7 +324,7 @@
                     var obj = {};
                     obj['key'] = key;
                     obj['val'] = row[key];
-                    if (key !== 'inboundId' && key !== 'warehouseId' && key !== 'method' && row[key])
+                    if (key !== 'inboundId' && key !== 'warehouseId' && key !== 'method' && app.translate[key]!==undefined)
                         tmp.push(obj);
                 }
                 for (let i = 0; tmp[i] !== undefined; i += 3) {
