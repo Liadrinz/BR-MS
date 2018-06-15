@@ -119,7 +119,11 @@
                         {{props.row.t+'小时'}}
                     </template>
                 </el-table-column>
-                <el-table-column prop="weight" label="运输单位重量" width="180"></el-table-column>
+                <el-table-column prop="weight" label="运输单位重量" width="130">
+                    <template slot-scope="props">
+                        {{props.row.weight+'kg'}}
+                    </template>
+                </el-table-column>
                 <el-table-column prop="fee" label="运输总费用" width="300">
                     <template slot-scope="props">
                         {{props.row.fee?props.row.fee+'元':''}}

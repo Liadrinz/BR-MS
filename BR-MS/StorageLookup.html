@@ -61,7 +61,7 @@
             </el-form>
         </el-card>
         <el-table :data="queryResult" size="mini" max-height="250"
-                  :default-sort="{prop: 'rukushijian', order: 'descending'}">
+                  :default-sort="{prop: 'inboundTime', order: 'descending'}">
 
             <el-table-column type="index" width="50" label="序号"></el-table-column>
             <el-table-column prop="goods_name" label="货品名称" width="100"></el-table-column>
@@ -84,7 +84,7 @@
                     </el-button>
                 </template>
             </el-table-column>
-            <el-table-column prop="register_time" label="入库时间" width="100"></el-table-column>
+            <el-table-column prop="register_time" label="入库时间" width="180"></el-table-column>
             <el-table-column prop="remark" label="备注" width="250"></el-table-column>
         </el-table>
         <el-dialog title="货品详细信息" :visible.sync="dialogVisible" width="95%" :before-close="handleClose">
@@ -324,7 +324,7 @@
                     var obj = {};
                     obj['key'] = key;
                     obj['val'] = row[key];
-                    if (key !== 'inboundId' && key !== 'warehouseId' && key !== 'method' && app.translate[key]!==undefined)
+                    if (key !== 'inboundId' && key !== 'warehouseId' && key !== 'method' && app.translate[key]!==undefined&&row[key])
                         tmp.push(obj);
                 }
                 for (let i = 0; tmp[i] !== undefined; i += 3) {

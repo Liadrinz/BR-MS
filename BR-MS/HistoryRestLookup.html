@@ -73,29 +73,26 @@
                                     </el-form>
                                     <el-form :inline="true">
                                         <el-form-item label="操作员：" size="mini">
-                                            <span>{{ props.row.operator }}</span>
+                                            <span>{{ props.row.operator?props.row.operator:'未指定' }}</span>
                                         </el-form-item>
                                         <el-form-item label="建单人：" size="mini">
-                                            <span>{{ props.row.founder }}</span>
+                                            <span>{{ props.row.founder?props.row.founder:'未指定' }}</span>
                                         </el-form-item>
                                     </el-form>
                                     <el-form :inline="true">
-                                        <el-form-item label="单位：" size="mini">
-                                            <span>{{ props.row.unit }}</span>
-                                        </el-form-item>
                                         <el-form-item label="数量：" size="mini">
                                             <span>{{ props.row.amount }}</span>
                                         </el-form-item>
-                                    </el-form>
-                                    <el-form :inline="true">
                                         <el-form-item label="供应商：" size="mini">
                                             <span>{{ props.row.supplier }}</span>
                                         </el-form-item>
+                                    </el-form>
+                                    <el-form :inline="true">
                                         <el-form-item label="责任人：" size="mini">
                                             <span>{{ props.row.charity }}</span>
                                         </el-form-item>
                                         <el-form-item label="存放库位：" size="mini">
-                                            <span>{{ props.row.warehouseRepository }}</span>
+                                            <span>{{ props.row.warehouseRepository?props.row.warehouseRepository:'未指定' }}</span>
                                         </el-form-item>
                                     </el-form>
                                 </el-form>
@@ -104,7 +101,7 @@
                         <el-table-column type="index" width="50" label="序号"></el-table-column>
                         <el-table-column prop="inboundNum" label="入库单号" width="150"></el-table-column>
                         <el-table-column prop="goodName" label="货品名称" width="100"></el-table-column>
-                        <el-table-column prop="goodLocalId" label="货品编号" width="100"></el-table-column>
+                        <el-table-column prop="goodLocalId" label="货品编号" width="120"></el-table-column>
                         <el-table-column label="货品信息" width="80">
                             <!--点击查看当前物资详细信息-->
                             <template slot-scope="scope">
@@ -112,7 +109,7 @@
                                 </el-button>
                             </template>
                         </el-table-column>
-                        <el-table-column prop="createTime" label="入库时间" width="120"></el-table-column>
+                        <el-table-column prop="createTime" label="入库时间" width="180"></el-table-column>
                         <el-table-column label="操作">
                             <!--点击入库 复制转移所有当前货品编号至 inResult-->
                             <template slot-scope="scope">
@@ -167,45 +164,42 @@
                                     </el-form>
                                     <el-form :inline="true">
                                         <el-form-item label="操作员：" size="mini">
-                                            <span>{{ props.row.operator }}</span>
+                                            <span>{{ props.row.operator?props.row.operator:'未指定' }}</span>
                                         </el-form-item>
                                         <el-form-item label="建单人：" size="mini">
-                                            <span>{{ props.row.founder }}</span>
+                                            <span>{{ props.row.founder?props.row.founder:'未指定' }}</span>
                                         </el-form-item>
                                     </el-form>
                                     <el-form :inline="true">
-                                        <el-form-item label="单位：" size="mini">
-                                            <span>{{ props.row.unit }}</span>
-                                        </el-form-item>
                                         <el-form-item label="数量：" size="mini">
                                             <span>{{ props.row.amount }}</span>
                                         </el-form-item>
-                                    </el-form>
-                                    <el-form :inline="true">
                                         <el-form-item label="供应商：" size="mini">
                                             <span>{{ props.row.supplier }}</span>
                                         </el-form-item>
+                                    </el-form>
+                                    <el-form :inline="true">
                                         <el-form-item label="责任人：" size="mini">
                                             <span>{{ props.row.charity }}</span>
                                         </el-form-item>
                                         <el-form-item label="存放库位：" size="mini">
-                                            <span>{{ props.row.warehouseRepository }}</span>
+                                            <span>{{ props.row.warehouseRepository?props.row.warehouseRepository:'未指定' }}</span>
                                         </el-form-item>
                                     </el-form>
                                 </el-form>
                             </template>
                         </el-table-column>
                         <el-table-column type="index" width="50" label="序号"></el-table-column>
-                        <el-table-column prop="inboundNum" label="出库单号" width="100"></el-table-column>
+                        <el-table-column prop="inboundNum" label="出库单号" width="150"></el-table-column>
                         <el-table-column prop="goodName" label="货品名称" width="100"></el-table-column>
-                        <el-table-column prop="goodLocalId" label="货品编号" width="100"></el-table-column>
+                        <el-table-column prop="goodLocalId" label="货品编号" width="120"></el-table-column>
                         <el-table-column label="货品信息" width="80">
                             <!--点击查看当前物资详细信息-->
                             <template slot-scope="scope">
                                 <el-button size="mini" style="background-color: #ececec" @click="viewDetail(scope.row)">查看</el-button>
                             </template>
                         </el-table-column>
-                        <el-table-column prop="createTime" label="出库时间" width="100"></el-table-column>
+                        <el-table-column prop="createTime" label="出库时间" width="180"></el-table-column>
                         <el-table-column label="操作">
                             <!--点击入库 复制转移所有当前货品编号至 inResult-->
                             <template slot-scope="scope">
@@ -266,7 +260,34 @@
                         <el-form :model="inSelection4">
                             <el-form :inline="true">
                                 <el-form-item label="货品类别：" size="mini">
-                                    <el-input></el-input>
+                                    <el-select v-model="inSelection4.type" placeholder="物资类型">
+                                        <el-option :value="undefined">不限</el-option>
+                                        <el-option value="电脑整机">电脑整机</el-option>
+                                        <el-option value="大型家电">大型家电</el-option>
+                                        <el-option value="网络产品">网络产品</el-option>
+                                        <el-option value="厨房电器">厨房电器</el-option>
+                                        <el-option value="电脑配件">电脑配件</el-option>
+                                        <el-option value="五金装饰">五金装饰</el-option>
+                                        <el-option value="摄影摄像">摄影摄像</el-option>
+                                        <el-option value="健康卫生">健康卫生</el-option>
+                                        <el-option value="数码配件">数码配件</el-option>
+                                        <el-option value="通信器材">通信器材</el-option>
+                                        <el-option value="办公设备">办公设备</el-option>
+                                        <el-option value="家具">家具</el-option>
+                                        <el-option value="文具耗材">文具耗材</el-option>
+                                        <el-option value="生活电器">生活电器</el-option>
+                                        <el-option value="生活用品">生活用品</el-option>
+                                        <el-option value="汽车用品">汽车用品</el-option>
+                                        <el-option value="文体器材">文体器材</el-option>
+                                        <el-option value="学习书籍">学习书籍</el-option>
+                                        <el-option value="粮油食品">粮油食品</el-option>
+                                        <el-option value="工程建材">工程建材</el-option>
+                                        <el-option value="医疗卫生">医疗卫生</el-option>
+                                        <el-option value="油品">油品</el-option>
+                                        <el-option value="军队服装">军队服装</el-option>
+                                        <el-option value="交通工具">交通工具</el-option>
+                                        <el-option value="其他">其他</el-option>
+                                    </el-select>
                                 </el-form-item>
                                 <el-form-item label="入库类别：" size="mini">
                                     <el-input value="正常入库" :disabled="true"></el-input>
@@ -294,43 +315,39 @@
                                 <el-form label-position="right" class="demo-table-expand">
                                     <el-form :inline="true">
                                         <el-form-item label="货品名称：" size="mini">
-                                            <span>{{ props.row.goodName }}</span>
+                                            <span>{{ props.row.goods_name }}</span>
                                         </el-form-item>
                                         <el-form-item label="货品编号：" size="mini">
-                                            <span>{{ props.row.goodLocalId }}</span>
-                                        </el-form-item>
-                                    </el-form>
-                                    <el-form :inline="true">
-                                        <el-form-item label="单位：" size="mini">
-                                            <span>{{ props.row.unit }}</span>
-                                        </el-form-item>
-                                        <el-form-item label="数量：" size="mini">
-                                            <span>{{ props.row.amount }}</span>
+                                            <span>{{ props.row.local_id }}</span>
                                         </el-form-item>
                                     </el-form>
                                     <el-form :inline="true">
                                         <el-form-item label="责任人：" size="mini">
-                                            <span>{{ props.row.charity }}</span>
+                                            <span>{{ props.row.official?props.row.official:'未指定' }}</span>
                                         </el-form-item>
                                         <el-form-item label="存放库位：" size="mini">
-                                            <span>{{ props.row.warehouseRepository }}</span>
+                                            <span>{{ props.row.warehouse_repository?props.row.warehouse_repository:'未指定' }}</span>
+                                        </el-form-item>
+                                    </el-form>
+                                    <el-form :inline="true">
+                                        <el-form-item label="数量：" size="mini">
+                                            <span>{{ props.row.amount }}</span>
                                         </el-form-item>
                                     </el-form>
                                 </el-form>
                             </template>
                         </el-table-column>
                         <el-table-column type="index" width="50" label="序号"></el-table-column>
-                        <el-table-column prop="goodLocalId" label="货品编号" width="120"></el-table-column>
-                        <el-table-column prop="goodName" label="货品名称" width="150"></el-table-column>
-                        <el-table-column prop="createTime" label="入库时间" width="120"></el-table-column>
+                        <el-table-column prop="local_id" label="货品编号" width="120"></el-table-column>
+                        <el-table-column prop="goods_name" label="货品名称" width="150"></el-table-column>
+                        <el-table-column prop="register_time" label="入库时间" width="180"></el-table-column>
                         <el-table-column label="货品信息" width="80">
                             <!--点击查看当前物资详细信息-->
                             <template slot-scope="scope">
-                                <el-button size="mini" style="background-color: #ececec" @click="viewDetail(scope.row)">查看
+                                <el-button size="mini" style="background-color: #ececec" @click="viewDetail4(scope.row)">查看
                                 </el-button>
                             </template>
                         </el-table-column>
-                        <el-table-column prop="remark" label="备注" width="400"></el-table-column>
                     </el-table>
                     <el-pagination @current-change="handleCurrentChange4" :current-page="pagination4.pageNum"
                                    :page-size="pagination4.pageSize" layout="total,prev,pager,next,jumper"
@@ -369,7 +386,6 @@
                     <el-table-column label="货品编号" prop="goodLocalId"></el-table-column>
                     <el-table-column label="入库时间" prop="createTime"></el-table-column>
                     <el-table-column label="数量" prop="amount"></el-table-column>
-                    <el-table-column label="单位" prop="unit"></el-table-column>
                     <el-table-column label="供应商" prop="supplier"></el-table-column>
                     <el-table-column label="存放库位" prop="warehouseRepository"></el-table-column>
                 </el-table>
@@ -389,7 +405,6 @@
                     <el-table-column label="货品编号" prop="goodLocalId"></el-table-column>
                     <el-table-column label="入库时间" prop="createTime"></el-table-column>
                     <el-table-column label="数量" prop="amount"></el-table-column>
-                    <el-table-column label="单位" prop="unit"></el-table-column>
                     <el-table-column label="供应商" prop="supplier"></el-table-column>
                     <el-table-column label="存放库位" prop="warehouseRepository"></el-table-column>
                 </el-table>
@@ -532,7 +547,7 @@
 
     function getData4(app){
         catchData({
-            url: '/depot/inventory',
+            url: '/depot/stocktaking/stocktaking',
             app: app,
             searchKey:(()=>{
                 for(var key in app.inSelection4){
@@ -545,7 +560,7 @@
             refresh: [app.queryResult4,],
             pageNum: app.pagination4.pageNum,
             pageSize:app.pagination4.pageSize,
-            itemName: 'inventories',
+            itemName: 'goods',
             total: (totalNum) => {
                 while (totalPages[3][0] !== undefined) {
                     totalPages[3].pop();
@@ -654,7 +669,6 @@
                     createTime:'入库时间',
                     type:'入库方式',
                     supplier:'供应商',
-                    unit:'单位',
                     amount:'数量',
                     charity:'责任人',
                     phone:'联系电话',
@@ -694,6 +708,42 @@
                     contractPerson:'联系人',
                     contractTel:'联系电话',
                     note:'备注'
+                },
+                translate: {
+                    goods_name: '物资名称',
+                    local_id: '物资编号',
+                    type: '物资类型',
+                    keywords:'关键字',
+                    norms:'规格',
+                    weight:'重量',
+                    appearance:'外观',
+                    time_feature:'时间特征',
+                    safety_condition:'安全条件',
+                    carrier_size:'运载尺寸',
+                    temperature:'温度条件',
+                    humidity:'湿度条件',
+                    other_conditions:'其他条件',
+                    producer_name:'生产商',
+                    produce_time:'生产日期',
+                    produce_valid_time:'失效日期',
+                    longitude:'经度',
+                    latitude:'纬度',
+                    altitude:'海拔',
+                    country:'国家',
+                    area:'战区',
+                    province_id:'省份',
+                    city_id:'城市',
+                    county_id:'区县',
+                    detail_location:'详细地址',
+                    department:'所属部门',
+                    phone:'联系电话',
+                    is_managed:'是否受监管',
+                    official:'负责人',
+                    register_time:'入库时间',
+                    state_id:'状态',
+                    state_type:'状态类型',
+                    state_value:'状态值',
+                    quantity:'数量'
                 }
             }
         },
@@ -816,6 +866,34 @@
                     app.application.push(obj);
                 }
                 app.application.reverse();
+            },
+            viewDetail4(row) {
+                while (app.detail[0] !== undefined) {
+                    app.detail.pop();
+                }
+                app.dialogVisible = true;
+                var tmp = [];
+                for (var key in row) {
+                    var obj = {};
+                    obj['key'] = app.translate[key];
+                    obj['val'] = row[key];
+                    if (key !== 'inboundId' && key !== 'warehouseId' && key !== 'method' && app.translate[key]!==undefined&&row[key])
+                        tmp.push(obj);
+                }
+                for (let i = 0; tmp[i] !== undefined; i += 3) {
+                    var obj = {};
+                    obj['key1'] = tmp[i]['key'];
+                    obj['val1'] = tmp[i]['val'];
+                    if (tmp[i + 1]) {
+                        obj['key2'] = tmp[i + 1]['key'];
+                        obj['val2'] = tmp[i + 1]['val'];
+                    }
+                    if (tmp[i + 2]) {
+                        obj['key3'] = tmp[i + 2]['key'];
+                        obj['val3'] = tmp[i + 2]['val'];
+                    }
+                    app.detail.push(obj);
+                }
             },
             viewDetail(row){
                 app.state='detail';
