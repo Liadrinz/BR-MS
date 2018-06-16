@@ -31,36 +31,36 @@
         <el-card>
             <el-form :model="inSelection">
                 <el-form :inline="true">
-                    <el-form-item label="入库类型：" size="mini">
+                    <el-form-item label="入库类型：" size="medium">
                         <el-select v-model="inSelection.inboundType" :disabled="true">
                             <el-option label="正常入库" :value="undefined">正常入库</el-option>
                         </el-select>
                     </el-form-item>
                 </el-form>
                 <el-form :inline="true">
-                    <el-form-item label="货品编号：" size="mini">
+                    <el-form-item label="货品编号：" size="medium">
                         <el-input v-model="inSelection.goodsLocalId"></el-input>
                     </el-form-item>
-                    <el-form-item label="责任人：" size="mini">
+                    <el-form-item label="责任人：" size="medium">
                         <el-input v-model="inSelection.charity"></el-input>
                     </el-form-item>
                 </el-form>
                 <el-form :inline="true">
-                    <el-form-item label="仓库：" size="mini"><span>{{currentWarehouse}}</span></el-form-item>
-                    <el-form-item label="入库时间范围：" size="mini">
+                    <el-form-item label="仓库：" size="medium"><span>{{currentWarehouse}}</span></el-form-item>
+                    <el-form-item label="入库时间范围：" size="medium">
                         <el-date-picker v-model="timeSelect" @change="transferDate(inSelection)" type="daterange"
                                         range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期">
                             {{timeSelect}}
                         </el-date-picker>
                     </el-form-item>
-                    <el-form-item size="mini">
+                    <el-form-item size="medium">
                         <el-button style="background-color: #ececec" @click="search">查询</el-button>
                         <el-button style="background-color: #ececec" @click="reset">返回</el-button>
                     </el-form-item>
                 </el-form>
             </el-form>
         </el-card>
-        <el-table :data="queryResult" size="mini" max-height="250"
+        <el-table :data="queryResult" size="medium" max-height="400"
                   :default-sort="{prop: 'inboundTime', order: 'descending'}">
 
             <el-table-column type="index" width="50" label="序号"></el-table-column>
