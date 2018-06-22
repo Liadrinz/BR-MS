@@ -24,7 +24,7 @@
     <div>
         <el-form>
             <el-form-item label="物资状态：" size="mini">
-                <el-radio-group v-model="state_id" :disabled="tempVisible">
+                <el-radio-group v-model="stateId" :disabled="tempVisible">
                     <el-radio :label="undefined" border>不限</el-radio>
                     <el-radio :label="1" border>占用</el-radio>
                     <el-radio :label="2" border>调配</el-radio>
@@ -107,21 +107,21 @@
                 @selection-change="handleSelectionChange">
                 <el-table-column type="selection" width="55"></el-table-column>
                 <el-table-column type="index" :index="indexMethod" label="序号"></el-table-column>
-                <el-table-column prop="local_id" label="物资编号"></el-table-column>
-                <el-table-column prop="goods_name" label="物资名称"></el-table-column>
-                <el-table-column prop="producer_name" label="生产厂商"></el-table-column><!--无接口名-->
+                <el-table-column prop="localId" label="物资编号"></el-table-column>
+                <el-table-column prop="goodsName" label="物资名称"></el-table-column>
+                <el-table-column prop="producerName" label="生产厂商"></el-table-column><!--无接口名-->
                 <el-table-column prop="norms" label="规格"></el-table-column>            <!--无接口名-->
-                <el-table-column prop="warehouse_id" label="所在仓库">
+                <el-table-column prop="warehouseId" label="所在仓库">
                     <template slot-scope="props">
                         {{id2name(props.row)}}
                     </template>
                 </el-table-column>
                 <el-table-column prop="quantity" label="库存数量"></el-table-column>   <!--无接口名-->
-                <el-table-column prop="detail_location" label="仓库地址"></el-table-column>     <!--无接口名-->
-                <el-table-column prop="state_id" label="状态">
-                    <template slot-scope="props">
-                        {{['占用','调配','使用','空闲'][props.row.state_id-1]}}
-                    </template>
+                <el-table-column prop="address" label="仓库地址"></el-table-column>     <!--无接口名-->
+                <el-table-column prop="state" label="状态">
+                    <!--<template slot-scope="props">-->
+                        <!--{{['占用','调配','使用','空闲'][props.row.stateId-1]}}-->
+                    <!--</template>-->
                 </el-table-column>          <!--无接口名-->
                 <el-table-column label="" width="200">
                     <template slot-scope="props">
@@ -262,8 +262,8 @@
                 tooltip-effect="dark" stripe
                 @selection-change="handleSelectionChange2">
                 <el-table-column type="selection" width="55"></el-table-column>
-                <el-table-column prop="local_id" label="物资编号"></el-table-column>
-                <el-table-column prop="goods_name" label="物资名称"></el-table-column>
+                <el-table-column prop="localId" label="物资编号"></el-table-column>
+                <el-table-column prop="goodsName" label="物资名称"></el-table-column>
                 <el-table-column prop="startWarehouseName" label="所在仓库"></el-table-column>
                 <el-table-column label="" width="200">
                     <template slot-scope="props">
@@ -582,7 +582,7 @@
 
     function getData(searchKey) {
         clearData();
-        post('/common/user_goods/query_by_capability', searchKey, (data, err) => {
+        post('/common/user_goods/query', searchKey, (data, err) => {
             console.log(data);
             if (err) {
                 app.totalNum=0;
@@ -590,9 +590,9 @@
             }
             //TODO
             app.totalNum = data.totalNum;
-            for (var i in data.goods) {
-                data.goods[i]['dialogVisible'] = false;
-                items.push(data.goods[i]);
+            for (var i in data.overview) {
+                data.overview[i]['dialogVisible'] = false;
+                items.push(data.overview[i]);
             }
         })
     }
@@ -642,7 +642,7 @@
             pageNum: 1,
             totalNum: 0,
             goodsName: '',
-            state_id: '',
+            stateId: '',
             locationRadio: '', /* 3.地理位置不限locationRadio */
             type: '',
             capability: '',
@@ -673,9 +673,9 @@
             applicationForm: generalList,
             singleForm: generalApplicationForm,
             transfer: {
-                goods_id: '物资ID',
-                goods_name: '物资名称',
-                local_id: '编号',
+                goodsId: '物资ID',
+                goodsName: '物资名称',
+                localId: '编号',
                 type: '物资类型',
                 keywords: '关键字',
                 norms: '规格',
@@ -686,10 +686,10 @@
                 temperature: '温度条件',
                 humidity: '湿度条件',
                 other_conditions: '其他条件',
-                producer_name: '生产商',
-                produce_time: '生产时间',
+                producerName: '生产商',
+                produceTime: '生产时间',
                 produce_valid_time: '过期时间',
-                warehouse_id: '所在仓库',
+                warehouseId: '所在仓库',
                 longitude: '经度',
                 latitude: '纬度',
                 altitude: '海拔',
@@ -698,9 +698,9 @@
                 province_id: '省份',
                 city_id: '城市',
                 county_id: '区县',
-                detail_location: '详细地址',
+                address: '详细地址',
                 is_managed: '过程管理',
-                state_id: '状态',
+                stateId: '状态',
                 state_type: '状态类型',
                 state_value: '状态值',
                 quantity: '数量'
@@ -759,7 +759,7 @@
         methods: {
             id2name:function(row){
                 for (let i of app.warehouseChoice) {
-                    if (i.warehouseId === row.warehouse_id) {
+                    if (i.warehouseId === row.warehouseId) {
                         return i.warehouseName;
                     }
                 }
@@ -819,7 +819,7 @@
                     app.detailForm.pop();
                 }
                 post('/common/user_goods/get_detail', {
-                    goodsId: row.goods_id
+                    goodsId: row.goodsId
                 }, (data, err) => {
                     if (err) {
                         app.$message.error(err.msg);
@@ -830,14 +830,14 @@
                         obj['key'] = app.transfer[key];
                         if (key === 'is_managed') {
                             obj['val'] = ['不受监管', '受监管'][parseInt(data.good[key])];
-                        } else if (key === 'state_id') {
+                        } else if (key === 'stateId') {
                             obj['val'] = ["", '占用', '调配', '使用', '空闲'][parseInt(data.good[key])];
                         } else if (key === 'province_id' || key === 'city_id' || key === 'county_id') {
                             obj['val'] = CTT[parseInt(data.good[key])];
                         } else if (key === 'country_id') {
                             obj['val'] = ["其他", "中国", "其他"][parseInt(data.good[key])];
-                        } else if (key === 'warehouse_id') {
-                            obj['val'] = row.warehouse_id;
+                        } else if (key === 'warehouseId') {
+                            obj['val'] = row.warehouseId;
                         } else {
                             obj['val'] = data.good[key];
                         }
@@ -886,11 +886,11 @@
                 Object.assign(app.singleForm, generalApplicationForm)
                 app.singleForm.userRealName = userInfo.realName;
                 app.singleForm.companyName = userInfo.companyName;
-                app.singleForm.goodId = row.local_id;
-                app.singleForm.goodName = row.goods_name;
+                app.singleForm.goodId = row.localId;
+                app.singleForm.goodName = row.goodsName;
                 app.singleForm.startWarehouseName = (() => {
                     for (let i of app.warehouseChoice) {
-                        if (i.warehouseId === row.warehouse_id) {
+                        if (i.warehouseId === row.warehouseId) {
                             return i.warehouseName;
                         }
                     }
@@ -940,8 +940,8 @@
                 for (var choice in app.multipleSelection) {
                     // app.applicationForm[choice] = {...generalApplicationForm};
                     Object.assign(app.applicationForm[choice], generalApplicationForm);
-                    app.applicationForm[choice].goodId = app.multipleSelection[choice].local_id;
-                    app.applicationForm[choice].goodName = app.multipleSelection[choice].goods_name;
+                    app.applicationForm[choice].goodId = app.multipleSelection[choice].localId;
+                    app.applicationForm[choice].goodName = app.multipleSelection[choice].goodsName;
                     app.applicationForm[choice].startWarehouseName = app.multipleSelection[choice].warehouseName;
                 }
             },
@@ -966,7 +966,7 @@
             search: function () {
                 var data = {
                     goodsName: app.goodsName,
-                    state_id: app.state_id,
+                    stateId: app.stateId,
                     type: app.type,
                     capability: app.capability,
                     province: app.selectedLocations[0],
@@ -990,8 +990,8 @@
             },
             reset: function () {
                 searchKey = {pageNum: app.pageNum};
-                app.goods_name = "";
-                app.state_id = "";
+                app.goodsName = "";
+                app.stateId = "";
                 app.type = "";
                 app.capability = "";
                 app.selectedLocations = [];
@@ -1024,7 +1024,7 @@
                     promise.then(() => {
                         var toPost = {};
                         [
-                            toPost['local_id'],
+                            toPost['localId'],
                             toPost['description'],
                             toPost['amount'],
                             toPost['endWarehouseName'],
@@ -1155,7 +1155,7 @@
                     if (app.selectedWarehouse[form]) {
                         if (frtmp !== 'frtmp') {
                             [
-                                toPost['local_id'],
+                                toPost['localId'],
                                 toPost['description'],
                                 toPost['amount'],
                                 toPost['endWarehouseId'],
