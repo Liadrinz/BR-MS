@@ -95,6 +95,7 @@
             <el-radio v-model="query.state" :label="0">申请中</el-radio>
             <el-radio v-model="query.state" :label="1">已撤销</el-radio>
             <el-radio v-model="query.state" :label="2">已通过</el-radio>
+            <el-radio v-model="query.state" :label="3">已驳回</el-radio>
         </el-form-item>
         <el-form-item>
             <el-button type="primary" @click="search">查询</el-button>
@@ -157,11 +158,11 @@
         </el-table-column>
         <el-table-column label="状态">
             <template slot-scope="props">
-                {{['申请中','已撤销','已通过','已完成'][(()=>{
+                {{['申请中','已撤销','已通过','已驳回'][(()=>{
                 if(props.row.isPass===1){
                 return 2;
                 }
-                if(props.row.isDone===1){
+                if(props.row.isPass===-1){
                 return 3;
                 }
                 return props.row.state;
@@ -170,12 +171,19 @@
         </el-table-column>
         <el-table-column label="操作" :width="250">
             <template slot-scope="props">
-                <el-button :disabled="props.row.state==1" type="primary" size="mini" @click="()=>{viewRoute(props.row)}" :title="props.row.state==1?'该申请已撤销':''">跟踪</el-button>
-                <el-button :disabled="props.row.state==1||props.row.isPass==1" type="danger" size="mini" @click="()=>{cancelReq(props.row)}" :title="(()=>{
+                <el-button :disabled="props.row.state==1||props.row.isPass==-1" type="primary" size="mini" @click="()=>{viewRoute(props.row)}" :title="(()=>{
+                if(props.row.state===1)
+                    return '该申请已撤销'
+                else if(props.row.isPass==-1)
+                    return '该申请已被驳回'
+                })()">跟踪</el-button>
+                <el-button :disabled="props.row.state==1||props.row.isPass==1||props.row.isPass==-1" type="danger" size="mini" @click="()=>{cancelReq(props.row)}" :title="(()=>{
                 if(props.row.state===1)
                     return '该申请已撤销'
                 else if(props.row.isPass===1)
                     return '该申请已被通过，无法撤销'
+                else if(props.row.isPass===-1)
+                    return '该申请已被驳回'
                 })()">撤销</el-button>
             </template>
         </el-table-column>
@@ -228,12 +236,25 @@
     }
 
     function getData(searchKey,pageNum){
+        //申请中
         if(searchKey.state===0){
             searchKey.state=0;
+            searchKey.isPass=0;
         }
-        if(searchKey.state===2){
+        //已撤销
+        else if(searchKey.state===1){
+            searchKey.state=1;
+            searchKey.isPass=0;
+        }
+        //已通过
+        else if(searchKey.state===2){
             searchKey.state=0;
             searchKey.isPass=1;
+        }
+        //已驳回
+        else if(searchKey.state===3){
+            searchKey.state=0;
+            searchKey.isPass=-1;
         }
         catchData({
             url:'/common/getnowsche',

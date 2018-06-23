@@ -173,15 +173,8 @@
                                         </el-form-item>
                                     </el-form>
                                     <el-form :inline="true" :rules="applyRules.rule0" ref="form3" :model="singleForm">
-                                        <el-form-item label="预计调配时间" size="mini">
-                                            <el-input v-model="singleForm.time" :disabled="true"
-                                                      style="width: 150px"></el-input>
-                                            <span class="postfix">小时</span>
-                                        </el-form-item>
                                         <el-form-item label="需求类型" size="mini" prop="transport" required>
-                                            <el-select v-model="singleForm.transport" @change="()=>{
-                                                singleForm.time=360/singleForm.transport;
-                                                }">
+                                            <el-select v-model="singleForm.transport">
                                                 <el-option label="应急" :value="20"></el-option>
                                                 <el-option label="普通" :value="4"></el-option>
                                             </el-select>
@@ -210,13 +203,20 @@
                                     </el-form-item>
                                     <el-form :rules="applyRules.rule71" ref="form41" :model="singleForm">
                                         <el-form-item label="目的仓库" size="mini" prop="endWarehouseName" required>
-                                            <el-select v-model="singleForm.endWarehouseName" clearable>
+                                            <el-select v-model="singleForm.endWarehouseName" clearable @change="()=>{
+                                                singleForm.time=360/singleForm.transport;
+                                                }">
                                                 <el-option v-for="warehouse in warehouseChoice"
                                                            :value="warehouse.warehouseName"
                                                            :label="warehouse.warehouseName">
                                                     {{warehouse.warehouseName}}
                                                 </el-option>
                                             </el-select>
+                                        </el-form-item>
+                                        <el-form-item label="预计调配时间" size="mini">
+                                            <el-input v-model="singleForm.time" :disabled="true"
+                                                      style="width: 150px"></el-input>
+                                            <span class="postfix">小时</span>
                                         </el-form-item>
                                     </el-form>
                                 </el-form>
